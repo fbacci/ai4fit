@@ -1,0 +1,130 @@
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/** css date **/
+#startdate, #enddate {
+    width: 17%;
+    height: 20px;
+    border-radius: 5px;
+    position: relative;
+    top: 15px;
+    left: -28px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/** css date **/
+#button-container {
+    /*width: 50%;*/
+    margin-left: 70px;
+    margin-top: 0px;
+    /*justify-content: center;*/
+}
+
+#button-container input[type="radio"] {
+    display: none;
+}
+
+#button-container .radioTimeRange {
+
+}
+
+
+/* Clear floats (clearfix hack)
+#button-container:after {
+    content: "";
+    clear: both;
+    display: table;
+}*/
+
+#button-container .radioTimeRange:not(:last-child) {
+    border-right: none; /* Prevent double borders */
+}
+
+/* Add a background color on hover */
+#button-container .radioTimeRange:hover {
+    background-color: #3e8e41;
+}
+
+#button-container input[type="radio"]:checked + label{
+    background-color: #004e27;
+}
+
+.sidenav {
+    height: 100%; /* 100% Full-height */
+    width: 0; /* 0 width - change this with JavaScript */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Stay on top */
+    top: 0;
+    right: 0;
+    background-color: #d6f0ff;
+    overflow-x: hidden;
+    /*overflow-y: scroll;*/
+    padding-top: 60px; /* Place content 60px from the top -> occhio qua!!! */
+    transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+}
+
+/* Position and style the close button (top right corner) */
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    left: 25px;
+    font-size: 36px;
+    margin-right: 50px;
+}
+
+
+.user-instance, .not-found-text{
+    border: 1px solid black;
+    border-radius: 15px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 600;
+    height: 105px;
+    cursor: pointer;
+}
+
+.user-instance:hover{
+    background: #8ac1ef;
+    border: 1px solid #007bff;
+}
+
+#search-bar-container{
+    display: flex;
+    justify-content: center;
+}
+
+#myInput {
+    background-image: url('../img/searchicon.png');
+    background-position: 10px 12px;
+    background-repeat: no-repeat;
+    width: 70%;
+    font-size: 16px;
+    padding: 12px 20px 12px 40px;
+    border: 1px solid #ddd;
+    margin-bottom: 12px;
+    border-radius: 10px;
+}
+
+.bubble-summary{
+    text-align: center;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+/*.user-arrow:hover{
+    background: red;
+}*/

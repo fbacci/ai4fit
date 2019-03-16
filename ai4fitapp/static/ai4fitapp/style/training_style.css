@@ -1,0 +1,275 @@
+body{
+    background: -webkit-linear-gradient(left, #3931af, #00c6ff);
+}
+
+.emp-profile{
+    padding: 3%;
+    margin-top: 2%;
+    margin-bottom: 3%;
+    border-radius: 0.5rem;
+    background: #fff;
+}
+.profile-user-name{
+    text-align: center;
+}
+.profile-img{
+    text-align: center;
+}
+.profile-img img{
+    width: 50%;
+    height: 20%;
+}
+
+.profile-img .file {
+    position: relative;
+    overflow: hidden;
+    margin-top: -20%;
+    width: 70%;
+    border: none;
+    border-radius: 0;
+    font-size: 15px;
+    background: #212529b8;
+}
+.profile-img .file input {
+    position: absolute;
+    opacity: 0;
+    right: 0;
+    top: 0;
+}
+
+h5{
+    font-size: 18px;
+}
+h6{
+    font-size: 15px;
+}
+
+.btn-group-sm>.btn, .btn-sm{
+    font-size: 15px;
+}
+
+.profile-head h5{
+    color: #333;
+}
+.profile-head h6{
+    color: #0062cc;
+}
+.profile-edit-btn{
+    border: none;
+    border-radius: 1.5rem;
+    width: 90%;
+    padding: 2%;
+    font-weight: 600;
+    color: #6c757d;
+    cursor: pointer;
+}
+.profile-rating{
+    font-size: 15px;
+    color: #818182;
+    margin-top: 5%;
+}
+.profile-rating span{
+    color: #495057;
+    font-size: 15px;
+    font-weight: 600;
+}
+.profile-head .nav-tabs{
+    margin-bottom:5%;
+}
+.profile-head .nav-tabs .nav-link{
+    font-weight:600;
+    border: none;
+}
+.profile-head .nav-tabs .nav-link.active{
+    border: none;
+    border-bottom:2px solid #0062cc;
+}
+.profile-work{
+    padding: 5%;
+    margin-top: -13%;
+}
+.profile-work p {
+    font-size: 15px;
+    color: #818182;
+    font-weight: 600;
+    margin-top: 10%;
+}
+.profile-work span {
+    font-size: 14px;
+    color: #0062cc;
+    font-weight: 600;
+    /*margin-top: 10%;*/
+}
+.profile-work a{
+    pointer-events: none;
+    text-decoration: none;
+    color: #0062cc;
+    font-weight: 600;
+    font-size: 14px;
+}
+.profile-work ul{
+    list-style: none;
+}
+.profile-tab label{
+    font-weight: 600;
+}
+.profile-tab p{
+    font-weight: 600;
+    color: #0062cc;
+}
+
+/**/
+.graphic{
+    text-align: center;
+    /*margin-top: 2%;*/
+}
+.graphic img{
+    width: 50%;
+    height: 20%;
+}
+
+.divider-line {
+    border: 0;
+    width: 100%;
+    height: 1px;
+    background-image: -webkit-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0);
+    background-image: -moz-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0);
+    background-image: -ms-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0);
+    background-image: -o-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0);
+}
+
+
+.user-buttons{
+    margin-top: 3%;
+    text-align: center;
+}
+
+.slider-img-robot img{
+    width: 35px;
+}
+
+.slider-img-human img{
+    width: 40px;
+
+}
+
+.slider-mark p{
+    text-decoration: none;
+    color: #000000;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.slider-tick-label{
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* margine tra slider e voti*/
+.marks-with-margin{
+    margin-top: 5%;
+}
+
+.slider-with-margin{
+    margin-top: -3%;
+}
+
+.make-divs-inline{
+    display: inline-block;
+}
+
+.graph-name{
+    text-align: left;
+    margin-left: -10%;
+}
+
+.graph-line{
+    width: 70px;
+    height: 50%;
+    border-bottom: 3px solid black;
+    position: absolute;
+    margin-left: -20px;
+}
+
+.graph-labels{
+    text-decoration: none;
+    color: #000000;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.graph-circle{
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    margin-top: 12%;
+}
+
+/* voto predetto*/
+#predicted{
+    margin-right: 25px;
+}
+
+/*
+.slider-tick-label{
+    color: grey;
+}*/
+
+.swap-divs-arrow{
+    height: 17px;
+    width: 17px;
+    cursor: pointer;
+}
+
+.arrow{
+    border: solid black;
+    border-width: 0 4px 4px 0;
+    display: inline-block;
+    padding: 4px;
+}
+
+.up {
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+}
+
+.down {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    margin-bottom: 5px;
+}
+
+.arrow:hover{
+    border-color: #007bff;
+    cursor: pointer;
+}
+
+.arrow:active{
+    border-color: rgb(149, 218, 182);
+    cursor: pointer;
+}
+
+.checkbox-position{
+    margin-bottom: 2px;
+}
+
+.set-padding{
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+@media (min-width: 1400px) {
+    .container{
+        max-width: 1350px;
+    }
+}
+@media (min-width: 1600px) {
+    .container{
+        max-width: 1550px;
+    }
+}
+@media (min-width: 1800px) {
+    .container{
+        max-width: 90%;
+    }
+}

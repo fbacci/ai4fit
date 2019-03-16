@@ -1,0 +1,48 @@
+#container{
+    position: relative;
+    height: 50px;
+}
+.container {
+    margin:150px auto;
+    max-width:600px;
+}
+
+#range-label {
+    width: 30%;
+    height:40%;
+    margin:10px auto;
+    background-color:#444;
+    padding:5px; border-radius:5px;
+    text-align:center;
+    font-size:1.2em;
+    color:#fff}
+
+#slider-container {
+    position: relative;
+    height:30%;
+    background-color: #eeeef5;
+    margin-left: 50px;
+}
+
+.slider{
+    left: 0px;
+}
+
+/* colori slider e indicatori slider */
+.slider{
+    background: #8ac1ef;
+    border: 1px solid #000000;
+}
+
+.slider .handle{
+    background: #8ac1ef; /*#3072ab;*/
+    border: 1px solid #000000;
+}
+
+.slider .EE, .slider .WW {
+    top: 50%;
+    margin-top: -10px;
+    height: 20px;
+    width: 20px;
+    border-radius: 25px;
+}

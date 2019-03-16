@@ -1,0 +1,25 @@
+<html>
+
+    <head>
+        <link rel='stylesheet' href='../../static/ai4fitapp/style/myStyle.css'>
+    </head>
+
+    <body>
+        <div id="loginForm">
+            <div id="message">
+                <span>{{ errore }}</span>
+            </div>
+
+            <h2>Inserisci i tuoi dati di accesso</h2>
+            <form method="POST" action="{% url 'ai4fitapp:loginUser' %}">
+                {% csrf_token %}
+                <label class="formLabel">Username:</label><br>
+                <input type="text" name="username" class="formTextArea"><br>
+                <label class="formLabel">Password:</label><br>
+                <input type="password" name="password" class="formTextArea"><br>
+                <input type="submit" value="Login" id="formButton">
+            </form>
+        </div>
+    </body>
+
+</html>
