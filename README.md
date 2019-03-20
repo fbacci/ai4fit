@@ -1,5 +1,5 @@
 # AI4FIT
-###### Python 3.7.2
+###### Windows - Python 3.7.2
 
 Dopo aver clonato il progetto, dal terminale di PyCharm:
 1. ```py -m virtualenv venv```
