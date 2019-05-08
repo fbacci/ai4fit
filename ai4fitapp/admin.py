@@ -73,8 +73,7 @@ class WorkoutAdmin(ImportExportActionModelAdmin):
     resource_class = WorkoutResource
 
     list_display = ('session_id', 'item_user_id', 'duration', 'pausetime', 'distance',
-                    'avgspeed', 'maxspeed', 'minspeed', 'avgbpm', 'maxbpm', 'minbpm', 'calories',
-                    'accuracy')
+                    'avgspeed', 'avgbpm', 'calories', 'mark', 'user_birthdate')
 
     def get_import_form(self):
         return ImportForm

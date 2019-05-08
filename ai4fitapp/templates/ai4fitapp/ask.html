@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel='stylesheet' href='../../static/ai4fitapp/style/graphs.css'>
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+        <link rel='stylesheet' href='../../static/ai4fitapp/style/myStyle.css'>
+
+        <script type="text/javascript" src="../../static/ai4fitapp/script/d3.v5.js"></script>
+        <script type="text/javascript" src="../../static/ai4fitapp/script/functions.js"></script>
+        <script src="https://unpkg.com/d3-simple-slider"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <title>Informazioni allenamenti</title>
+    </head>
+
+    <body>
+        <div class="container-fluid bg-white p-3" id="mycontainer">
+            <h1>Andamento e informazioni allenamenti</h1>
+
+            <div class="row">
+                <div class="col-8 w-100">
+                    <div class="form-group">
+                        <form method="POST" action="{% url 'ai4fitapp:askInfo' %}" id="qForm">
+                            {% csrf_token %}
+                                <input type="text" class="form-control" id="inputQuestion" name="question" placeholder="Scrivi qualcosa...">
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-4">
+                    <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Dataset
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                        <button class="dropdown-item" type="button">Workout</button>
+                        <button class="dropdown-item" type="button">Dataset 2</button>
+                        <button class="dropdown-item" type="button">Dataset 3</button>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row my-3"></div>
+
+            <div class="row mx-3">
+                <script>var mode = {{ mode | safe }};
+                        var results = {{ results | safe }};</script>
+
+                {% if results is not None %}
+                    <div class="col-md-auto">
+                        <div class="row mb-3">
+                            <div class="col-8 span12 text-center">{{ txt }} ordinati per voto</div>
+                            <div class="col-4"><h4><span class="badge badge-secondary float-right">Bar chart</span></h4></div>
+                        </div>
+                        <div id="barchart"></div>
+                            <svg id="xAxis"></svg>
+
+                            {% if mode == 2 %}
+                                <div class="row mymarginleft">
+                                    <div class="col-6 col-md-1 mt-3">Voto</div>
+                                    <div class="col-sm">
+                                        <div id="slider">
+                                            <div id="slider-range"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <script type="text/javascript" src="../../static/ai4fitapp/script/barchart.js"></script>
+                    </div>
+
+                    <div class="col-md-auto">
+                        {% if mode == 1 %}
+                            <div class="row mb-3">
+                                <div class="col-8 span12 text-center">Raggruppamento per età</div>
+                                <div class="col-4"><h4><span class="badge badge-secondary float-right">Pie chart</span></h4></div>
+                            </div>
+                            <div id="piechart"></div>
+
+                            <script>var percent = {{ percent | safe }}</script>
+                            <script type="text/javascript" src="../../static/ai4fitapp/script/piechart.js"></script>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </body>
+</html>

@@ -7,7 +7,8 @@
     <body>
         <div id="loginResult">
             <h2>Benvenuto {{ user.username }}!</h2>
-            <a href="{% url 'ai4fitapp:index' %}">Index page</a>
+            <a href="{% url 'ai4fitapp:index' %}">Index page</a><br>
+            <a href="{% url 'ai4fitapp:askInfo' %}">Ask information about training</a>
         </div>
     </body>
 </html>

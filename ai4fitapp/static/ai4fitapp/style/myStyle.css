@@ -1,12 +1,28 @@
  @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
 
+html{
+ height: 98%;
+}
+
 body{
     background: -webkit-linear-gradient(left, #3931af, #00c6ff);
     font-family: 'Source Sans Pro', sans-serif;
+    height: 98%;
 }
 
 h2{
     color: #007bff;
+}
+
+#mycontainer{
+    min-height: 98%;
+    width: 90%;
+    margin-top: 5px;
+    border-radius: 25px;
+}
+
+.mymarginleft {
+    margin-left: 150px;
 }
 
 #loginResult{
@@ -33,6 +49,10 @@ h2{
     width: 25%;
 }
 
+#questionText{
+    width: 300px;
+}
+
 .formLabel{
     display: inline-block;
     margin: 3px;
@@ -42,7 +62,7 @@ h2{
     margin-bottom: 10px;
 }
 
-#formButton{
+.formButton{
     display: inline-block;
     color: white;
     background-color: #007bff;
