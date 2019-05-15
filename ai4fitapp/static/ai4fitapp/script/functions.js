@@ -1,4 +1,4 @@
-function getListByMark(list, min, max){
+function getNewList(list, min, max){
     var res = [];
     var i;
 
@@ -10,3 +10,17 @@ function getListByMark(list, min, max){
 
     return res;
 }
+
+function changeSortMethod(list){
+    return list.reverse();
+}
+
+$(document).ready(function() {
+    $(".dropdown-toggle").dropdown();
+
+    $('.dropdown-menu').on('click', 'a', function () {
+        var target = $(this).closest('.dropdown').find('.dropdown-toggle')
+        var selectedVal = $(this).html();
+        target.html(selectedVal);
+    });
+});

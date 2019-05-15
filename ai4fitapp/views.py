@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
-import datetime
+from datetime import datetime, timedelta, date, time
 
 from wit import Wit
 
@@ -58,20 +58,24 @@ def askInfo(request):
 
         intent = response['outcomes'][0]['entities']['intent'][0]['value']
         entities = response['outcomes'][0]['entities']
+
         data = Workout.objects.all()
 
-        print(entities)
-
         if intent == 'best':
-            data = data.values('item_user_id', 'user_birthdate').annotate(sum=Sum('mark'), count=Count('item_user_id'))
-            txt = "Migliori 50 atleti"
+            data = data.values('item_user_id', 'user_birthdate').annotate(sumMark=Sum('mark'), count=Count('item_user_id'))
             for d in data:
-                lista.append([d['item_user_id'], round(d['sum'] / d['count'], 2), getAge(d['user_birthdate'])])
-            lista.sort(key=lambda x: x[1])
-            lista = lista[-50:]
+                lista.append([d['item_user_id'], round(d['sumMark'] / d['count'], 2), getAge(d['user_birthdate'])])
 
-            '''if "get_bmi_range" in entities:
-                bmiValues = '''
+            lista.sort(key=lambda x: x[1])
+
+            if "number" in entities:
+                number = int(entities['number'][0]['value'])
+                txt = "Migliori " + str(number) + " atleti"
+                lista = lista[-number:]
+                print(lista)
+            else:
+                txt = "Migliori 50 atleti"
+                lista = lista[-50:]
 
             if "group_by_age" in entities:
                 mode = 1
@@ -84,16 +88,33 @@ def askInfo(request):
 
         if intent == 'order':
             mode = 2
-            data = data.values('item_user_id').annotate(sum=Sum('mark'), count=Count('item_user_id'))
+            data = data.values('item_user_id')\
+                .annotate(sumMark=Sum('mark'), sumCal=Sum('calories'), sumAvgS=Sum('avgspeed'), count=Count('item_user_id'))
             txt = "Atleti"
-            for d in data:
-                lista.append([d['item_user_id'], round(d['sum'] / d['count'], 2)])
+
+            if 'get_vote' in entities:
+                for d in data:
+                    lista.append([d['item_user_id'], round(d['sumMark'] / d['count'], 2)])
+
+            if 'get_calories' in entities:
+                for d in data:
+                    lista.append([d['item_user_id'], round(d['sumCal'] / d['count'], 2)])
+
+            if 'get_avg_speed' in entities:
+                for d in data:
+                    lista.append([d['item_user_id'], round(d['sumAvgS'] / d['count'], 2)])
+
             lista.sort(key=lambda x: x[1])
 
+            return render(request, 'ai4fitapp/ask.html', {'results': lista, 'txt': txt, 'mode': mode, 'entities': entities})
+
+        if intent == 'login':
+            mode = 3
+            txt = "Andamento login"
+            if 'get_this_week' in entities:
+                lista = getDateList(data)
+
             return render(request, 'ai4fitapp/ask.html', {'results': lista, 'txt': txt, 'mode': mode})
-
-        #if intent == 'login':
-
 
     return render(request, 'ai4fitapp/ask.html')
 
@@ -117,10 +138,42 @@ def getPerc(lista):
 
     return {"18-24": (cnt0/dim)*100, "25-39": (cnt1/dim)*100, "40-55": (cnt2/dim)*100, "56-68": (cnt3/dim)*100}
 
+
+def getDateList(data):
+    dateList = []
+
+    week = getWeek((datetime.now() - timedelta(days=365)))
+
+    date_generated = [week[0] + timedelta(days=x) for x in range(0, (week[1] - week[0]).days)]
+
+    for d in date_generated:
+        dateList.append([d, 0])
+
+    data = data.values('user_lastlogin').filter(user_lastlogin__date__range=(week[0].date(), week[1].date())) \
+        .annotate(countlog=Count('user_lastlogin'))
+
+    for d in data:
+        for date in dateList:
+            if d['user_lastlogin'].date() == date[0].date():
+                date[1] = date[1] + d['countlog']
+
+    for l in dateList:
+        l[0] = datetime.strftime(l[0], "%Y-%m-%d")
+
+    return dateList
+
+
 def getAge(bdate):
     days_in_year = 365.2425
-    age = int((datetime.date.today() - bdate).days / days_in_year)
+    age = int((datetime.now().date().today() - bdate).days / days_in_year)
     return age
+
+
+def getWeek(day):
+    s = day - timedelta(days=day.weekday())
+    e = s + timedelta(days=7)
+
+    return [s, e]
 
 
 def training(request):

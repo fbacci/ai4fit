@@ -25,6 +25,11 @@ h2{
     margin-left: 150px;
 }
 
+#arrow{
+    width: 20px;
+    height: 20px;
+}
+
 #loginResult{
     background-color: #FFFFFF;
     text-align: center;

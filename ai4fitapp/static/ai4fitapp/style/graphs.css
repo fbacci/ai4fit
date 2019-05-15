@@ -6,11 +6,15 @@
     height: 300px;
 }
 
+#linechart{
+    height: 400px;
+}
+
 div.tooltip {
     position: absolute;
     text-align: center;
     width: 60px;
-    height: 28px;
+    height: auto;
     padding: 2px;
     font: 12px sans-serif;
     background: skyblue;
