@@ -1,16 +1,32 @@
+import json
+
 from django.core import serializers
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, F, Func, FloatField, ExpressionWrapper, Value, IntegerField
+from django.db.models.functions import Cast
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
-from datetime import datetime, timedelta, date, time
+from datetime import datetime, timedelta, date
 
+from django.views.decorators.csrf import csrf_exempt
 from wit import Wit
 
 from .models import CardioItem, PointItem, Workout, WorkoutActivityResult
 
-ageList = [[18,24], [25,39], [40,55], [56,68]]
+
+class Round(Func):
+    function = 'ROUND'
+    arity = 2
+
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
+
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError("Type %s not serializable" % type(obj))
+
 
 def loginUser(request):
     if request.method == 'POST':
@@ -47,13 +63,16 @@ def index(request):
     return render(request, 'ai4fitapp/index.html', {'data': jsDataWorkout})
 
 
+@csrf_exempt
 def askInfo(request):
     lista = []
     mode = -1
     txt = ""
-    question = request.POST.get('question')
 
-    if not question is None:
+    if request.method == 'POST':
+        question = request.POST.get('question')
+        orderMode = request.POST.get('orderMode')
+        criterioOrd = request.POST.get('criterio')
         response = client.get_message(question)
 
         intent = response['outcomes'][0]['entities']['intent'][0]['value']
@@ -62,81 +81,66 @@ def askInfo(request):
         data = Workout.objects.all()
 
         if intent == 'best':
-            data = data.values('item_user_id', 'user_birthdate').annotate(sumMark=Sum('mark'), count=Count('item_user_id'))
-            for d in data:
-                lista.append([d['item_user_id'], round(d['sumMark'] / d['count'], 2), getAge(d['user_birthdate'])])
+            newData = data.values('item_user_id', 'user_birthdate').annotate(sum=Sum('mark'),
+                                                                             count=Count('item_user_id'))
+            results = newData.values('item_user_id', 'user_birthdate') \
+                .annotate(avg=ExpressionWrapper(Cast(F('sum'), FloatField()) / Cast(F('count'),
+                                                                                    FloatField()),
+                                                output_field=FloatField()), eta=Value(0, IntegerField()))
 
-            lista.sort(key=lambda x: x[1])
+            results = results.order_by('avg')
+            results = list(results)
+
+            for r in results:
+                r['eta'] = getAge(r['user_birthdate'])
 
             if "number" in entities:
                 number = int(entities['number'][0]['value'])
-                txt = "Migliori " + str(number) + " atleti"
-                lista = lista[-number:]
-                print(lista)
+                results = results[-number:]
             else:
-                txt = "Migliori 50 atleti"
-                lista = lista[-50:]
+                results = results[-50:]
 
-            if "group_by_age" in entities:
-                mode = 1
-                perc = getPerc(lista)
-                return render(request, 'ai4fitapp/ask.html',
-                              {'results': lista, 'percent': perc, 'txt': txt, 'mode': mode})
-            else:
-                mode = 0
-                return render(request, 'ai4fitapp/ask.html', {'results': lista, 'txt': txt, 'mode': mode})
+            resultsJS = json.dumps(results, default=json_serial)
+
+            return HttpResponse(resultsJS)
 
         if intent == 'order':
-            mode = 2
-            data = data.values('item_user_id')\
-                .annotate(sumMark=Sum('mark'), sumCal=Sum('calories'), sumAvgS=Sum('avgspeed'), count=Count('item_user_id'))
-            txt = "Atleti"
+            if 'get_vote' in entities or criterioOrd == 'voto':
+                newData = data.values('item_user_id').annotate(sum=Sum('mark'), count=Count('item_user_id'))
+                results = newData.values('item_user_id').annotate(
+                    avg=ExpressionWrapper(Cast(F('sum'), FloatField()) / Cast(F('count'),
+                                                                              FloatField()), output_field=FloatField()))
 
-            if 'get_vote' in entities:
-                for d in data:
-                    lista.append([d['item_user_id'], round(d['sumMark'] / d['count'], 2)])
+            if 'get_calories' in entities or criterioOrd == 'calorie':
+                newData = data.values('item_user_id').annotate(sum=Sum('calories'), count=Count('item_user_id'))
+                results = newData.values('item_user_id').annotate(
+                    avg=ExpressionWrapper(Cast(F('sum'), FloatField()) / Cast(F('count'),
+                                                                              FloatField()), output_field=FloatField()))
 
-            if 'get_calories' in entities:
-                for d in data:
-                    lista.append([d['item_user_id'], round(d['sumCal'] / d['count'], 2)])
+            if 'get_avg_speed' in entities or criterioOrd == 'velocità media':
+                newData = data.values('item_user_id').annotate(sum=Sum('avgspeed'), count=Count('item_user_id'))
+                results = newData.values('item_user_id').annotate(
+                    avg=ExpressionWrapper(Cast(F('sum'), FloatField()) / Cast(F('count'),
+                                                                              FloatField()), output_field=FloatField()))
 
-            if 'get_avg_speed' in entities:
-                for d in data:
-                    lista.append([d['item_user_id'], round(d['sumAvgS'] / d['count'], 2)])
+            if orderMode == "crescente":
+                results = results.order_by('-avg');
+            else:
+                results = results.order_by('avg')
 
-            lista.sort(key=lambda x: x[1])
+            resultsJS = json.dumps(list(results))
 
-            return render(request, 'ai4fitapp/ask.html', {'results': lista, 'txt': txt, 'mode': mode, 'entities': entities})
+            return HttpResponse(resultsJS)
 
         if intent == 'login':
-            mode = 3
-            txt = "Andamento login"
             if 'get_this_week' in entities:
-                lista = getDateList(data)
+                results = getDateList(data)
 
-            return render(request, 'ai4fitapp/ask.html', {'results': lista, 'txt': txt, 'mode': mode})
+            resultsJS = json.dumps(results)
+
+            return HttpResponse(resultsJS)
 
     return render(request, 'ai4fitapp/ask.html')
-
-
-def getPerc(lista):
-    dim = len(lista)
-    cnt0 = 0
-    cnt1 = 0
-    cnt2 = 0
-    cnt3 = 0
-
-    for l in lista:
-        if ageList[0][0] <= l[2] <= ageList[0][1]:
-            cnt0 += 1
-        if ageList[1][0] <= l[2] <= ageList[1][1]:
-            cnt1 += 1
-        if ageList[2][0] <= l[2] <= ageList[2][1]:
-            cnt2 += 1
-        if ageList[3][0] <= l[2] <= ageList[3][1]:
-            cnt3 += 1
-
-    return {"18-24": (cnt0/dim)*100, "25-39": (cnt1/dim)*100, "40-55": (cnt2/dim)*100, "56-68": (cnt3/dim)*100}
 
 
 def getDateList(data):

@@ -1,71 +1,84 @@
-var margin = {top: 20, right: 20, bottom: 30, left: 80},
-width = 660 - margin.left - margin.right,
-height = getHeight(results) + 25;
+function drawChart(data) {
+    var margin = {top: 20, right: 20, bottom: 30, left: 80},
+        width = 660 - margin.left - margin.right;
+    var height = getHeight(data) + 25;
 
-var y = d3.scalePoint()
-    .domain(results.map(function(d) { return d[0]; }))
-    .range([getHeight(results), 0]).padding(0.35);
+    var y = d3.scalePoint()
+        .domain(data.map(function (d) {
+            return d.item_user_id;
+        }))
+        .range([getHeight(data), 0]).padding(0.35);
 
-var x = d3.scaleLinear()
-      .range([2, width])
-      .domain([0, d3.max(results, function(d){ return d[1]; })]);
+    var x = d3.scaleLinear()
+        .range([2, width])
+        .domain([0, d3.max(data, function (d) {
+            return d.avg;
+        })]);
 
-var svg = d3.select("#barchart").append("svg")
-    .attr("id", "svgbar")
-    .attr("padding_bottom", "25")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height)
-    .append("g")
+    var svg = d3.select("#barchart").append("svg")
+        .attr("id", "svgbar")
+        .attr("padding_bottom", "25")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height)
+        .append("g")
         .attr("transform",
-      "translate(" + margin.left + "," + margin.top + ")");
+            "translate(" + margin.left + "," + margin.top + ")");
 
-populateBar(results, x, y);
+    populateBar(data, svg, x, y);
 
-var toolt = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("opacity", 0);
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -65)
+        .attr("x", -margin.left * 1.7)
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Nome atleta");
 
-function populateBar(list, newx, newy){
-    svg.selectAll(".bar")
-          .data(list)
-          .enter().append("rect")
-          .attr("class", "bar")
-          .attr("width", function(d) { return newx(d[1]); } )
-          .attr("height", 15)
-          .attr("y", function(d) { return newy(d[0]) - 7.5; })
-        .on("mouseover", function(d) {
-            toolt.transition()
+    d3.select("#xAxis")
+        .attr("height", margin.top)
+        .attr("width", 650)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + ",0)")
+        .call(d3.axisBottom(x).ticks(6));
+
+    var toolt = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+}
+
+function populateBar(list, svgVar, newx, newy) {
+    svgVar.selectAll(".bar")
+        .data(list)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("width", function (d) {
+            return newx(d.avg);
+        })
+        .attr("height", 15)
+        .attr("y", function (d) {
+            return newy(d.item_user_id) - 7.5;
+        })
+        .on("mouseover", function (d) {
+            d3.selectAll('.tooltip').transition()
                 .duration(200)
                 .style("opacity", .9);
-            toolt.html(d[0] + "<br/>"  + d[1])
+            d3.selectAll('.tooltip').html(d.item_user_id + "<br/>" + d.avg)
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
 
         })
-      .on("mouseout", function(d) {
-            toolt.transition()
+        .on("mouseout", function (d) {
+            d3.selectAll('.tooltip').transition()
                 .duration(500)
                 .style("opacity", 0);
             d3.select(this).attr("class", "bar");
         });
 
-    svg.append("g")
+    svgVar.append("g")
         .call(d3.axisLeft(newy));
 }
 
-if(mode === 2){
-    $('document').ready(function () {
-    var currentSort = $('#dropdownMenu1').html();
-
-        $('#ordinamento').on("click", function () {
-            if(currentSort !== $('#dropdownMenu1').html()){
-                currentSort = $('#dropdownMenu1').html();
-                var newData = changeSortMethod(results);
-                changeSortBar(newData, x, y);
-            }
-        });
-    });
-
+$(document).ready(function () {
     var sliderRange = d3.sliderBottom()
         .min(1)
         .max(5)
@@ -74,8 +87,27 @@ if(mode === 2){
         .ticks(5)
         .default([1, 5])
         .fill('dodgerblue')
-        .on('onchange', val =>{
-            changeBar();
+        .on('onchange', val => {
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: {
+                    question: $('#inputQuestion').val(),
+                    orderMode: currentSort.toLowerCase(),
+                    criterio: currentMode
+                },
+                success: function (data) {
+                    data = JSON.parse(data);
+                    d3.select("#barchart").select("#svgbar").remove();
+                    d3.select("#xAxis").select("g").remove();
+                    data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1]);
+                    $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length))
+                    drawChart(data);
+                },
+                error: function () {
+                    console.log("errore 4");
+                }
+            })
         });
 
     var gRange = d3
@@ -88,60 +120,73 @@ if(mode === 2){
 
     gRange.call(sliderRange);
 
-    function changeBar(){
-        newData = getNewList(results, sliderRange.value()[0], sliderRange.value()[1]);
-        x.domain([sliderRange.value()[0] - 1, sliderRange.value()[1]])
-        y.domain(newData.map(function(d) { return d[0]; })).range([getHeight(newData), 0]);
-        svg.selectAll('.bar').remove();
-        svg.selectAll('g').remove();
-        document.getElementById('svgbar').setAttribute("height", getHeight(newData) + 25);
-        document.getElementById("numres").innerText=newData.length;
-        d3.select(svg).remove();
-        populateBar(newData, x, y);
-        d3.select("#xAxis").select("g")
-            .call(d3.axisBottom(x).ticks(6));
-    }
+    var currentMode = $('#dropdownMenu4').text();
+    var currentSort = $('#dropdownMenu1').text();
 
-    function changeSortBar(newData){
-        if(entities.hasOwnProperty("get_vote")){
-            newData = getNewList(newData, sliderRange.value()[0], sliderRange.value()[1]);
-            x.domain([sliderRange.value()[0] - 1, sliderRange.value()[1]])
-        } else if(entities.hasOwnProperty('get_calories') || entities.hasOwnProperty('get_avg_speed')){
-            var min = d3.min(newData, function(d){ return d[1]; });
-            var max = d3.max(newData, function(d){ return d[1]; });
-            newData = getNewList(newData, min, max);
-            x.domain([min, max])
+    $(".dropdown-toggle").dropdown();
+    $('.dropdown-menu').on('click', 'a', function () {
+        var target = $(this).closest('.dropdown').find('.dropdown-toggle')
+        var selectedVal = $(this).html();
+        target.html(selectedVal);
+    });
+
+    $('#ordinamento').on("click", function () {
+        if (currentSort !== $('#dropdownMenu1').text()) {
+            currentSort = $('#dropdownMenu1').text();
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: {
+                    question: $('#inputQuestion').val(),
+                    criterio: currentMode,
+                    orderMode: currentSort.toLowerCase()
+                },
+                success: function (data) {
+                    data = JSON.parse(data);
+                    d3.select('#barchart').select("#svgbar").remove();
+                    d3.select('#xAxis').select("g").remove();
+
+                    if (sliderRange.value()[0] != 1 || sliderRange.value()[1] != 1) {
+                        data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
+                    }
+
+                    drawChart(data);
+                },
+                error: function () {
+                    console.log("errore");
+                }
+            })
         }
+    });
 
-        y.domain(newData.map(function(d) { return d[0]; })).range([getHeight(newData), 0]);
-        svg.selectAll('.bar').remove();
-        svg.selectAll('g').remove();
-        populateBar(newData, x, y);
-        d3.select("#xAxis").select("g")
-            .call(d3.axisBottom(x).ticks(6));
-    }
-}
+    $('#criterio').on("click", function () {
+        if (currentMode !== $('#dropdownMenu4').text()) {
+            currentMode = $('#dropdownMenu4').text();
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: {
+                    question: $('#inputQuestion').val(),
+                    criterio: currentMode,
+                    orderMode: currentSort.toLowerCase()
+                },
+                success: function (data) {
+                    data = JSON.parse(data)
+                    d3.select("#barchart").select("#svgbar").remove();
+                    d3.select("#xAxis").select("g").remove();
 
-svg.append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", -65)
-      .attr("x",-margin.left*1.7)
-      .attr("dy", "1em")
-      .style("text-anchor", "middle")
-      .text("Nome atleta");
+                    if(currentMode !== 'voto'){
+                        $('#sliderVoto').addClass('hidden');
+                    } else {
+                        $('#sliderVoto').removeClass('hidden');
+                    }
 
-d3.select("#xAxis")
-    .attr("height", margin.top)
-    .attr("width", 650)
-    .append("g")
-    .attr("transform", "translate(" + margin.left + ",0)")
-    .call(d3.axisBottom(x).ticks(6));
-
-function getHeight(data){
-    var h = 300;
-
-    switch(data.length){
-        case 10: return h;
-        default: return h + (((data.length - 10)/10) * 250);
-    }
-}
+                    drawChart(data)
+                },
+                error: function () {
+                    console.log('errore 3')
+                }
+            })
+        }
+    });
+});

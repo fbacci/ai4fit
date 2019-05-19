@@ -1,20 +1,20 @@
- @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
 
-html{
- height: 98%;
+html {
+    height: 98%;
 }
 
-body{
+body {
     background: -webkit-linear-gradient(left, #3931af, #00c6ff);
     font-family: 'Source Sans Pro', sans-serif;
     height: 98%;
 }
 
-h2{
+h2 {
     color: #007bff;
 }
 
-#mycontainer{
+#mycontainer {
     min-height: 98%;
     width: 90%;
     margin-top: 5px;
@@ -25,49 +25,79 @@ h2{
     margin-left: 150px;
 }
 
-#arrow{
+#arrow {
     width: 20px;
     height: 20px;
 }
 
-#loginResult{
+.hidden {
+    display: none;
+}
+
+#text-container {
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+}
+
+#clearBtn, #clearBtn:hover {
+    text-decoration: none;
+    color: dodgerblue;
+    position: absolute;
+    top: 6px;
+    right: 30px;
+    transition: right 0.2s;
+}
+
+#loginResult {
     background-color: #FFFFFF;
     text-align: center;
     position: absolute;
     border-radius: 25px;
-    top: 25%; left: 35%;
+    top: 25%;
+    left: 35%;
     padding: 10pt;
-    width: 25%; height: 15%;
+    width: 25%;
+    height: 15%;
 }
 
-#message{
+#message {
     margin-top: 10px;
 }
 
-#loginForm{
+#rangeLineChart{
+    left: 290px;
+}
+
+#dropData{
+    right: 150px;
+}
+
+#loginForm {
     background-color: #FFFFFF;
     text-align: center;
     position: absolute;
     border-radius: 25px;
-    top: 25%; left: 35%;
+    top: 25%;
+    left: 35%;
     padding: 10px;
     width: 25%;
 }
 
-#questionText{
+#questionText {
     width: 300px;
 }
 
-.formLabel{
+.formLabel {
     display: inline-block;
     margin: 3px;
 }
 
-.formTextArea{
+.formTextArea {
     margin-bottom: 10px;
 }
 
-.formButton{
+.formButton {
     display: inline-block;
     color: white;
     background-color: #007bff;
