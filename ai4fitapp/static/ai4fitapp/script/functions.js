@@ -4,6 +4,10 @@ $(document).ready(function () {
     $('#clearBtn').on('click', function () {
         $('#inputQuestion').val('');
 
+        $('.tag').each(function (index) {
+            $(this).remove();
+        });
+
         $('#linechartDiv').addClass('hidden');
         $('#barchartDiv').addClass('hidden');
         $('#piechartDiv').addClass('hidden');
@@ -11,25 +15,75 @@ $(document).ready(function () {
     });
 
 
-    $('#qForm').on('submit', function (event) {
-        event.preventDefault();
-        $.ajax({
-            url: '',
-            type: 'POST',
-            data: {question: $('#inputQuestion').val(), orderMode: currentSort.toLowerCase()},
-            success: function (data) {
-                data = JSON.parse(data);
-                d3.select("#barchart").select("#svgbar").remove();
-                d3.select("#piechart").select("#svgbar").remove();
-                d3.select("#xAxis").select("g").remove();
-                $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
-                drawCharts($('#inputQuestion').val(), data);
-            },
-            error: function () {
-                console.log("errore 2")
-            },
-        })
+    $('#qForm').keyup(function (e) {
+        if (e.keyCode == 13) {
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: {question: $('#inputQuestion').val(), orderMode: currentSort.toLowerCase()},
+                success: function (data) {
+                    data = JSON.parse(data);
+                    d3.select("#barchart").select("#svgbar").remove();
+                    d3.select("#linechart").select("#svgbar").remove();
+                    d3.select("#piechart").select("#svgbar").remove();
+                    d3.select("#xAxis").select("g").remove();
+                    $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
+                    drawCharts($('#inputQuestion').val(), data);
+                },
+                error: function () {
+                    console.log("errore 2")
+                },
+            })
+        }
     });
+
+    $(function () {
+        var bindDatePicker = function () {
+            $(".date").datetimepicker({
+                format: 'YYYY-MM-DD',
+                icons: {
+                    time: "fa fa-clock-o",
+                    date: "fa fa-calendar",
+                    up: "fa fa-arrow-up",
+                    down: "fa fa-arrow-down"
+                }
+            }).find('input:first').on("blur", function () {
+                // check if the date is correct. We can accept dd-mm-yyyy and yyyy-mm-dd.
+                // update the format if it's yyyy-mm-dd
+                var date = parseDate($(this).val());
+
+                if (!isValidDate(date)) {
+                    //create date based on momentjs (we have that)
+                    date = moment().format('YYYY-MM-DD');
+                }
+
+                $(this).val(date);
+            });
+        }
+
+        var isValidDate = function (value, format) {
+            format = format || false;
+            // lets parse the date to the best of our knowledge
+            if (format) {
+                value = parseDate(value);
+            }
+
+            var timestamp = Date.parse(value);
+
+            return isNaN(timestamp) == false;
+        }
+
+        var parseDate = function (value) {
+            var m = value.match(/^(\d{1,2})(\/|-)?(\d{1,2})(\/|-)?(\d{4})$/);
+            if (m)
+                value = m[5] + '-' + ("00" + m[3]).slice(-2) + '-' + ("00" + m[1]).slice(-2);
+
+            return value;
+        }
+
+        bindDatePicker();
+    });
+
 });
 
 function getNewList(list, min, max) {
@@ -57,20 +111,35 @@ function getHeight(data) {
     }
 }
 
+function getWidth(data) {
+    var w = 850;
+
+    switch (data.length) {
+        case 10:
+            return w;
+        default:
+            return w + (((data.length - 10) / 10) * 250);
+    }
+}
+
 function drawCharts(value, data) {
     if (value.includes('migliori') || value.includes('ordina')) {
-
+        $('#linechartDiv').addClass('hidden');
         $('#barchartDiv').removeClass('hidden');
-        drawChart(data);
+        $('#barchartMenu').removeClass('hidden');
 
         if (value.includes('ordina')) {
-            $('#barchartMenu').removeClass('hidden');
+            $('#barchartText').text('Atleti ordinati per: ');
+            $('#dropCriterio').removeClass('hidden');
             $('#piechartDiv').addClass('hidden');
             setValue(value)
         } else {
-            $('#barchartMenu').addClass('hidden');
+            $('#barchartText').text('Migliori atleti');
+            $('#dropCriterio').addClass('hidden');
             $('#sliderVoto').addClass('hidden');
         }
+
+        drawChart(data);
     }
 
     if (value.includes('raggruppa')) {
@@ -79,7 +148,7 @@ function drawCharts(value, data) {
         drawPieChart(perc)
     }
 
-    if (value.includes('andamento')) {
+    if (value.includes('login')) {
         setValue(value);
         $('#linechartDiv').removeClass('hidden');
 
@@ -100,14 +169,14 @@ function setValue(value) {
     } else if (value.includes('calorie')) {
         $('a#dropdownMenu4').text('calorie');
     } else if (value.includes('velocità')) {
-        $('a#dropdownMenu4').text('velocità');
+        $('a#dropdownMenu4').text('velocità media');
     }
 
     if (value.includes('settimana')) {
         $('a#dropdownMenu5').text('settimana');
-    } else if (value.includes('calorie')) {
+    } else if (value.includes('mese')) {
         $('a#dropdownMenu5').text('mese');
-    } else if (value.includes('velocità')) {
+    } else if (value.includes('anno')) {
         $('a#dropdownMenu5').text('anno');
     }
 }

@@ -1,4 +1,5 @@
 import json
+import re
 
 from django.core import serializers
 from django.db.models import Sum, Count, F, Func, FloatField, ExpressionWrapper, Value, IntegerField
@@ -73,6 +74,7 @@ def askInfo(request):
         question = request.POST.get('question')
         orderMode = request.POST.get('orderMode')
         criterioOrd = request.POST.get('criterio')
+        rangeDate = request.POST.get('intervallo')
         response = client.get_message(question)
 
         intent = response['outcomes'][0]['entities']['intent'][0]['value']
@@ -133,8 +135,10 @@ def askInfo(request):
             return HttpResponse(resultsJS)
 
         if intent == 'login':
-            if 'get_this_week' in entities:
-                results = getDateList(data)
+            if 'datetime' in entities:
+                results = getRangeDateList(data, question)
+            else:
+                results = getDateList(data, entities, rangeDate)
 
             resultsJS = json.dumps(results)
 
@@ -143,17 +147,74 @@ def askInfo(request):
     return render(request, 'ai4fitapp/ask.html')
 
 
-def getDateList(data):
+def getDateList(data, ent, rangeDate):
+    todayDate = datetime.now() - timedelta(days=365)
     dateList = []
+    date_generated = []
+    arr = []
+    week = []
 
-    week = getWeek((datetime.now() - timedelta(days=365)))
+    if rangeDate == 'settimana' or 'get_this_week' in ent:
+        week = getWeek((datetime.now() - timedelta(days=365)))
+        arr = week
+        date_generated = [(arr[0] - timedelta(days=1)) + timedelta(days=x) for x in range(0, (arr[1] - arr[0]).days)]
 
-    date_generated = [week[0] + timedelta(days=x) for x in range(0, (week[1] - week[0]).days)]
+    if rangeDate == 'mese' or 'get_this_month' in ent:
+        start = todayDate.replace(day=1)
+
+        if start.month == '11' or start.month == '04' or start.month == '06' or start.month == '09':
+            end = todayDate.replace(day=30)
+        elif start.month == '02':
+            end = todayDate.replace(day=28)
+        else:
+            end = todayDate.replace(day=31)
+
+        date_generated = [start + timedelta(days=x) for x in range(0, end.day)]
+
+        arr=[start, end]
+
+    if rangeDate == 'anno' or 'get_this_year' in ent:
+        start = todayDate.replace(day=1, month=1, year=(todayDate.year - 1))
+        end = todayDate.replace(day=31, month=12, year=todayDate.year)
+
+        date_generated = [start + timedelta(days=x) for x in range(0, 365)]
+
+        arr = [start, end]
 
     for d in date_generated:
         dateList.append([d, 0])
 
-    data = data.values('user_lastlogin').filter(user_lastlogin__date__range=(week[0].date(), week[1].date())) \
+    data = data.values('user_lastlogin').filter(user_lastlogin__date__range=(arr[0].date(), arr[1].date())) \
+        .annotate(countlog=Count('user_lastlogin'))
+
+    for d in data:
+        for date in dateList:
+            if d['user_lastlogin'].date() == date[0].date():
+                date[1] = date[1] + d['countlog']
+
+    for l in dateList:
+        l[0] = datetime.strftime(l[0], "%Y-%m-%d")
+
+    return dateList
+
+
+def getRangeDateList(data, q):
+    regex = "(?: +|[A-z]+)((?:0?[0-9]|[1-2][0-9]|30|31)(?:\/{1}|-{1})(?:0?[1-9]|10|11|12)(?:\/{1}|-{1})\d{4})"
+    x = re.findall(regex, q)
+
+    dateList = []
+
+    d1 = datetime.strptime(x[0], '%d/%m/%Y')
+    d2 = datetime.strptime(x[1], '%d/%m/%Y')
+
+    daysBetween = abs((d2-d1).days) + 1
+
+    date_generated = [d1 + timedelta(days=x) for x in range(0, daysBetween)]
+
+    for d in date_generated:
+        dateList.append([d, 0])
+
+    data = data.values('user_lastlogin').filter(user_lastlogin__date__range=(d1.date(), d2.date())) \
         .annotate(countlog=Count('user_lastlogin'))
 
     for d in data:
@@ -176,6 +237,12 @@ def getAge(bdate):
 def getWeek(day):
     s = day - timedelta(days=day.weekday())
     e = s + timedelta(days=7)
+
+    return [s, e]
+
+def getYear(day):
+    s = day
+    e = s + timedelta(days=365)
 
     return [s, e]
 

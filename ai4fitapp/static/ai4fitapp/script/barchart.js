@@ -78,6 +78,10 @@ function populateBar(list, svgVar, newx, newy) {
         .call(d3.axisLeft(newy));
 }
 
+function drawHorizontalChart(data){
+
+}
+
 $(document).ready(function () {
     var sliderRange = d3.sliderBottom()
         .min(1)

@@ -1,6 +1,6 @@
 function drawLineChart(data) {
-    var width = 850;
-    var height = 300;
+    var width = getWidth(data) - 80;
+    var height = 340;
     var duration = 250;
 
     var margin = {
@@ -11,10 +11,10 @@ function drawLineChart(data) {
     };
 
     /* Add Axis into SVG */
-    var xScale = d3.scalePoint().range([0, 600]);
+    var xScale = d3.scalePoint().range([0, getWidth(data) - 100]);
 
     var yScale = d3.scaleLinear()
-        .range([height, 0])
+        .range([300, 0])
         .domain(d3.extent(data, function (d) {
             return d[1];
         }));
@@ -36,16 +36,17 @@ function drawLineChart(data) {
     }));
 
     var svg = d3.select("#linechart").append("svg")
+        .attr('id', 'svgbar')
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom);
 
     svg.append("g")
-        .attr("transform", "translate(" + margin.left + "," + (height + margin.top) + ")")
-        .call(xAxis);
-
-    svg.append("text")
-        .attr("transform", "translate(630, 350)")
-        .text("Data")
+        .attr("transform", "translate(" + margin.left + "," + (height-20) + ")")
+        .call(xAxis).selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-65)");
 
     svg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -97,5 +98,29 @@ function drawLineChart(data) {
 }
 
 $(document).ready(function () {
+    var currentRange = 'settimana';
 
+    $('#intervallo').on("click", function () {
+        console.log(currentRange)
+        if (currentRange !== $('#dropdownMenu5').text()) {
+            currentRange = $('#dropdownMenu5').text();
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: {
+                    question: $('#inputQuestion').val(),
+                    intervallo: currentRange
+                },
+                success: function (data) {
+                    data = JSON.parse(data)
+                    d3.select("#linechart").select("#svgbar").remove();
+
+                    drawLineChart(data)
+                },
+                error: function () {
+                    console.log('errore 3')
+                }
+            })
+        }
+    });
 });

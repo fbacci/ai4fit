@@ -6,6 +6,7 @@ function drawPieChart(percent) {
 
     var svg = d3.select("#piechart")
         .append("svg")
+        .attr("id", "svgbar")
         .attr("width", width)
         .attr("height", height)
         .append("g")
@@ -50,7 +51,7 @@ function drawPieChart(percent) {
         .enter()
         .append('text')
         .text(function (d) {
-            if(d.value !== 0) {
+            if(d.value !== 0 && d.value > 5) {
                 return d.value + "%";
             } else return null;
         })
