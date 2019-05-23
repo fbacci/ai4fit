@@ -15,7 +15,7 @@ $(document).ready(function () {
     });
 
     $('input').on('itemRemoved', function (event) {
-        if (event.item.includes('ordina') || event.item.includes('migliori') || event.item.includes('mostra atleti')) {
+        if (event.item.includes('ordina') || event.item.includes('migliori') || event.item.includes('atleti con')) {
             $('#barchartDiv').addClass('hidden');
         }
 
@@ -31,12 +31,29 @@ $(document).ready(function () {
             $('#numres').addClass('hidden');
             $('#info').addClass('hidden');
         }
+
+        $.ajax({
+            url: '',
+            type: 'POST',
+            data: {question: $('#inputQuestion').val()},
+            success: function (data) {
+                data = JSON.parse(data);
+                d3.select("#barchart").select("#svgbar").remove();
+                d3.select("#linechart").select("#svgbar").remove();
+                d3.select("#piechart").select("#svgbar").remove();
+                d3.select("#xAxis").select("g").remove();
+                $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
+                drawCharts($('#inputQuestion').val(), data);
+            },
+            error: function () {
+                console.log('errore cancellazione')
+            }
+        })
     });
 
 
     $('#qForm').keyup(function (e) {
         if (e.keyCode == 13) {
-            console.log($('#inputQuestion').val());
             $.ajax({
                 url: '',
                 type: 'POST',
@@ -120,16 +137,14 @@ function getNewList(list, min, max) {
         }
     }
 
-    console.log(json);
-
     return json;
 }
 
 function getHeight(data) {
-    var h = 300;
+    var h = 300, l = data.length;
 
-    switch (data.length) {
-        case 10:
+    switch (true) {
+        case (l <= 10):
             return h;
         default:
             return h + (((data.length - 10) / 10) * 250);
@@ -156,38 +171,53 @@ function drawCharts(value, data) {
     $('#dropCriterio').addClass('hidden');
     $('#sliderVoto').addClass('hidden');
 
-    if (value.includes('login')) {
-        $('#linechartDiv').removeClass('hidden');
-        setValue(value)
-        drawLineChart(data);
-    }
+    $('#numres').addClass('hidden');
 
-    if (value.includes('ordina')) {
-        $('#barchartDiv').removeClass('hidden');
-        $('#dropOrdinamento').removeClass('hidden');
-
-        $('#dropCriterio').removeClass('hidden');
-
-        if (!value.includes('voto')) {
-            $('#sliderVoto').addClass('hidden');
-        }
-
-        setValue(value);
-        drawChart(data)
-    }
-
-    if (value.includes('migliori') || value.includes('atleti con')) {
+    if (value.includes('login') && value.includes('atleti con') && value.includes('raggruppati per')) {
         $('#barchartDiv').removeClass('hidden');
         drawChart(data)
-    }
 
-    if(value.includes('raggruppati per')){
         $('#piechartDiv').removeClass('hidden');
         var perc = getPercList(data, value);
         drawPieChart(perc)
+
+        $('#linechartDiv').removeClass('hidden');
+        drawLineChart(data[data.length - 1])
+    } else {
+        if (value.includes('login')) {
+            $('#linechartDiv').removeClass('hidden');
+            setValue(value)
+            drawLineChart(data);
+        }
+
+        if (value.includes('ordina')) {
+            $('#barchartDiv').removeClass('hidden');
+            $('#dropOrdinamento').removeClass('hidden');
+
+            $('#dropCriterio').removeClass('hidden');
+
+            if (!value.includes('voto')) {
+                $('#sliderVoto').addClass('hidden');
+            }
+
+            setValue(value);
+            drawChart(data)
+        }
+
+        if (value.includes('migliori') || value.includes('atleti con')) {
+            $('#barchartDiv').removeClass('hidden');
+            drawChart(data)
+        }
+
+        if (value.includes('raggruppati per')) {
+            $('#piechartDiv').removeClass('hidden');
+            var perc = getPercList(data, value);
+            drawPieChart(perc)
+        }
     }
 
     $('#info').removeClass('hidden');
+    $('#numres').removeClass('hidden');
 }
 
 function setValue(value) {
@@ -254,15 +284,11 @@ function getPercList(data, v) {
             }
         }
 
-        console.log(cnt);
-
         res = {
             "0-900": ((cnt[0] / dim) * 100).toFixed(2), "900-1200": ((cnt[1] / dim) * 100).toFixed(2),
             "1200-1800": ((cnt[2] / dim) * 100).toFixed(2), "1800-2400": ((cnt[3] / dim) * 100).toFixed(2),
             "2400-3000": ((cnt[4] / dim) * 100).toFixed(2), "3000-3500": ((cnt[5] / dim) * 100).toFixed(2)
         };
-
-        console.log(res);
     }
 
     return res;

@@ -45,6 +45,10 @@ h2 {
     vertical-align: middle;
 }
 
+#numres{
+    color: forestgreen;
+}
+
 #text-container {
     display: inline-block;
     position: relative;
