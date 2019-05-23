@@ -101,7 +101,6 @@ $(document).ready(function () {
     var currentRange = 'settimana';
 
     $('#intervallo').on("click", function () {
-        console.log(currentRange)
         if (currentRange !== $('#dropdownMenu5').text()) {
             currentRange = $('#dropdownMenu5').text();
             $.ajax({
@@ -112,9 +111,8 @@ $(document).ready(function () {
                     intervallo: currentRange
                 },
                 success: function (data) {
-                    data = JSON.parse(data)
+                    data = JSON.parse(data);
                     d3.select("#linechart").select("#svgbar").remove();
-
                     drawLineChart(data)
                 },
                 error: function () {
@@ -122,5 +120,21 @@ $(document).ready(function () {
                 }
             })
         }
+    });
+
+    $('#btnDate').on("click", function () {
+       $.ajax({
+           url: '',
+           type: 'POST',
+           data: {question: $('#inputQuestion').val(), data1: $('#d1').val(), data2: $('#d2').val()},
+           success: function(data){
+               data = JSON.parse(data);
+               d3.select("#linechart").select('#svgbar').remove();
+               drawLineChart(data);
+           },
+           error: function (data) {
+               console.log("errore 6");
+           }
+       })
     });
 });

@@ -6,9 +6,16 @@
     overflow-x: hidden;
 }
 
+#barchartV{
+    height: 400px;
+    width: 750px;
+    overflow-y: hidden;
+    overflow-x: scroll;
+}
+
 #linechart{
     height: 405px;
-    width: 850px;
+    width: 800px;
     overflow-y: hidden;
     overflow-x: scroll;
 }

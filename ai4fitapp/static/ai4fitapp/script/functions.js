@@ -4,19 +4,39 @@ $(document).ready(function () {
     $('#clearBtn').on('click', function () {
         $('#inputQuestion').val('');
 
-        $('.tag').each(function (index) {
-            $(this).remove();
-        });
+        $('#inputQuestion').tagsinput('removeAll');
 
         $('#linechartDiv').addClass('hidden');
+        $('#chooseDate').addClass('hidden');
         $('#barchartDiv').addClass('hidden');
         $('#piechartDiv').addClass('hidden');
         $('#numres').addClass('hidden');
+        $('#info').addClass('hidden');
+    });
+
+    $('input').on('itemRemoved', function (event) {
+        if (event.item.includes('ordina') || event.item.includes('migliori') || event.item.includes('mostra atleti')) {
+            $('#barchartDiv').addClass('hidden');
+        }
+
+        if (event.item.includes('raggruppati')) {
+            $('#piechartDiv').addClass('hidden');
+        }
+
+        if (event.item.includes('login')) {
+            $('#linechartDiv').addClass('hidden');
+        }
+
+        if ($('#inputQuestion').val() === '') {
+            $('#numres').addClass('hidden');
+            $('#info').addClass('hidden');
+        }
     });
 
 
     $('#qForm').keyup(function (e) {
         if (e.keyCode == 13) {
+            console.log($('#inputQuestion').val());
             $.ajax({
                 url: '',
                 type: 'POST',
@@ -37,51 +57,52 @@ $(document).ready(function () {
         }
     });
 
+    $('#arrow').on('click', function () {
+        if ($('#infoBox').hasClass('hidden')) {
+            $('#arrow').attr('src', '../../static/ai4fitapp/img/arrow2bis.png')
+            $('#infoBox').removeClass('hidden');
+        } else {
+            $('#arrow').attr('src', '../../static/ai4fitapp/img/arrow2.png');
+            $('#infoBox').addClass('hidden');
+        }
+    });
+
     $(function () {
-        var bindDatePicker = function () {
-            $(".date").datetimepicker({
-                format: 'YYYY-MM-DD',
-                icons: {
-                    time: "fa fa-clock-o",
-                    date: "fa fa-calendar",
-                    up: "fa fa-arrow-up",
-                    down: "fa fa-arrow-down"
-                }
-            }).find('input:first').on("blur", function () {
-                // check if the date is correct. We can accept dd-mm-yyyy and yyyy-mm-dd.
-                // update the format if it's yyyy-mm-dd
-                var date = parseDate($(this).val());
+        $('#datetimepicker7').datetimepicker({
+            format: 'DD/MM/YYYY'
+        });
+        $('#datetimepicker8').datetimepicker({
+            format: 'DD/MM/YYYY',
+            useCurrent: false
+        });
+        $("#datetimepicker7").on("change.datetimepicker", function (e) {
+            $('#datetimepicker8').datetimepicker('minDate', e.date);
+        });
+        $("#datetimepicker8").on("change.datetimepicker", function (e) {
+            $('#datetimepicker7').datetimepicker('maxDate', e.date);
+        });
+    });
 
-                if (!isValidDate(date)) {
-                    //create date based on momentjs (we have that)
-                    date = moment().format('YYYY-MM-DD');
-                }
-
-                $(this).val(date);
-            });
-        }
-
-        var isValidDate = function (value, format) {
-            format = format || false;
-            // lets parse the date to the best of our knowledge
-            if (format) {
-                value = parseDate(value);
+    $(function () {
+        $.ajax({
+            url: 'infodataset',
+            type: 'POST',
+            data: {dataset: $('#dropdownMenu6').text()},
+            success: function (data) {
+                data = JSON.parse(data);
+                setDatasetInfo(data);
+            },
+            error: function () {
+                console.log('errore 7')
             }
+        });
+    });
 
-            var timestamp = Date.parse(value);
-
-            return isNaN(timestamp) == false;
-        }
-
-        var parseDate = function (value) {
-            var m = value.match(/^(\d{1,2})(\/|-)?(\d{1,2})(\/|-)?(\d{4})$/);
-            if (m)
-                value = m[5] + '-' + ("00" + m[3]).slice(-2) + '-' + ("00" + m[1]).slice(-2);
-
-            return value;
-        }
-
-        bindDatePicker();
+    $(".dropdown-toggle").dropdown();
+    $('.dropdown-menu').on('click', 'a', function () {
+        var target = $(this).closest('.dropdown').find('.dropdown-toggle')
+        var selectedVal = $(this).html();
+        target.html(selectedVal);
     });
 
 });
@@ -90,12 +111,16 @@ function getNewList(list, min, max) {
     var json = [];
     var i;
 
+    var current;
+
     for (i = 0; i < list.length; i++) {
-        current = list[i].avg;
+        current = list[i].orderField;
         if (current > min && current < max || current == min || current == max) {
             json.push(list[i])
         }
     }
+
+    console.log(json);
 
     return json;
 }
@@ -112,7 +137,7 @@ function getHeight(data) {
 }
 
 function getWidth(data) {
-    var w = 850;
+    var w = 750;
 
     switch (data.length) {
         case 10:
@@ -123,44 +148,46 @@ function getWidth(data) {
 }
 
 function drawCharts(value, data) {
-    if (value.includes('migliori') || value.includes('ordina')) {
-        $('#linechartDiv').addClass('hidden');
-        $('#barchartDiv').removeClass('hidden');
-        $('#barchartMenu').removeClass('hidden');
+    $('#barchartDiv').addClass('hidden');
+    $('#piechartDiv').addClass('hidden');
+    $('#linechartDiv').addClass('hidden');
 
-        if (value.includes('ordina')) {
-            $('#barchartText').text('Atleti ordinati per: ');
-            $('#dropCriterio').removeClass('hidden');
-            $('#piechartDiv').addClass('hidden');
-            setValue(value)
-        } else {
-            $('#barchartText').text('Migliori atleti');
-            $('#dropCriterio').addClass('hidden');
+    $('#dropOrdinamento').addClass('hidden');
+    $('#dropCriterio').addClass('hidden');
+    $('#sliderVoto').addClass('hidden');
+
+    if (value.includes('login')) {
+        $('#linechartDiv').removeClass('hidden');
+        setValue(value)
+        drawLineChart(data);
+    }
+
+    if (value.includes('ordina')) {
+        $('#barchartDiv').removeClass('hidden');
+        $('#dropOrdinamento').removeClass('hidden');
+
+        $('#dropCriterio').removeClass('hidden');
+
+        if (!value.includes('voto')) {
             $('#sliderVoto').addClass('hidden');
         }
 
-        drawChart(data);
+        setValue(value);
+        drawChart(data)
     }
 
-    if (value.includes('raggruppa')) {
+    if (value.includes('migliori') || value.includes('atleti con')) {
+        $('#barchartDiv').removeClass('hidden');
+        drawChart(data)
+    }
+
+    if(value.includes('raggruppati per')){
         $('#piechartDiv').removeClass('hidden');
-        var perc = getPercList(data);
+        var perc = getPercList(data, value);
         drawPieChart(perc)
     }
 
-    if (value.includes('login')) {
-        setValue(value);
-        $('#linechartDiv').removeClass('hidden');
-
-        $('#barchartDiv').addClass('hidden');
-        $('#barchartMenu').addClass('hidden');
-        $('#sliderVoto').addClass('hidden');
-        $('#piechartDiv').addClass('hidden');
-
-        $('#numres').text("Accessi totali: ".concat(getNumRes(data)));
-
-        drawLineChart(data);
-    }
+    $('#info').removeClass('hidden');
 }
 
 function setValue(value) {
@@ -181,31 +208,61 @@ function setValue(value) {
     }
 }
 
-function getPercList(data) {
-    var ageList = [[18, 24], [25, 39], [40, 55], [56, 68]]
-    var dim = data.length, i, cnt0 = 0, cnt1 = 0, cnt2 = 0, cnt3 = 0;
+function getPercList(data, v) {
+    var list = [];
+    var dim = data.length, cnt = [], res = {};
+    var i;
 
-    for (i = 0; i < dim; i++) {
-        if (data[i]['eta'] >= ageList[0][0] && data[i]['eta'] <= ageList[0][1]) {
-            cnt0 += 1;
+    if (v.includes('raggruppati per età')) {
+        list = [[18, 24], [25, 39], [40, 55], [56, 68]];
+
+        cnt = [0, 0, 0, 0];
+
+        for (i = 0; i < dim; i++) {
+            if (data[i]['groupField'] >= list[0][0] && data[i]['groupField'] <= list[0][1]) {
+                cnt[0] += 1;
+            } else if (data[i]['groupField'] >= list[1][0] && data[i]['groupField'] <= list[1][1]) {
+                cnt[1] += 1;
+            } else if (data[i]['groupField'] >= list[2][0] && data[i]['groupField'] <= list[2][1]) {
+                cnt[2] += 1;
+            } else if (data[i]['groupField'] >= list[3][0] && data[i]['groupField'] <= list[3][1]) {
+                cnt[3] += 1;
+            }
         }
 
-        if (data[i]['eta'] >= ageList[1][0] && data[i]['eta'] <= ageList[1][1]) {
-            cnt1 += 1;
+        res = {
+            "18-24": (cnt[0] / dim) * 100, "25-39": (cnt[1] / dim) * 100, "40-55": (cnt[2] / dim) * 100,
+            "56-68": (cnt[3] / dim) * 100
+        };
+    } else if (v.includes('raggruppati per calorie')) {
+        list = [[0, 900], [900, 1200], [1200, 1800], [1800, 2400], [2400, 3000], [3000, 3500]];
+        cnt = [0, 0, 0, 0, 0, 0];
+
+        for (i = 0; i < dim; i++) {
+            if (data[i]['groupField'] >= list[0][0] && data[i]['groupField'] < list[0][1]) {
+                cnt[0] += 1;
+            } else if (data[i]['groupField'] >= list[1][0] && data[i]['groupField'] < list[1][1]) {
+                cnt[1] += 1;
+            } else if (data[i]['groupField'] >= list[2][0] && data[i]['groupField'] < list[2][1]) {
+                cnt[2] += 1;
+            } else if (data[i]['groupField'] >= list[3][0] && data[i]['groupField'] < list[3][1]) {
+                cnt[3] += 1;
+            } else if (data[i]['groupField'] >= list[4][0] && data[i]['groupField'] < list[4][1]) {
+                cnt[4] += 1;
+            } else if (data[i]['groupField'] >= list[5][0] && data[i]['groupField'] < list[5][1]) {
+                cnt[5] += 1;
+            }
         }
 
-        if (data[i]['eta'] >= ageList[2][0] && data[i]['eta'] <= ageList[2][1]) {
-            cnt2 += 1;
-        }
-        if (data[i]['eta'] >= ageList[3][0] && data[i]['eta'] <= ageList[3][1]) {
-            cnt3 += 1;
-        }
+        console.log(cnt);
+
+        res = {
+            "0-900": (cnt[0] / dim) * 100, "900-1200": (cnt[1] / dim) * 100, "1200-1800": (cnt[2] / dim) * 100,
+            "1800-2400": (cnt[3] / dim) * 100, "2400-3000": (cnt[4] / dim) * 100, "3000-3500": (cnt[5] / dim) * 100
+        };
+
+        console.log(res);
     }
-
-    var res = {
-        "18-24": (cnt0 / dim) * 100, "25-39": (cnt1 / dim) * 100, "40-55": (cnt2 / dim) * 100,
-        "56-68": (cnt3 / dim) * 100
-    };
 
     return res;
 }
@@ -218,4 +275,53 @@ function getNumRes(data) {
     }
 
     return cnt;
+}
+
+function setDatasetInfo(data) {
+    var i, minE = 0, maxE = 0, minS = 0.0, maxS = 0.0, minB = 0, maxB = 0;
+    var txtP = $('#persone').text(), txtE = $('#eta').text(), txtS = $('#velocita').text(), txtB = $('#bpm').text();
+
+    for (i = 0; i < data.length; i++) {
+        $('#persone').text(txtP.concat(data[i].item_user_id).concat(", "));
+        txtP = $('#persone').text();
+
+        if (i > 5) {
+            $('#persone').text(txtP.concat("... "));
+            i = data.length;
+        }
+    }
+
+    for (i = 0; i < data.length; i++) {
+        if (data[i].eta > maxE) {
+            maxE = data[i].eta;
+        }
+
+        if (data[i].eta < minE) {
+            minE = data[i].eta
+        }
+    }
+
+    for (i = 0; i < data.length; i++) {
+        if (data[i].avgS > maxS) {
+            maxS = data[i].avgS;
+        }
+
+        if (data[i].avgS < minS) {
+            minS = data[i].avgS
+        }
+    }
+
+    for (i = 0; i < data.length; i++) {
+        if (data[i].avgB > maxB) {
+            maxB = data[i].avgB;
+        }
+
+        if (data[i].avgB < minB) {
+            minB = data[i].avgB
+        }
+    }
+
+    $('#eta').text(txtE.concat(minE.toString().concat(" - ").concat(maxE.toString())));
+    $('#bpm').text(txtB.concat(minB.toString().concat(" - ").concat(maxB.toString())));
+    $('#velocita').text(txtS.concat(minS.toString().concat(" - ").concat(maxS.toString())))
 }

@@ -19,7 +19,7 @@ function drawPieChart(percent) {
 
     var pie = d3.pie()
         .value(function (d) {
-            if(d.value !== 0) {
+            if (d.value !== 0) {
                 return d.value;
             } else return null;
         });
@@ -51,7 +51,7 @@ function drawPieChart(percent) {
         .enter()
         .append('text')
         .text(function (d) {
-            if(d.value !== 0 && d.value > 5) {
+            if (d.value !== 0 && d.value > 5) {
                 return d.value + "%";
             } else return null;
         })
@@ -92,26 +92,54 @@ function drawPieChart(percent) {
             d3.selectAll('.tooltip').transition()
                 .duration(200)
                 .style("opacity", .9);
-            d3.selectAll('.tooltip').html(d.item_user_id + " - " + d.avg + "<br/>" + d.eta)
+            d3.selectAll('.tooltip').html(d.item_user_id + " - " + d.orderField + "<br/>" + d.groupField)
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
 
             d3.select(this)
                 .style('fill', function (d) {
-                    if (d.eta > 17 && d.eta < 25) {
-                        return "#FF7193";
+                    if ($('#inputQuestion').val().includes('età')) {
+                        if (d.groupField > 17 && d.groupField < 25) {
+                            return "#FF7193";
+                        }
+
+                        if (d.groupField > 24 && d.groupField < 40) {
+                            return "#FAB82A";
+                        }
+
+                        if (d.groupField > 39 && d.groupField < 56) {
+                            return "#0300BD";
+                        }
+
+                        if (d.groupField > 55 && d.groupField < 69) {
+                            return "#963FB8";
+                        }
                     }
 
-                    if (d.eta > 24 && d.eta < 40) {
-                        return "#FAB82A";
-                    }
+                    if ($('#inputQuestion').val().includes('calorie')) {
+                        if (d.groupField >= 0 && d.groupField < 900) {
+                            return "#FF7193";
+                        }
 
-                    if (d.eta > 39 && d.eta < 56) {
-                        return "#0300BD";
-                    }
+                        if (d.groupField >= 900 && d.groupField < 1200) {
+                            return "#FAB82A";
+                        }
 
-                    if (d.eta > 55 && d.eta < 69) {
-                        return "#963FB8";
+                        if (d.groupField >= 1200 && d.groupField < 1800) {
+                            return "#0300BD";
+                        }
+
+                        if (d.groupField >= 1800 && d.groupField < 2400) {
+                            return "#963FB8";
+                        }
+
+                        if (d.groupField >= 2400 && d.groupField < 300) {
+                            return "#f07bec";
+                        }
+
+                        if (d.groupField >= 3000 && d.groupField <= 3500) {
+                            return "#15cb26";
+                        }
                     }
                 });
 

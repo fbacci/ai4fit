@@ -1,4 +1,6 @@
 function drawChart(data) {
+    $('#barchartV').addClass('hidden');
+    $('#barchart').removeClass('hidden');
     var margin = {top: 20, right: 20, bottom: 30, left: 80},
         width = 660 - margin.left - margin.right;
     var height = getHeight(data) + 25;
@@ -12,7 +14,7 @@ function drawChart(data) {
     var x = d3.scaleLinear()
         .range([2, width])
         .domain([0, d3.max(data, function (d) {
-            return d.avg;
+            return d.orderField;
         })]);
 
     var svg = d3.select("#barchart").append("svg")
@@ -52,7 +54,7 @@ function populateBar(list, svgVar, newx, newy) {
         .enter().append("rect")
         .attr("class", "bar")
         .attr("width", function (d) {
-            return newx(d.avg);
+            return newx(d.orderField);
         })
         .attr("height", 15)
         .attr("y", function (d) {
@@ -62,7 +64,7 @@ function populateBar(list, svgVar, newx, newy) {
             d3.selectAll('.tooltip').transition()
                 .duration(200)
                 .style("opacity", .9);
-            d3.selectAll('.tooltip').html(d.item_user_id + "<br/>" + d.avg)
+            d3.selectAll('.tooltip').html(d.item_user_id + "<br/>" + d.orderField)
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
 
@@ -76,10 +78,6 @@ function populateBar(list, svgVar, newx, newy) {
 
     svgVar.append("g")
         .call(d3.axisLeft(newy));
-}
-
-function drawHorizontalChart(data){
-
 }
 
 $(document).ready(function () {
@@ -105,7 +103,7 @@ $(document).ready(function () {
                     d3.select("#barchart").select("#svgbar").remove();
                     d3.select("#xAxis").select("g").remove();
                     data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1]);
-                    $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length))
+                    $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
                     drawChart(data);
                 },
                 error: function () {
@@ -126,13 +124,7 @@ $(document).ready(function () {
 
     var currentMode = $('#dropdownMenu4').text();
     var currentSort = $('#dropdownMenu1').text();
-
-    $(".dropdown-toggle").dropdown();
-    $('.dropdown-menu').on('click', 'a', function () {
-        var target = $(this).closest('.dropdown').find('.dropdown-toggle')
-        var selectedVal = $(this).html();
-        target.html(selectedVal);
-    });
+    var currentOrient = $('#dropdownMenu3').text();
 
     $('#ordinamento').on("click", function () {
         if (currentSort !== $('#dropdownMenu1').text()) {
@@ -163,6 +155,39 @@ $(document).ready(function () {
         }
     });
 
+    $('#orientamento').on("click", function () {
+        if (currentOrient !== $('#dropdownMenu3').text()) {
+            currentOrient = $('#dropdownMenu3').text();
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: {
+                    question: $('#inputQuestion').val(),
+                    criterio: currentMode,
+                    orderMode: currentSort.toLowerCase()
+                },
+                success: function (data) {
+                    data = JSON.parse(data);
+                    d3.select('#barchart').select("#svgbar").remove();
+                    d3.select('#xAxis').select("g").remove();
+
+                    /*if (sliderRange.value()[0] != 1 || sliderRange.value()[1] != 1) {
+                        data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
+                    }*/
+
+                    if (currentOrient == 'Verticale') {
+                        drawVerticalChart(data);
+                    } else {
+                        drawChart(data);
+                    }
+                },
+                error: function () {
+                    console.log("errore hor");
+                }
+            })
+        }
+    });
+
     $('#criterio').on("click", function () {
         if (currentMode !== $('#dropdownMenu4').text()) {
             currentMode = $('#dropdownMenu4').text();
@@ -179,7 +204,7 @@ $(document).ready(function () {
                     d3.select("#barchart").select("#svgbar").remove();
                     d3.select("#xAxis").select("g").remove();
 
-                    if(currentMode !== 'voto'){
+                    if (currentMode !== 'voto') {
                         $('#sliderVoto').addClass('hidden');
                     } else {
                         $('#sliderVoto').removeClass('hidden');

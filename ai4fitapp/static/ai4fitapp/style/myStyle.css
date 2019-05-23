@@ -34,6 +34,17 @@ h2 {
     display: none;
 }
 
+#info{
+    top: -50px;
+    right: 0;
+}
+
+#helper{
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+
 #text-container {
     display: inline-block;
     position: relative;
@@ -65,12 +76,26 @@ h2 {
     margin-top: 10px;
 }
 
-#rangeLineChart{
+#rangeLineChart {
     left: 270px;
 }
 
-#dropData{
+#dropData {
     right: 100px;
+}
+
+#btnDate {
+    width: 80px;
+    height: 38px;
+}
+
+#calImg{
+    width: 20px;
+    height: 20px;
+}
+
+#chooseDate{
+    margin-left: 100px;
 }
 
 #loginForm {
