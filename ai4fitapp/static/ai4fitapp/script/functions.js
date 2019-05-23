@@ -141,10 +141,10 @@ function getNewList(list, min, max) {
 }
 
 function getHeight(data) {
-    var h = 300, l = data.length;
+    var h = 300;
 
-    switch (true) {
-        case (l <= 10):
+    switch (data.length) {
+        case 10:
             return h;
         default:
             return h + (((data.length - 10) / 10) * 250);
@@ -182,7 +182,9 @@ function drawCharts(value, data) {
         drawPieChart(perc)
 
         $('#linechartDiv').removeClass('hidden');
-        drawLineChart(data[data.length - 1])
+        drawLineChart(data[data.length - 1]);
+
+        setValue(value);
     } else {
         if (value.includes('login')) {
             $('#linechartDiv').removeClass('hidden');

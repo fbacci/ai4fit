@@ -98,7 +98,7 @@ def askInfo(request):
             if 'get_age' in entities:
                 number = int(entities['number'][0]['value'])
                 newData = newData \
-                    .annotate(orderField=Value(0, IntegerField())).distinct()
+                    .annotate(orderField=Value(0, IntegerField()))
 
                 for d in newData:
                     d['orderField'] = getAge(d['user_birthdate'])
@@ -126,6 +126,8 @@ def askInfo(request):
             results.append(dateList)
 
             resultsJS = json.dumps(list(results), default=json_serial)
+
+            print(resultsJS)
 
             return HttpResponse(resultsJS)
 

@@ -52,6 +52,7 @@ class Workout(models.Model):
     calories = models.IntegerField(default=0)
     isafitresult = models.IntegerField(default=0)
     user_birthdate = models.DateField(default=datetime.today)
+    age = models.IntegerField(default=0)
     user_gender = models.CharField(max_length=1)
     user_lastlogin = models.DateTimeField(default=now)
     user_consent = models.IntegerField(default=0)
