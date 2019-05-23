@@ -231,8 +231,8 @@ function getPercList(data, v) {
         }
 
         res = {
-            "18-24": (cnt[0] / dim) * 100, "25-39": (cnt[1] / dim) * 100, "40-55": (cnt[2] / dim) * 100,
-            "56-68": (cnt[3] / dim) * 100
+            "18-24": ((cnt[0] / dim) * 100).toFixed(2), "25-39": ((cnt[1] / dim) * 100).toFixed(2),
+            "40-55": ((cnt[2] / dim) * 100).toFixed(2), "56-68": ((cnt[3] / dim) * 100).toFixed(2)
         };
     } else if (v.includes('raggruppati per calorie')) {
         list = [[0, 900], [900, 1200], [1200, 1800], [1800, 2400], [2400, 3000], [3000, 3500]];
@@ -257,8 +257,9 @@ function getPercList(data, v) {
         console.log(cnt);
 
         res = {
-            "0-900": (cnt[0] / dim) * 100, "900-1200": (cnt[1] / dim) * 100, "1200-1800": (cnt[2] / dim) * 100,
-            "1800-2400": (cnt[3] / dim) * 100, "2400-3000": (cnt[4] / dim) * 100, "3000-3500": (cnt[5] / dim) * 100
+            "0-900": ((cnt[0] / dim) * 100).toFixed(2), "900-1200": ((cnt[1] / dim) * 100).toFixed(2),
+            "1200-1800": ((cnt[2] / dim) * 100).toFixed(2), "1800-2400": ((cnt[3] / dim) * 100).toFixed(2),
+            "2400-3000": ((cnt[4] / dim) * 100).toFixed(2), "3000-3500": ((cnt[5] / dim) * 100).toFixed(2)
         };
 
         console.log(res);

@@ -89,8 +89,8 @@ def askInfo(request):
             newData = data.values('item_user_id', 'user_birthdate').annotate(sumC=Sum('calories'), count=Count('item_user_id'));
 
             if 'group_by_calories' in entities:
-                newData = newData.annotate(groupField=ExpressionWrapper(Cast(F('sumC'), FloatField()) / Cast(F('count'), FloatField()),
-                                                       output_field=FloatField()))
+                newData = newData.annotate(groupField=ExpressionWrapper(Round(Cast(F('sumC'), FloatField()) / Cast(F('count'), FloatField()), 2),
+                                                 output_field=FloatField()))
 
             if 'get_age' in entities:
                 newData = newData.annotate(orderField=Value(0, IntegerField())).distinct()
@@ -115,7 +115,7 @@ def askInfo(request):
         if intent == 'best':
             results = data.values('item_user_id', 'user_lastlogin', 'user_birthdate')\
                 .annotate(sum=Sum('mark'), sumC=Sum('calories'), count=Count('item_user_id'),
-                          orderField=ExpressionWrapper(Cast(F('sum'), FloatField()) / Cast(F('count'), FloatField()),
+                          orderField=ExpressionWrapper(Round(Cast(F('sum'), FloatField()) / Cast(F('count'), FloatField()), 2),
                                                        output_field=FloatField()))
 
             results = results.order_by('orderField')
@@ -128,7 +128,7 @@ def askInfo(request):
 
             if 'group_by_calories' in entities:
                 results = results.annotate(
-                    groupField=ExpressionWrapper(Cast(F('sumC'), FloatField()) / Cast(F('count'), FloatField()),
+                    groupField=ExpressionWrapper(Round(Cast(F('sumC'), FloatField()) / Cast(F('count'), FloatField()), 2),
                                                  output_field=FloatField()))
 
             if 'get_this_week' in entities:
@@ -150,22 +150,19 @@ def askInfo(request):
             if 'get_vote' in entities or criterioOrd == 'voto':
                 newData = data.values('item_user_id').annotate(sum=Sum('mark'), count=Count('item_user_id'))
                 results = newData.values('item_user_id').annotate(
-                    orderField=ExpressionWrapper(Cast(F('sum'), FloatField()) / Cast(F('count'),
-                                                                                     FloatField()),
+                    orderField=ExpressionWrapper(Round(Cast(F('sum'), FloatField()) / Cast(F('count'), FloatField()), 2),
                                                  output_field=FloatField()))
 
             if 'get_calories' in entities or criterioOrd == 'calorie':
                 newData = data.values('item_user_id').annotate(sum=Sum('calories'), count=Count('item_user_id'))
                 results = newData.values('item_user_id').annotate(
-                    orderField=ExpressionWrapper(Cast(F('sum'), FloatField()) / Cast(F('count'),
-                                                                                     FloatField()),
+                    orderField=ExpressionWrapper(Round(Cast(F('sum'), FloatField()) / Cast(F('count'), FloatField()), 2),
                                                  output_field=FloatField()))
 
             if 'get_avg_speed' in entities or criterioOrd == 'velocità media':
                 newData = data.values('item_user_id').annotate(sum=Sum('avgspeed'), count=Count('item_user_id'))
                 results = newData.values('item_user_id').annotate(
-                    orderField=ExpressionWrapper(Cast(F('sum'), FloatField()) / Cast(F('count'),
-                                                                                     FloatField()),
+                    orderField=ExpressionWrapper(Round(Cast(F('sum'), FloatField()) / Cast(F('count'), FloatField()), 2),
                                                  output_field=FloatField()))
 
             if orderMode == "crescente":
