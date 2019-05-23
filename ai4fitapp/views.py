@@ -86,26 +86,25 @@ def askInfo(request):
         if intent == 'show':
             number = int(entities['number'][0]['value'])
 
-            lista = data.values('item_user_id', 'user_birthdate', 'calories');
+            newData = data.values('item_user_id', 'user_birthdate').annotate(sumC=Sum('calories'), count=Count('item_user_id'));
 
-            '''if 'group_by_calories' in entities:
-                lista = lista.annotate(sumC=Sum('calories'), count=Count('item_user_id'));
-                lista = lista.annotate(groupField=ExpressionWrapper(Cast(F('sumC'), FloatField()) / Cast(F('count'), FloatField()),
-                                                       output_field=FloatField()))'''
+            if 'group_by_calories' in entities:
+                newData = newData.annotate(groupField=ExpressionWrapper(Cast(F('sumC'), FloatField()) / Cast(F('count'), FloatField()),
+                                                       output_field=FloatField()))
 
             if 'get_age' in entities:
-                lista = lista.annotate(orderField=Value(0, IntegerField())).distinct()
-                lista = list(lista)
+                newData = newData.annotate(orderField=Value(0, IntegerField())).distinct()
+                newData = list(newData)
 
-                for l in lista:
+                for l in newData:
                     l['orderField'] = getAge(l['user_birthdate'])
 
             if 'get_greater' in entities:
-                for l in lista:
+                for l in newData:
                     if l['orderField'] > number:
                         results.append(l)
             elif 'get_lesser' in entities:
-                for l in lista:
+                for l in newData:
                     if l['orderField'] < number:
                         results.append(l)
 
