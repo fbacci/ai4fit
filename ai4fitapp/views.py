@@ -79,6 +79,8 @@ def askInfo(request):
         intent = response['outcomes'][0]['entities']['intent'][0]['value']
         entities = response['outcomes'][0]['entities']
 
+        print(entities)
+
         data = Workout.objects.all()
 
         results = []
@@ -204,9 +206,6 @@ def askInfo(request):
                     groupField=ExpressionWrapper(
                         Round(Cast(F('sumC'), FloatField()) / Cast(F('count'), FloatField()), 2),
                         output_field=FloatField()))
-
-            if 'get_this_week' in entities:
-                dateList = getDateList(results, entities, rangeDate)
 
             results = list(results)
 

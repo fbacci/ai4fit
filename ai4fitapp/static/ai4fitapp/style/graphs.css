@@ -7,8 +7,8 @@
 }
 
 #barchartV{
-    height: 400px;
-    width: 750px;
+    height: 420px;
+    width: 770px;
     overflow-y: hidden;
     overflow-x: scroll;
 }

@@ -171,15 +171,25 @@ function drawCharts(value, data) {
     $('#dropCriterio').addClass('hidden');
     $('#sliderVoto').addClass('hidden');
 
+    $('#chooseDate').addClass('hidden');
+
     $('#numres').addClass('hidden');
 
-    if (value.includes('login') && value.includes('atleti con') && value.includes('raggruppati per')) {
+    if (value.includes('login') && (value.includes('atleti con') || value.includes('migliori')) && value.includes('raggruppati per')) {
         $('#barchartDiv').removeClass('hidden');
-        drawChart(data)
+        drawChart(data);
 
         $('#piechartDiv').removeClass('hidden');
         var perc = getPercList(data, value);
-        drawPieChart(perc)
+        drawPieChart(perc);
+
+        $('#linechartDiv').removeClass('hidden');
+        drawLineChart(data[data.length - 1]);
+
+        setValue(value);
+    } else if (value.includes('login') && value.includes('atleti con')) {
+        $('#barchartDiv').removeClass('hidden');
+        drawChart(data);
 
         $('#linechartDiv').removeClass('hidden');
         drawLineChart(data[data.length - 1]);
@@ -188,11 +198,13 @@ function drawCharts(value, data) {
     } else {
         if (value.includes('login')) {
             $('#linechartDiv').removeClass('hidden');
-            setValue(value)
+            $('#chooseDate').removeClass('hidden');
+            setValue(value);
             drawLineChart(data);
         }
 
         if (value.includes('ordina')) {
+            $('#barchartText').text('Atleti ordinati per: ');
             $('#barchartDiv').removeClass('hidden');
             $('#dropOrdinamento').removeClass('hidden');
 
@@ -207,6 +219,7 @@ function drawCharts(value, data) {
         }
 
         if (value.includes('migliori') || value.includes('atleti con')) {
+            $('#barchartText').text('Atleti per: ')
             $('#barchartDiv').removeClass('hidden');
             drawChart(data)
         }

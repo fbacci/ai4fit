@@ -1,4 +1,5 @@
 function drawLineChart(data) {
+    console.log(data)
     var width = getWidth(data) - 80;
     var height = 340;
     var duration = 250;
@@ -113,7 +114,12 @@ $(document).ready(function () {
                 success: function (data) {
                     data = JSON.parse(data);
                     d3.select("#linechart").select("#svgbar").remove();
-                    drawLineChart(data)
+                    $('#numres').text('Risultati trovati: '.concat(getNumRes(data)));
+                    if($('#barchartDiv').hasClass('hidden')){
+                        drawLineChart(data)
+                    } else {
+                        drawLineChart(data[(data.length) - 1])
+                    }
                 },
                 error: function () {
                     console.log('errore 3')
