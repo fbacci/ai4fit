@@ -1,6 +1,7 @@
 function drawChart(data) {
     $('#barchartV').addClass('hidden');
     $('#barchart').removeClass('hidden');
+
     var margin = {top: 20, right: 20, bottom: 30, left: 80},
         width = 660 - margin.left - margin.right;
     var height = getHeight(data) + 25;
@@ -9,7 +10,7 @@ function drawChart(data) {
         .domain(data.map(function (d) {
             return d.item_user_id;
         }))
-        .range([getHeight(data), 0]).padding(0.35);
+        .range([getHeight(data), 0]).padding(0.15);
 
     var x = d3.scaleLinear()
         .range([2, width])
@@ -121,7 +122,11 @@ function drawVerChart(data) {
     svg.append("g")
         .call(d3.axisLeft(y));
     svg.append("g").attr('transform', 'translate(0,' + (height - 50) + ')')
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x)).selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-65)");
 
     var toolt = d3.select("body").append("div")
         .attr("class", "tooltip")
@@ -161,6 +166,10 @@ function populateVerBar(list, svgVar, newx, newy, height) {
 }
 
 $(document).ready(function () {
+    var currentMode = $('#dropdownMenu4').text();
+    var currentSort = $('#dropdownMenu1').text();
+    var currentOrient = $('#dropdownMenu3').text();
+
     var sliderRange = d3.sliderBottom()
         .min(1)
         .max(5)
@@ -181,10 +190,15 @@ $(document).ready(function () {
                 success: function (data) {
                     data = JSON.parse(data);
                     d3.select("#barchart").select("#svgbar").remove();
+                    d3.select("#barchartV").select("#svgbar").remove();
                     d3.select("#xAxis").select("g").remove();
                     data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1]);
                     $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
-                    drawChart(data);
+                    if (currentOrient.includes('Orizzontale')) {
+                        drawChart(data);
+                    } else {
+                        drawVerChart(data);
+                    }
                 },
                 error: function () {
                     console.log("errore 4");
@@ -201,10 +215,6 @@ $(document).ready(function () {
         .attr('transform', 'translate(20,30)');
 
     gRange.call(sliderRange);
-
-    var currentMode = $('#dropdownMenu4').text();
-    var currentSort = $('#dropdownMenu1').text();
-    var currentOrient = $('#dropdownMenu3').text();
 
     $('#ordinamento').on("click", function () {
         if (currentSort !== $('#dropdownMenu1').text()) {
@@ -258,9 +268,10 @@ $(document).ready(function () {
                     d3.select("#barchartV").select("#svgbar").remove();
                     d3.select('#xAxis').select("g").remove();
 
-                    /*if (sliderRange.value()[0] != 1 || sliderRange.value()[1] != 1) {
+                    if ($('#inputQuestion').val().includes('ordina') &&
+                        (sliderRange.value()[0] != 1 || sliderRange.value()[1] != 1)) {
                         data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
-                    }*/
+                    }
 
                     if (currentOrient.includes('Orizzontale')) {
                         drawChart(data);
@@ -276,7 +287,7 @@ $(document).ready(function () {
     });
 
     $('#criterio').on("click", function () {
-        console.log(currentMode);
+        console.log($('#inputQuestion').val());
         if (currentMode !== $('#dropdownMenu4').text()) {
             currentMode = $('#dropdownMenu4').text();
             $.ajax({
@@ -288,7 +299,7 @@ $(document).ready(function () {
                     orderMode: currentSort.toLowerCase()
                 },
                 success: function (data) {
-                    data = JSON.parse(data)
+                    data = JSON.parse(data);
                     d3.select("#barchart").select("#svgbar").remove();
                     d3.select("#barchartV").select("#svgbar").remove();
                     d3.select("#xAxis").select("g").remove();
@@ -298,8 +309,6 @@ $(document).ready(function () {
                     } else {
                         $('#sliderVoto').removeClass('hidden');
                     }
-
-                    console.log(currentOrient);
 
                     if (currentOrient.includes('Orizzontale')) {
                         drawChart(data);

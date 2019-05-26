@@ -1,5 +1,4 @@
 function drawLineChart(data) {
-    console.log(data)
     var width = getWidth(data) - 80;
     var height = 340;
     var duration = 250;

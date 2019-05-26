@@ -163,6 +163,7 @@ function getWidth(data) {
 }
 
 function drawCharts(value, data) {
+    var currentOrient = $('#dropdownMenu3').text();
     $('#barchartDiv').addClass('hidden');
     $('#piechartDiv').addClass('hidden');
     $('#linechartDiv').addClass('hidden');
@@ -177,7 +178,10 @@ function drawCharts(value, data) {
 
     if (value.includes('login') && (value.includes('atleti con') || value.includes('migliori')) && value.includes('raggruppati per')) {
         $('#barchartDiv').removeClass('hidden');
-        drawChart(data);
+
+        if (currentOrient.includes('Orizzontale'))
+            drawChart(data);
+        else drawVerChart(data);
 
         $('#piechartDiv').removeClass('hidden');
         var perc = getPercList(data, value);
@@ -189,7 +193,9 @@ function drawCharts(value, data) {
         setValue(value);
     } else if (value.includes('login') && value.includes('atleti con')) {
         $('#barchartDiv').removeClass('hidden');
-        drawChart(data);
+        if (currentOrient.includes('Orizzontale'))
+            drawChart(data);
+        else drawVerChart(data);
 
         $('#linechartDiv').removeClass('hidden');
         drawLineChart(data[data.length - 1]);
@@ -212,16 +218,31 @@ function drawCharts(value, data) {
 
             if (!value.includes('voto')) {
                 $('#sliderVoto').addClass('hidden');
+            } else {
+                $('#sliderVoto').removeClass('hidden');
             }
 
             setValue(value);
-            drawChart(data)
+
+            if (currentOrient.includes('Orizzontale'))
+                drawChart(data);
+            else drawVerChart(data);
         }
 
         if (value.includes('migliori') || value.includes('atleti con')) {
-            $('#barchartText').text('Atleti per: ')
             $('#barchartDiv').removeClass('hidden');
-            drawChart(data)
+            if (value.includes('migliori')) {
+                $('#dropCriterio').removeClass('hidden');
+                $('#barchartText').text('Migliori atleti per: ');
+            } else {
+                $('#dropCriterio').addClass('hidden');
+                $('#barchartText').text('Lista atleti ');
+            }
+
+            setValue(value);
+            if (currentOrient.includes('Orizzontale'))
+                drawChart(data);
+            else drawVerChart(data);
         }
 
         if (value.includes('raggruppati per')) {
@@ -236,7 +257,7 @@ function drawCharts(value, data) {
 }
 
 function setValue(value) {
-    if (value.includes('voto')) {
+    if (value.includes('voto') || value.includes('migliori')) {
         $('a#dropdownMenu4').text('voto');
     } else if (value.includes('calorie')) {
         $('a#dropdownMenu4').text('calorie');
@@ -251,6 +272,9 @@ function setValue(value) {
     } else if (value.includes('anno')) {
         $('a#dropdownMenu5').text('anno');
     }
+
+    $('#dropdownMenu3').text('Orizzontale');
+    $('#dropdownMenu1').text('Decrescente');
 }
 
 function getPercList(data, v) {
