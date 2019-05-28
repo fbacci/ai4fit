@@ -94,7 +94,7 @@ def askInfo(request):
                 start = datetime.strptime(dateList[0][0], "%d-%m-%Y")
                 end = datetime.strptime(dateList[len(dateList) - 1][0], "%d-%m-%Y")
                 data = data.filter(user_lastlogin__range=(start, end))
-            elif 'get_this_week' in entities or 'get_this_month' in entities or 'get_this_year' in entities:
+            elif rangeDate is not None or 'get_this_week' in entities or 'get_this_month' in entities or 'get_this_year' in entities:
                 dateList = getDateList(data, entities, rangeDate)
                 start = datetime.strptime(dateList[0][0], "%d-%m-%Y")
                 end = datetime.strptime(dateList[len(dateList) - 1][0], "%d-%m-%Y")
@@ -156,8 +156,6 @@ def askInfo(request):
             elif len(dateList) > 0 and len(results) == 0:
                 results = dateList
 
-            print(results)
-
             resultsJS = json.dumps(results, default=json_serial)
 
             return HttpResponse(resultsJS)
@@ -210,21 +208,21 @@ def askInfo(request):
             return HttpResponse(resultsJS)
 
         if intent == 'order':
-            if 'get_vote' in entities or criterioOrd == 'voto':
+            if ('get_vote' in entities and criterioOrd is None) or criterioOrd == 'voto':
                 newData = data.values('item_user_id').annotate(sum=Sum('mark'), count=Count('item_user_id'))
                 results = newData.values('item_user_id').annotate(
                     orderField=ExpressionWrapper(
                         Round(Cast(F('sum'), FloatField()) / Cast(F('count'), FloatField()), 2),
                         output_field=FloatField()))
 
-            if 'get_calories' in entities or criterioOrd == 'calorie':
+            if ('get_calories' in entities and criterioOrd is None) or criterioOrd == 'calorie':
                 newData = data.values('item_user_id').annotate(sum=Sum('calories'), count=Count('item_user_id'))
                 results = newData.values('item_user_id').annotate(
                     orderField=ExpressionWrapper(
                         Round(Cast(F('sum'), FloatField()) / Cast(F('count'), FloatField()), 2),
                         output_field=FloatField()))
 
-            if 'get_avg_speed' in entities or criterioOrd == 'velocità media' or criterioOrd == 'velocità':
+            if ('get_avg_speed' in entities and criterioOrd is None) or criterioOrd == 'velocità media' or criterioOrd == 'velocità':
                 newData = data.values('item_user_id').annotate(sum=Sum('avgspeed'), count=Count('item_user_id'))
                 results = newData.values('item_user_id').annotate(
                     orderField=ExpressionWrapper(
@@ -252,12 +250,7 @@ def getDateList(data, ent, rangeDate):
     x = 0
     cnt = -1
 
-    if rangeDate == 'settimana' or 'get_this_week' in ent:
-        week = getWeek((datetime.now() - timedelta(days=365)))
-        arr = week
-        date_generated = [(arr[0] - timedelta(days=1)) + timedelta(days=x) for x in range(0, (arr[1] - arr[0]).days)]
-
-    if rangeDate == 'mese' or 'get_this_month' in ent:
+    if rangeDate == 'mese' or ('get_this_month' in ent and rangeDate is None):
         start = todayDate.replace(day=1)
 
         if start.month == '11' or start.month == '04' or start.month == '06' or start.month == '09':
@@ -270,14 +263,17 @@ def getDateList(data, ent, rangeDate):
         date_generated = [start + timedelta(days=x) for x in range(0, end.day)]
 
         arr = [start, end]
-
-    if rangeDate == 'anno' or 'get_this_year' in ent:
+    elif rangeDate == 'anno' or ('get_this_year' in ent and rangeDate is None):
         start = todayDate.replace(day=1, month=1, year=(todayDate.year - 1))
         end = todayDate.replace(day=31, month=12, year=todayDate.year)
 
         date_generated = [start + timedelta(days=x) for x in range(0, 365)]
 
         arr = [start, end]
+    elif rangeDate == 'settimana' or ('get_this_week' in ent and rangeDate is None):
+        week = getWeek((datetime.now() - timedelta(days=365)))
+        arr = week
+        date_generated = [(arr[0] - timedelta(days=1)) + timedelta(days=x) for x in range(0, (arr[1] - arr[0]).days)]
 
     for d in date_generated:
         dateList.append([d, 0])
@@ -290,7 +286,7 @@ def getDateList(data, ent, rangeDate):
             if d['user_lastlogin'].date() == date[0].date():
                 date[1] = date[1] + d['countlog']
 
-    if rangeDate == 'mese' or 'get_this_month' in ent:
+    if rangeDate == 'mese' or ('get_this_month' in ent and rangeDate is None):
         for d in dateList:
             if d[0].weekday() == 0 or x == 0:
                 dates.append(d)
@@ -301,17 +297,15 @@ def getDateList(data, ent, rangeDate):
             x += 1
 
         dateList = dates
-
-    '''if rangeDate == 'anno' or 'get_this_year' in ent:
+    elif rangeDate == 'anno' or ('get_this_year' in ent and rangeDate is None):
         for d in dateList:
-            if x == 0 or x % mod 30 == 0 or (x % 31 == 0 and :
+            if d[0].date().day == 1:
                 dates.append(d)
-                x += 1
                 cnt += 1
             else:
                 dates[cnt][1] += d[1]
-                
-            x +=1'''
+
+        dateList = dates
 
 
     for l in dateList:
@@ -331,6 +325,7 @@ def manageDate(data, q):
 
 def getRangeDateList(data, d1, d2):
     dateList = []
+    dates = []
 
     d1 = datetime.strptime(d1, '%d/%m/%Y')
     d2 = datetime.strptime(d2, '%d/%m/%Y')

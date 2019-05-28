@@ -3,6 +3,7 @@
 #barchartDiv{
     width: 680px;
     height: 420px;
+    border: black 1px;
 }
 
 #barchart{
@@ -13,7 +14,7 @@
 }
 
 #barchartV{
-    height: 380px;
+    height: 350px;
     width: 600px;
     overflow-y: hidden;
     overflow-x: scroll;

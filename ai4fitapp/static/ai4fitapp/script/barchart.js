@@ -86,7 +86,7 @@ function drawVerChart(data) {
     $('#barchart').addClass('hidden');
     var margin = {top: 20, right: 20, bottom: 30, left: 80},
         width = getWidth(data);
-    var height = 350;
+    var height = 320;
 
     var x = d3.scalePoint()
         .range([getWidth(data), 0])
@@ -232,9 +232,10 @@ $(document).ready(function () {
                     d3.select("#barchartV").select("#svgbar").remove();
                     d3.select('#xAxis').select("g").remove();
 
-                    if (sliderRange.value()[0] != 1 || sliderRange.value()[1] != 1) {
-                        data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
-                    }
+                    if(currentMode == 'voto')
+                        if (sliderRange.value()[0] != 1 || sliderRange.value()[1] != 1) {
+                            data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
+                        }
 
                     if (currentOrient.includes('Orizzontale')) {
                         drawChart(data);
@@ -267,9 +268,11 @@ $(document).ready(function () {
                     d3.select("#barchartV").select("#svgbar").remove();
                     d3.select('#xAxis').select("g").remove();
 
-                    if ($('#inputQuestion').val().includes('ordina') &&
-                        (sliderRange.value()[0] != 1 || sliderRange.value()[1] != 1)) {
-                        data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
+                    if(currentMode == 'voto') {
+                        if ($('#inputQuestion').val().includes('ordina') &&
+                            (sliderRange.value()[0] != 1 || sliderRange.value()[1] != 1)) {
+                            data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
+                        }
                     }
 
                     if (currentOrient.includes('Orizzontale')) {

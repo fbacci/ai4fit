@@ -1,6 +1,5 @@
 function drawLineChart(data) {
-    var width = 600, height = setLinechartHeight();
-    var duration = 250;
+    var width = 700, height = setLinechartHeight();
 
     var margin = {
         top: 20,
@@ -10,7 +9,7 @@ function drawLineChart(data) {
     };
 
     /* Add Axis into SVG */
-    var xScale = d3.scalePoint().range([0, getWidth(data) - 100]);
+    var xScale = d3.scalePoint().range([0, width - 100]);
 
     var yScale = d3.scaleLinear()
         .range([height - 50, 0])
@@ -40,12 +39,9 @@ function drawLineChart(data) {
         .attr("height", height + margin.top + margin.bottom);
 
     svg.append("g")
-        .attr("transform", "translate(" + margin.left + "," + (height - 25) + ")")
+        .attr("transform", "translate(" + margin.left + "," + (height - 30) + ")")
         .call(xAxis).selectAll("text")
-        .style("text-anchor", "end")
-        .attr("dx", "-.8em")
-        .attr("dy", ".15em")
-        .attr("transform", "rotate(-65)");
+        .style("text-anchor", "middle")
 
     svg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -97,7 +93,7 @@ function drawLineChart(data) {
 }
 
 $(document).ready(function () {
-    var currentRange = 'settimana';
+    var currentRange = $('#dropdownMenu5').text();
 
     $('#intervallo').on("click", function () {
         if (currentRange !== $('#dropdownMenu5').text()) {
@@ -136,7 +132,7 @@ $(document).ready(function () {
                 d3.select("#linechart").select('#svgbar').remove();
                 drawLineChart(data);
             },
-            error: function (data) {
+            error: function () {
                 console.log("errore 6");
             }
         })

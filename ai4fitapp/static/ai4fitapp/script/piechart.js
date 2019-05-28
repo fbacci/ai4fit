@@ -60,7 +60,7 @@ function drawPieChart(percent) {
         })
         .style("text-anchor", "middle")
         .style("fill", "white")
-        .style("font-size", 17);
+        .style("font-size", 15);
 
     var legend = svg.selectAll('.legend')
         .data(color.domain())

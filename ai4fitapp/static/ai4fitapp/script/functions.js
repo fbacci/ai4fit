@@ -1,5 +1,19 @@
 $(document).ready(function () {
+    var queries = ["ordina gli atleti per voto", "ordina gli atleti per velocità media", "ordina gli atleti per calorie",
+        "mostra i migliori atleti", "mostra i migliori atleti per voto", "mostra i migliori atleti per calorie",
+        "mostra i migliori atleti per velocità media", "raggruppati per calorie", "raggruppati per calorie giornaliere",
+        "raggruppati per età", "mostra andamento login di questa settimana", "mostra andamento login di questo mese",
+        "mostra andamento login quest'anno"];
     var currentSort = $('#dropdownMenu1').text();
+
+    $('#inputQuestion').tagsinput({
+        typeahead: {
+            source: queries,
+            afterSelect: function () {
+                this.$element[0].value = '';
+            }
+        }
+    });
 
     $('#clearBtn').on('click', function () {
         $('#inputQuestion').val('');
@@ -14,7 +28,7 @@ $(document).ready(function () {
         $('#info').addClass('hidden');
     });
 
-    $('input').on('itemRemoved', function (event) {
+    $('#inputQuestion').on('itemRemoved', function (event) {
         if (event.item.includes('ordina') || event.item.includes('migliori') || event.item.includes('atleti con')) {
             $('#barchartDiv').addClass('hidden');
         }
@@ -186,7 +200,7 @@ function drawCharts(value, data) {
         $('#barchartDiv').css("height", 170);
         $('#barchart').css("height", 170);
 
-        $('#linechartDiv').css("height", 220);
+        $('#linechartDiv').css("height", 240);
 
         $('#barchartText').text('Lista atleti');
         if (currentOrient.includes('Orizzontale'))
@@ -405,7 +419,7 @@ function setDatasetInfo(data) {
 function setLinechartHeight() {
     if ($('#inputQuestion').val().includes('login') && ($('#inputQuestion').val().includes('atleti con') || $('#inputQuestion').val().includes('migliori'))
         && $('#inputQuestion').val().includes('raggruppati per')) {
-        return 155;
+        return 160;
     } else {
         return 250;
     }
