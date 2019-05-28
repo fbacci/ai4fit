@@ -326,6 +326,7 @@ def manageDate(data, q):
 def getRangeDateList(data, d1, d2):
     dateList = []
     dates = []
+    cnt = -1
 
     d1 = datetime.strptime(d1, '%d/%m/%Y')
     d2 = datetime.strptime(d2, '%d/%m/%Y')
@@ -344,8 +345,17 @@ def getRangeDateList(data, d1, d2):
             if d['user_lastlogin'].date() == date[0].date():
                 date[1] = date[1] + d['countlog']
 
+    for d in dateList:
+        if d[0].date().day == 1 or d[0].date() == d1.date() or d[0].date() == d2.date():
+            dates.append(d)
+            cnt += 1
+        else:
+            dates[cnt][1] += d[1]
+
+        dateList = dates
+
     for l in dateList:
-        l[0] = datetime.strftime(l[0], "%Y-%m-%d")
+        l[0] = datetime.strftime(l[0], "%d-%m-%Y")
 
     return dateList
 

@@ -41,7 +41,7 @@ function drawLineChart(data) {
     svg.append("g")
         .attr("transform", "translate(" + margin.left + "," + (height - 30) + ")")
         .call(xAxis).selectAll("text")
-        .style("text-anchor", "middle")
+        .style("text-anchor", "middle");
 
     svg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
