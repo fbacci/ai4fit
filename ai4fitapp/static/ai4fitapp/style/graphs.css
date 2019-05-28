@@ -1,23 +1,35 @@
 .bar { fill: dodgerblue; }
 
+#barchartDiv{
+    width: 680px;
+    height: 420px;
+}
+
 #barchart{
     height: 300px;
+    width: 680px;
     overflow-y: scroll;
     overflow-x: hidden;
 }
 
 #barchartV{
-    height: 430px;
-    width: 770px;
+    height: 380px;
+    width: 600px;
     overflow-y: hidden;
     overflow-x: scroll;
 }
 
+#piechartDiv{
+    width: 500px;
+}
+
 #linechart{
-    height: 405px;
-    width: 800px;
-    overflow-y: hidden;
-    overflow-x: scroll;
+    height: 200px;
+    width: 700px;
+}
+
+#linechartDiv{
+    height: 340px;
 }
 
 div.tooltip {

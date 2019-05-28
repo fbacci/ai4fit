@@ -4,13 +4,13 @@ function drawChart(data) {
 
     var margin = {top: 20, right: 20, bottom: 30, left: 80},
         width = 660 - margin.left - margin.right;
-    var height = getHeight(data) + 25;
+    var height = getHeight(data) + 35;
 
     var y = d3.scalePoint()
         .domain(data.map(function (d) {
             return d.item_user_id;
         }))
-        .range([getHeight(data), 0]).padding(0.15);
+        .range([getHeight(data), 0]).padding(0.55);
 
     var x = d3.scaleLinear()
         .range([2, width])
@@ -86,7 +86,7 @@ function drawVerChart(data) {
     $('#barchart').addClass('hidden');
     var margin = {top: 20, right: 20, bottom: 30, left: 80},
         width = getWidth(data);
-    var height = 400;
+    var height = 350;
 
     var x = d3.scalePoint()
         .range([getWidth(data), 0])
@@ -102,7 +102,6 @@ function drawVerChart(data) {
 
     var svg = d3.select("#barchartV").append("svg")
         .attr("id", "svgbar")
-        .attr("padding_bottom", "25")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height)
         .append("g")

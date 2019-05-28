@@ -71,6 +71,7 @@ def askInfo(request):
         orderMode = request.POST.get('orderMode')
         criterioOrd = request.POST.get('criterio')
         rangeDate = request.POST.get('intervallo')
+        dateList = []
         data1 = request.POST.get('data1')
         data2 = request.POST.get('data2')
 
@@ -80,79 +81,31 @@ def askInfo(request):
         entities = response['outcomes'][0]['entities']
 
         data = Workout.objects.all()
-
         results = []
 
-        if intent == 'show_login':
+        if intent == 'show':
             if 'datetime' in entities and data1 is None and data2 is None:
                 dateList = manageDate(data, question)
+                start = datetime.strptime(dateList[0][0], "%d-%m-%Y")
+                end = datetime.strptime(dateList[len(dateList) - 1][0], "%d-%m-%Y")
+                data = data.filter(user_lastlogin__range=(start, end))
             elif data1 is not None and data2 is not None:
                 dateList = getRangeDateList(data, data1, data2)
-            else:
+                start = datetime.strptime(dateList[0][0], "%d-%m-%Y")
+                end = datetime.strptime(dateList[len(dateList) - 1][0], "%d-%m-%Y")
+                data = data.filter(user_lastlogin__range=(start, end))
+            elif 'get_this_week' in entities or 'get_this_month' in entities or 'get_this_year' in entities:
                 dateList = getDateList(data, entities, rangeDate)
+                start = datetime.strptime(dateList[0][0], "%d-%m-%Y")
+                end = datetime.strptime(dateList[len(dateList) - 1][0], "%d-%m-%Y")
+                data = data.filter(user_lastlogin__range=(start, end))
 
-            newData = data.values('item_user_id', 'user_birthdate', 'user_lastlogin').annotate(sumC=Sum('calories'),
-                                                                                               count=Count('item_user_id'))
-            newData = newData.filter(user_lastlogin__range=(dateList[0][0], dateList[len(dateList) - 1][0]))
-
-            if 'group_by_daily_calories' in entities:
-                today = datetime(2016, 5, 25)
-
-                newData = newData.filter(user_lastlogin__day=today.day, user_lastlogin__month=today.month, user_lastlogin__year=today.year)\
-                    .annotate(sumCT=Sum('calories'), countT=Count('user_lastlogin'))
-
-                newData = newData.annotate(groupField=ExpressionWrapper(
-                        Round(Cast(F('sumCT'), FloatField()) / Cast(F('countT'), FloatField()), 2),
-                        output_field=FloatField()))
-
-            if 'get_age' in entities:
-                number = int(entities['number'][0]['value'])
-                newData = newData \
-                    .annotate(orderField=Value(0, IntegerField()))
-
-                for d in newData:
-                    d['orderField'] = getAge(d['user_birthdate'])
-
-                if 'get_greater' in entities:
-                    for d in newData:
-                        if d['orderField'] > number:
-                            results.append(d)
-
-                if 'get_lesser' in entities:
-                    for d in newData:
-                        if d['orderField'] < number:
-                            results.append(d)
-
-                for d in dateList:
-                    for r in results:
-                        if r['user_lastlogin'].date() != d[0]:
-                            if d[1] != 0:
-                                d[1] = d[1] - 1
-
-            if 'group_by_calories' in entities:
-                for r in results:
-                    r['groupField'] = round(r['sumC'] / r['count'], 2)
+            if len(entities) > 1:
+                newData = data.values('item_user_id', 'user_birthdate', 'user_lastlogin')\
+                    .annotate(sumC=Sum('calories'), sumB=Sum('avgbpm'), count=Count('item_user_id'))
 
             if 'group_by_age' in entities:
-                for r in results:
-                    r['groupField'] = getAge(r['user_birthdate'])
-
-            results.append(dateList)
-
-            resultsJS = json.dumps(list(results), default=json_serial)
-
-            return HttpResponse(resultsJS)
-
-        if intent == 'show':
-            num = []
-            number = int(entities['number'][0]['value'])
-
-            if len(entities['number']) > 1:
-                for n in entities['number']:
-                    num.append(n['value'])
-
-            newData = data.values('item_user_id', 'user_birthdate')\
-                .annotate(sumC=Sum('calories'), sumB=Sum('avgbpm'), count=Count('item_user_id'))
+                newData = newData.annotate(groupField=F('age')).distinct()
 
             if 'group_by_calories' in entities:
                 newData = newData.annotate(groupField=ExpressionWrapper(
@@ -174,37 +127,34 @@ def askInfo(request):
                     Round(Cast(F('sumB'), FloatField()) / Cast(F('count'), FloatField()), 2),
                     output_field=FloatField()))
 
-                newData = list(newData)
-
             if 'get_age' in entities:
-                number = int(entities['number'][0]['value'])
-                newData = newData.annotate(orderField=Value(0, IntegerField())).distinct()
-                newData = list(newData)
+                newData = newData.annotate(orderField=F('age'))
 
-                for l in newData:
-                    l['orderField'] = getAge(l['user_birthdate'])
+            newData = list(newData)
 
-            if 'group_by_age' in entities:
-                newData = list(newData)
+            if 'number' in entities:
+                if len(entities['number']) > 1:
+                    num = [entities['number'][0]['value'], entities['number'][1]['value']]
+                    for d in newData:
+                        if num[0] <= d['orderField'] <= num[1]:
+                            results.append(d)
+                elif len(entities['number']) == 1:
+                    number = entities['number'][0]['value']
+                    if 'get_greater' in entities:
+                        for l in newData:
+                            if l['orderField'] > number:
+                                results.append(l)
+                    elif 'get_lesser' in entities:
+                        for l in newData:
+                            if l['orderField'] < number:
+                                results.append(l)
 
-                for l in newData:
-                    l['groupField'] = getAge(l['user_birthdate'])
+            results.sort(key=lambda x: x['orderField'])
 
-            newData.sort(key=lambda x: x['orderField'])
-
-            if len(num) > 1:
-                for d in newData:
-                    if num[0] <= d['orderField'] <= num[1]:
-                        results.append(d)
-
-            if 'get_greater' in entities:
-                for l in newData:
-                    if l['orderField'] > number:
-                        results.append(l)
-            elif 'get_lesser' in entities:
-                for l in newData:
-                    if l['orderField'] < number:
-                        results.append(l)
+            if len(results) > 0 and len(dateList) > 0:
+                results.append(dateList)
+            elif len(dateList) > 0 and len(results) == 0:
+                results = dateList
 
             resultsJS = json.dumps(results, default=json_serial)
 
@@ -213,6 +163,9 @@ def askInfo(request):
         if intent == 'best':
             data = data.values('item_user_id', 'user_lastlogin', 'user_birthdate') \
                     .annotate(sum=Sum('mark'), sumC=Sum('calories'), sumS=Sum('avgspeed'), count=Count('item_user_id'))
+
+            if 'group_by_age' in entities:
+                data = data.annotate(groupField=F('age'))
 
             if 'group_by_calories' in entities:
                 data = data.annotate(groupField=ExpressionWrapper(Round(Cast(F('sumC'), FloatField()) / Cast(F('count'),
@@ -241,14 +194,7 @@ def askInfo(request):
                     Round(Cast(F('sum'), FloatField()) / Cast(F('count'), FloatField()), 2),
                     output_field=FloatField()))
 
-            if 'group_by_age' in entities:
-                data = data.annotate(groupField=Value(0, IntegerField()))
-                results = list(data)
-
-                for r in results:
-                    r['groupField'] = getAge(r['user_birthdate'])
-
-            results=list(data)
+            results = list(data)
             results.sort(key=lambda x: x['orderField'])
 
             if "number" in entities:
@@ -292,18 +238,6 @@ def askInfo(request):
 
             return HttpResponse(resultsJS)
 
-        if intent == 'login':
-            if 'datetime' in entities and data1 is None and data2 is None:
-                results = manageDate(data, question)
-            elif data1 is not None and data2 is not None:
-                results = getRangeDateList(data, data1, data2)
-            else:
-                results = getDateList(data, entities, rangeDate)
-
-            resultsJS = json.dumps(results)
-
-            return HttpResponse(resultsJS)
-
     return render(request, 'ai4fitapp/ask.html')
 
 
@@ -312,7 +246,9 @@ def getDateList(data, ent, rangeDate):
     dateList = []
     date_generated = []
     arr = []
-    week = []
+    dates = []
+    x = 0
+    cnt = -1
 
     if rangeDate == 'settimana' or 'get_this_week' in ent:
         week = getWeek((datetime.now() - timedelta(days=365)))
@@ -352,8 +288,31 @@ def getDateList(data, ent, rangeDate):
             if d['user_lastlogin'].date() == date[0].date():
                 date[1] = date[1] + d['countlog']
 
+    if rangeDate == 'mese' or 'get_this_month' in ent:
+        for d in dateList:
+            if d[0].weekday() == 0 or x == 0:
+                dates.append(d)
+                cnt += 1
+            else:
+                dates[cnt][1] += d[1]
+
+            x += 1
+
+        dateList = dates
+
+    '''if rangeDate == 'anno' or 'get_this_year' in ent:
+        for d in dateList:
+            if x % 7 == 0:
+                dates.append(d)
+                x += 1
+                cnt += 1
+            else:
+                dates[cnt][1] += d[1]
+                x +=1'''
+
+
     for l in dateList:
-        l[0] = datetime.strftime(l[0], "%Y-%m-%d")
+        l[0] = datetime.strftime(l[0], "%d-%m-%Y")
 
     return dateList
 
@@ -393,12 +352,6 @@ def getRangeDateList(data, d1, d2):
     return dateList
 
 
-def getAge(bdate):
-    days_in_year = 365.2425
-    age = int((datetime.now().date().today() - bdate).days / days_in_year)
-    return age
-
-
 def getWeek(day):
     s = day - timedelta(days=day.weekday())
     e = s + timedelta(days=7)
@@ -416,25 +369,20 @@ def getYear(day):
 @csrf_exempt
 def infodataset(request):
     dataset = request.POST.get('dataset')
-    results = []
     resultsJS = {}
 
     if 'Workout' in dataset:
         data = Workout.objects.all()
 
-        data = data.values('item_user_id', 'user_birthdate') \
-            .annotate(sumBpm=Sum('avgbpm'), sumSpeed=Sum('avgspeed'), eta=Value(0, IntegerField()),
-                      count=Count('item_user_id'))
+        data = data.values('item_user_id', 'user_birthdate', 'age') \
+            .annotate(sumBpm=Sum('avgbpm'), sumSpeed=Sum('avgspeed'), count=Count('item_user_id'))
 
         data = data.annotate(avgB=ExpressionWrapper(Round(Cast(F('sumBpm'), FloatField()) / Cast(F('count'), FloatField()), 2),
                                                     output_field=FloatField()),
                              avgS=ExpressionWrapper(Round(Cast(F('sumSpeed'), FloatField()) / Cast(F('count'), FloatField()),2),
                                                     output_field=FloatField()))
 
-        for d in data:
-            results.append(d)
-        for r in results:
-            r['eta'] = getAge(r['user_birthdate'])
+        results = list(data)
 
         resultsJS = json.dumps(results, default=json_serial)
 

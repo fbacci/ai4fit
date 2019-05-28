@@ -25,6 +25,10 @@ $(document).ready(function () {
 
         if (event.item.includes('login')) {
             $('#linechartDiv').addClass('hidden');
+            $('#chooseDate').addClass('hidden');
+
+            $('#barchartDiv').css("height", 420);
+            $('#barchart').css("height", 300);
         }
 
         if ($('#inputQuestion').val() === '') {
@@ -42,6 +46,7 @@ $(document).ready(function () {
                 d3.select("#linechart").select("#svgbar").remove();
                 d3.select("#piechart").select("#svgbar").remove();
                 d3.select("#xAxis").select("g").remove();
+                d3.select("#yAxis").select("g").remove();
                 $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
                 drawCharts($('#inputQuestion').val(), data);
             },
@@ -50,7 +55,6 @@ $(document).ready(function () {
             }
         })
     });
-
 
     $('#qForm').keyup(function (e) {
         if (e.keyCode == 13) {
@@ -64,6 +68,7 @@ $(document).ready(function () {
                     d3.select("#linechart").select("#svgbar").remove();
                     d3.select("#piechart").select("#svgbar").remove();
                     d3.select("#xAxis").select("g").remove();
+                    d3.select("#yAxis").select("g").remove();
                     $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
                     drawCharts($('#inputQuestion').val(), data);
                 },
@@ -121,8 +126,8 @@ $(document).ready(function () {
         var selectedVal = $(this).html();
         target.html(selectedVal);
     });
-
 });
+
 
 function getNewList(list, min, max) {
     var json = [];
@@ -178,7 +183,12 @@ function drawCharts(value, data) {
 
     if (value.includes('login') && (value.includes('atleti con') || value.includes('migliori')) && value.includes('raggruppati per')) {
         $('#barchartDiv').removeClass('hidden');
+        $('#barchartDiv').css("height", 200);
+        $('#barchart').css("height", 200);
 
+        $('#linechartDiv').css("height", 220);
+
+        $('#barchartText').text('Lista atleti');
         if (currentOrient.includes('Orizzontale'))
             drawChart(data);
         else drawVerChart(data);
@@ -358,12 +368,12 @@ function setDatasetInfo(data) {
     }
 
     for (i = 0; i < data.length; i++) {
-        if (data[i].eta > maxE) {
-            maxE = data[i].eta;
+        if (data[i].age > maxE) {
+            maxE = data[i].age;
         }
 
-        if (data[i].eta < minE) {
-            minE = data[i].eta
+        if (data[i].age < minE) {
+            minE = data[i].age
         }
     }
 
@@ -390,4 +400,22 @@ function setDatasetInfo(data) {
     $('#eta').text(txtE.concat(minE.toString().concat(" - ").concat(maxE.toString())));
     $('#bpm').text(txtB.concat(minB.toString().concat(" - ").concat(maxB.toString())));
     $('#velocita').text(txtS.concat(minS.toString().concat(" - ").concat(maxS.toString())))
+}
+
+function setLinechartHeight() {
+    if ($('#inputQuestion').val().includes('login') && ($('#inputQuestion').val().includes('atleti con') || $('#inputQuestion').val().includes('migliori'))
+        && $('#inputQuestion').val().includes('raggruppati per')) {
+        return 140;
+    } else {
+        return 250;
+    }
+}
+
+function setPieHeight() {
+    if ($('#inputQuestion').val().includes('login') && ($('#inputQuestion').val().includes('atleti con') || $('#inputQuestion').val().includes('migliori'))
+        && $('#inputQuestion').val().includes('raggruppati per')) {
+        return 250;
+    } else {
+        return 350;
+    }
 }

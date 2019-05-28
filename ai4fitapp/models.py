@@ -1,4 +1,6 @@
-from django.db import models
+from datetime import date
+
+from django.db import models, transaction
 from django.utils.timezone import now, datetime
 from django.contrib.auth.models import User
 
@@ -52,7 +54,6 @@ class Workout(models.Model):
     calories = models.IntegerField(default=0)
     isafitresult = models.IntegerField(default=0)
     user_birthdate = models.DateField(default=datetime.today)
-    age = models.IntegerField(default=0)
     user_gender = models.CharField(max_length=1)
     user_lastlogin = models.DateTimeField(default=now)
     user_consent = models.IntegerField(default=0)
@@ -60,9 +61,19 @@ class Workout(models.Model):
     mark = models.IntegerField(default=0)
     accuracy = models.FloatField(default=0.0)
 
+    age = models.IntegerField(default=0)
+
     def __str__(self):
         return str(self.session_id)
 
+    def get_age(self):
+        today = date.today()
+        return today.year - self.user_birthdate.year - ((today.month, today.day)
+                                                            < (self.user_birthdate.month, self.user_birthdate.day))
+
+    def save(self, *args, **kwargs):
+        self.age = self.get_age()
+        return super(Workout, self).save(*args, **kwargs)
 
 class WorkoutActivityResult(models.Model):
     activity_results_id = models.IntegerField(default=0)

@@ -11,6 +11,7 @@
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/corejs-typeahead/1.2.1/bloodhound.min.js"></script>
 
     <script type="text/javascript" src="../../static/ai4fitapp/script/d3.v5.js"></script>
     <script type="text/javascript" src="../../static/ai4fitapp/script/moment.js"></script>
@@ -20,13 +21,16 @@
     <script type="text/javascript" src="../../static/ai4fitapp/script/linechart.js"></script>
     <script type="text/javascript" src="../../static/ai4fitapp/script/bootstrap-tagsinput.js"></script>
     <script type="text/javascript" src="../../static/ai4fitapp/script/bootstrap-datetimepicker.js"></script>
+    <script type="text/javascript" src="../../static/ai4fitapp/script/typeahead.js"></script>
     <script type="text/javascript" src="../../static/ai4fitapp/script/functions.js"></script>
     <title>Informazioni allenamenti</title>
 </head>
 
 <body>
 <div class="container-fluid bg-white p-3 my-3" id="mycontainer">
-    <h1>Andamento e informazioni allenamenti</h1>
+    <div class="row ml-3">
+        <h3>Andamento e informazioni allenamenti</h3>
+    </div>
 
     <div class="row mt-4">
         <div class="col-8 w-100">
@@ -34,7 +38,7 @@
                 <form method="POST" id="qForm">
                     {% csrf_token %}
                     <div id="textContainer">
-                        <input type="text" class="form-control" id="inputQuestion" name="question" data-role="tagsinput"
+                        <input class="form-control typeahead" id="inputQuestion" name="question" data-role="tagsinput"
                                placeholder="Scrivi qualcosa..." value="">
                         <a href="#" id="clearBtn">X</a>
                     </div>
@@ -66,64 +70,76 @@
 
     <div class="row position-relative">
         <div class="row mx-3">
-            <div class="col-md-auto">
-                <div id="barchartDiv" class="hidden mb-5">
-                    <div class="row mb-3 ml-2" id="barchartMenu">
-                        <div class="dropdown ml-4 hidden" id="dropOrdinamento">
-                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenu1"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Decrescente
-                            </button>
-                            <div class="dropdown-menu" id="ordinamento" aria-labelledby="dropdownMenuButton">
-                                <a class="dropdown-item" href="#">Crescente</a>
-                                <a class="dropdown-item" href="#">Decrescente</a>
-                            </div>
+            <div id="barchartDiv" class="col-md-auto hidden">
+                <div class="row mb-3 ml-2" id="barchartMenu">
+                    <div class="dropdown ml-4 hidden" id="dropOrdinamento">
+                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenu1"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Decrescente
+                        </button>
+                        <div class="dropdown-menu" id="ordinamento" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="#">Crescente</a>
+                            <a class="dropdown-item" href="#">Decrescente</a>
                         </div>
-
-                        <div class="dropdown ml-1" id="dropOrientamento">
-                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenu3"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Orizzontale
-                            </button>
-                            <div class="dropdown-menu" id="orientamento" aria-labelledby="dropdownMenuButton">
-                                <a class="dropdown-item" href="#">Verticale</a>
-                                <a class="dropdown-item" href="#">Orizzontale</a>
-                            </div>
-                        </div>
-
-                        <div class="col span12 mt-2 text-right" id="barchartText"></div>
-
-                        <div class="dropdown hidden" id="dropCriterio">
-                            <a class="btn dropdown-toggle" type="button" id="dropdownMenu4" data-toggle="dropdown"
-                               aria-haspopup="true" aria-expanded="false"></a>
-                            <div class="dropdown-menu" id="criterio" aria-labelledby="dropdownMenu4">
-                                <a class="dropdown-item" href="#" id="c1">calorie</a>
-                                <a class="dropdown-item" href="#" id="c2">velocità media</a>
-                                <a class="dropdown-item" href="#" id="c3">voto</a>
-                            </div>
-                        </div>
-
-                        <div class="col-sm"><h4 class="mt-2"><span
-                                class="badge badge-secondary float-right align-middle">Bar chart</span>
-                        </h4></div>
                     </div>
 
-                    <div id="barchart"></div>
-                    <div id="barchartV"></div>
-                    <svg id="xAxis"></svg>
+                    <div class="dropdown ml-1" id="dropOrientamento">
+                        <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenu3"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Orizzontale
+                        </button>
+                        <div class="dropdown-menu" id="orientamento" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="#">Verticale</a>
+                            <a class="dropdown-item" href="#">Orizzontale</a>
+                        </div>
+                    </div>
 
-                    <div class="row mymarginleft hidden" id="sliderVoto">
-                        <div class="col-6 col-md-1 mt-3">Voto</div>
-                        <div class="col-sm">
-                            <div id="slider">
-                                <div id="slider-range"></div>
-                            </div>
+                    <div class="col span12 mt-2 text-right" id="barchartText"></div>
+
+                    <div class="dropdown hidden" id="dropCriterio">
+                        <a class="btn dropdown-toggle" type="button" id="dropdownMenu4" data-toggle="dropdown"
+                           aria-haspopup="true" aria-expanded="false"></a>
+                        <div class="dropdown-menu" id="criterio" aria-labelledby="dropdownMenu4">
+                            <a class="dropdown-item" href="#" id="c1">calorie</a>
+                            <a class="dropdown-item" href="#" id="c2">velocità media</a>
+                            <a class="dropdown-item" href="#" id="c3">voto</a>
+                        </div>
+                    </div>
+
+                    <div class="col-sm"><h4 class="mt-2"><span
+                            class="badge badge-secondary float-right align-middle">Bar chart</span>
+                    </h4></div>
+                </div>
+
+                <div id="barchart"></div>
+                <div id="barchartV"></div>
+                <svg id="xAxis"></svg>
+
+                <div class="row mymarginleft hidden" id="sliderVoto">
+                    <div class="col-6 col-md-1 mt-3">Voto</div>
+                    <div class="col-sm">
+                        <div id="slider">
+                            <div id="slider-range"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="piechartDiv" class="col-md-auto hidden">
+                <div id="piechartMenu">
+                    <div class="row mb-3">
+                        <div class="col-8 span12 text-center">Raggruppamento</div>
+                        <div class="col-4"><h4><span class="badge badge-secondary float-right">Pie chart</span></h4>
                         </div>
                     </div>
                 </div>
 
+                <div id="piechart"></div>
+            </div>
+
+            <div class="col ml-3">
                 <div id="linechartDiv" class="hidden">
-                    <div class="row mb-3" id="linechartMenu">
+                    <div class="row mb-3 pr-5" id="linechartMenu">
                         <div class="col span12 mt-2" id="rangeLineChart">Intervallo:</div>
                         <div class="dropdown" id="dropData">
                             <a class="btn dropdown-toggle" type="button" id="dropdownMenu5" data-toggle="dropdown"
@@ -134,25 +150,12 @@
                                 <a class="dropdown-item" href="#" id="c3">anno</a>
                             </div>
                         </div>
-                        <div class="col-4"><h4 class="mt-2"><span class="badge badge-secondary">Line chart</span></h4>
+                        <div class="col-4 text-right"><h4 class="mt-2"><span
+                                class="badge badge-secondary">Line chart</span>
+                        </h4>
                         </div>
                     </div>
                     <div id="linechart"></div>
-                </div>
-            </div>
-
-            <div class="col-md-auto">
-                <div id="piechartDiv" class="hidden">
-                    <div id="piechartMenu">
-                        <div class="row mb-3">
-                            <div class="col-8 span12 text-center">Raggruppamento</div>
-                            <div class="col-4"><h4><span class="badge badge-secondary float-right">Pie chart</span></h4>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="piechart"></div>
-
                 </div>
             </div>
         </div>
@@ -197,10 +200,10 @@
                     <div class="container">
                         <h1 class="display-6">Informazioni dataset</h1>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item" id="persone">Persone: </li>
-                            <li class="list-group-item" id="eta">Età: </li>
-                            <li class="list-group-item" id="velocita">Velocità (media): </li>
-                            <li class="list-group-item" id="bpm">Bpm (media): </li>
+                            <li class="list-group-item" id="persone">Persone:</li>
+                            <li class="list-group-item" id="eta">Età:</li>
+                            <li class="list-group-item" id="velocita">Velocità (media):</li>
+                            <li class="list-group-item" id="bpm">Bpm (media):</li>
                             <li class="list-group-item" id="voto">Voto: 1-5</li>
                         </ul>
                     </div>

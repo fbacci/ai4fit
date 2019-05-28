@@ -1,5 +1,5 @@
 function drawPieChart(percent) {
-    var width = 480, height = 350, margin = 40;
+    var width = 480, height = setPieHeight(), margin = 40;
     var legendRectSize = 18, legendSpacing = 4;
 
     var radius = Math.min(width, height) / 2 - margin;

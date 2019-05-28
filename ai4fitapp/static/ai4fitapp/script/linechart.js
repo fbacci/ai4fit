@@ -1,6 +1,5 @@
 function drawLineChart(data) {
-    var width = getWidth(data) - 80;
-    var height = 340;
+    var width = 600, height = setLinechartHeight();
     var duration = 250;
 
     var margin = {
@@ -14,10 +13,10 @@ function drawLineChart(data) {
     var xScale = d3.scalePoint().range([0, getWidth(data) - 100]);
 
     var yScale = d3.scaleLinear()
-        .range([300, 0])
-        .domain(d3.extent(data, function (d) {
+        .range([height - 50, 0])
+        .domain([0, d3.max(data, function (d) {
             return d[1];
-        }));
+        })]);
 
     var xAxis = d3.axisBottom(xScale).ticks(7),
         yAxis = d3.axisLeft(yScale).ticks(5);
@@ -41,7 +40,7 @@ function drawLineChart(data) {
         .attr("height", height + margin.top + margin.bottom);
 
     svg.append("g")
-        .attr("transform", "translate(" + margin.left + "," + (height-20) + ")")
+        .attr("transform", "translate(" + margin.left + "," + (height - 20) + ")")
         .call(xAxis).selectAll("text")
         .style("text-anchor", "end")
         .attr("dx", "-.8em")
@@ -114,7 +113,7 @@ $(document).ready(function () {
                     data = JSON.parse(data);
                     d3.select("#linechart").select("#svgbar").remove();
                     $('#numres').text('Risultati trovati: '.concat(getNumRes(data)));
-                    if($('#barchartDiv').hasClass('hidden')){
+                    if ($('#barchartDiv').hasClass('hidden')) {
                         drawLineChart(data)
                     } else {
                         drawLineChart(data[(data.length) - 1])
@@ -128,18 +127,18 @@ $(document).ready(function () {
     });
 
     $('#btnDate').on("click", function () {
-       $.ajax({
-           url: '',
-           type: 'POST',
-           data: {question: $('#inputQuestion').val(), data1: $('#d1').val(), data2: $('#d2').val()},
-           success: function(data){
-               data = JSON.parse(data);
-               d3.select("#linechart").select('#svgbar').remove();
-               drawLineChart(data);
-           },
-           error: function (data) {
-               console.log("errore 6");
-           }
-       })
+        $.ajax({
+            url: '',
+            type: 'POST',
+            data: {question: $('#inputQuestion').val(), data1: $('#d1').val(), data2: $('#d2').val()},
+            success: function (data) {
+                data = JSON.parse(data);
+                d3.select("#linechart").select('#svgbar').remove();
+                drawLineChart(data);
+            },
+            error: function (data) {
+                console.log("errore 6");
+            }
+        })
     });
 });
