@@ -40,7 +40,7 @@ function drawLineChart(data) {
         .attr("height", height + margin.top + margin.bottom);
 
     svg.append("g")
-        .attr("transform", "translate(" + margin.left + "," + (height - 20) + ")")
+        .attr("transform", "translate(" + margin.left + "," + (height - 25) + ")")
         .call(xAxis).selectAll("text")
         .style("text-anchor", "end")
         .attr("dx", "-.8em")

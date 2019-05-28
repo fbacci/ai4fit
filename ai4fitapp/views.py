@@ -156,6 +156,8 @@ def askInfo(request):
             elif len(dateList) > 0 and len(results) == 0:
                 results = dateList
 
+            print(results)
+
             resultsJS = json.dumps(results, default=json_serial)
 
             return HttpResponse(resultsJS)
@@ -302,13 +304,14 @@ def getDateList(data, ent, rangeDate):
 
     '''if rangeDate == 'anno' or 'get_this_year' in ent:
         for d in dateList:
-            if x % 7 == 0:
+            if x == 0 or x % mod 30 == 0 or (x % 31 == 0 and :
                 dates.append(d)
                 x += 1
                 cnt += 1
             else:
                 dates[cnt][1] += d[1]
-                x +=1'''
+                
+            x +=1'''
 
 
     for l in dateList:

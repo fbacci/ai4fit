@@ -51,7 +51,7 @@ function drawPieChart(percent) {
         .enter()
         .append('text')
         .text(function (d) {
-            if (d.value !== 0 && d.value > 5) {
+            if (d.value !== 0 && d.value > 8) {
                 return d.value + "%";
             } else return null;
         })

@@ -32,7 +32,7 @@ function drawChart(data) {
     svg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", -65)
-        .attr("x", -margin.left * 1.7)
+        .attr("x", -50)
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Nome atleta");

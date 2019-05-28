@@ -183,18 +183,18 @@ function drawCharts(value, data) {
 
     if (value.includes('login') && (value.includes('atleti con') || value.includes('migliori')) && value.includes('raggruppati per')) {
         $('#barchartDiv').removeClass('hidden');
-        $('#barchartDiv').css("height", 200);
-        $('#barchart').css("height", 200);
+        $('#barchartDiv').css("height", 170);
+        $('#barchart').css("height", 170);
 
         $('#linechartDiv').css("height", 220);
 
         $('#barchartText').text('Lista atleti');
         if (currentOrient.includes('Orizzontale'))
-            drawChart(data);
-        else drawVerChart(data);
+            drawChart(data.slice(0, data.length - 1));
+        else drawVerChart(data.slice(0, data.length - 1));
 
         $('#piechartDiv').removeClass('hidden');
-        var perc = getPercList(data, value);
+        var perc = getPercList(data.slice(0, data.length - 1), value);
         drawPieChart(perc);
 
         $('#linechartDiv').removeClass('hidden');
@@ -204,8 +204,8 @@ function drawCharts(value, data) {
     } else if (value.includes('login') && value.includes('atleti con')) {
         $('#barchartDiv').removeClass('hidden');
         if (currentOrient.includes('Orizzontale'))
-            drawChart(data);
-        else drawVerChart(data);
+            drawChart(data.slice(0, data.length - 1));
+        else drawVerChart(data.slice(0, data.length - 1));
 
         $('#linechartDiv').removeClass('hidden');
         drawLineChart(data[data.length - 1]);
@@ -405,7 +405,7 @@ function setDatasetInfo(data) {
 function setLinechartHeight() {
     if ($('#inputQuestion').val().includes('login') && ($('#inputQuestion').val().includes('atleti con') || $('#inputQuestion').val().includes('migliori'))
         && $('#inputQuestion').val().includes('raggruppati per')) {
-        return 140;
+        return 155;
     } else {
         return 250;
     }
