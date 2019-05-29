@@ -1,5 +1,6 @@
 function drawPieChart(percent) {
-    var width = 480, height = setPieHeight(), margin = 40;
+    console.log(percent);
+    var width = 500, height = setPieHeight(), margin = 40;
     var legendRectSize = 18, legendSpacing = 4;
 
     var radius = Math.min(width, height) / 2 - margin;
@@ -24,10 +25,10 @@ function drawPieChart(percent) {
             } else return null;
         });
 
-    var data_ready = pie(d3.entries(percent))
-// Now I know that group A goes from 0 degrees to x degrees and so on.
+    var data_ready = pie(d3.entries(percent));
 
-// shape helper to build arcs:
+    console.log(data_ready)
+
     var arcGenerator = d3.arc()
         .innerRadius(0)
         .outerRadius(radius)
@@ -43,7 +44,7 @@ function drawPieChart(percent) {
             return (color(d.data.key))
         })
         .attr("stroke", "black")
-        .style("stroke-width", "1px")
+        .style("stroke-width", "1px");
 
 // Now add the annotation. Use the centroid method to get the best coordinates
     svg.selectAll('mySlices')
@@ -51,7 +52,7 @@ function drawPieChart(percent) {
         .enter()
         .append('text')
         .text(function (d) {
-            if (d.value !== 0 && d.value > 8) {
+            if (d.value !== 0 && d.value > 7) {
                 return d.value + "%";
             } else return null;
         })
@@ -88,6 +89,8 @@ function drawPieChart(percent) {
         });
 
     d3.selectAll(".bar")
+        .data(data_ready)
+        .enter()
         .on("mouseover", function (d) {
             d3.selectAll('.tooltip').transition()
                 .duration(200)
@@ -98,49 +101,7 @@ function drawPieChart(percent) {
 
             d3.select(this)
                 .style('fill', function (d) {
-                    if ($('#inputQuestion').val().includes('età')) {
-                        if (d.groupField > 17 && d.groupField < 25) {
-                            return "#FF7193";
-                        }
-
-                        if (d.groupField > 24 && d.groupField < 40) {
-                            return "#FAB82A";
-                        }
-
-                        if (d.groupField > 39 && d.groupField < 56) {
-                            return "#0300BD";
-                        }
-
-                        if (d.groupField > 55 && d.groupField < 69) {
-                            return "#963FB8";
-                        }
-                    }
-
-                    if ($('#inputQuestion').val().includes('calorie')) {
-                        if (d.groupField >= 0 && d.groupField < 900) {
-                            return "#FF7193";
-                        }
-
-                        if (d.groupField >= 900 && d.groupField < 1200) {
-                            return "#FAB82A";
-                        }
-
-                        if (d.groupField >= 1200 && d.groupField < 1800) {
-                            return "#0300BD";
-                        }
-
-                        if (d.groupField >= 1800 && d.groupField < 2400) {
-                            return "#963FB8";
-                        }
-
-                        if (d.groupField >= 2400 && d.groupField < 300) {
-                            return "#f07bec";
-                        }
-
-                        if (d.groupField >= 3000 && d.groupField <= 3500) {
-                            return "#15cb26";
-                        }
-                    }
+                    return color(d.data.key);
                 });
 
         })

@@ -161,6 +161,22 @@ def askInfo(request):
             return HttpResponse(resultsJS)
 
         if intent == 'best':
+            if 'datetime' in entities and data1 is None and data2 is None:
+                dateList = manageDate(data, question)
+                start = datetime.strptime(dateList[0][0], "%d-%m-%Y")
+                end = datetime.strptime(dateList[len(dateList) - 1][0], "%d-%m-%Y")
+                data = data.filter(user_lastlogin__range=(start, end))
+            elif data1 is not None and data2 is not None:
+                dateList = getRangeDateList(data, data1, data2)
+                start = datetime.strptime(dateList[0][0], "%d-%m-%Y")
+                end = datetime.strptime(dateList[len(dateList) - 1][0], "%d-%m-%Y")
+                data = data.filter(user_lastlogin__range=(start, end))
+            elif rangeDate is not None or 'get_this_week' in entities or 'get_this_month' in entities or 'get_this_year' in entities:
+                dateList = getDateList(data, entities, rangeDate)
+                start = datetime.strptime(dateList[0][0], "%d-%m-%Y")
+                end = datetime.strptime(dateList[len(dateList) - 1][0], "%d-%m-%Y")
+                data = data.filter(user_lastlogin__range=(start, end))
+
             data = data.values('item_user_id', 'user_lastlogin', 'user_birthdate') \
                     .annotate(sum=Sum('mark'), sumC=Sum('calories'), sumS=Sum('avgspeed'), count=Count('item_user_id'))
 
@@ -181,11 +197,11 @@ def askInfo(request):
                         Round(Cast(F('sumCT'), FloatField()) / Cast(F('countT'), FloatField()), 2),
                         output_field=FloatField()))
 
-            if 'get_calories' in entities or criterioOrd == 'calorie':
+            if criterioOrd == 'calorie' or ('get_calories' in entities and (criterioOrd =='calorie' or criterioOrd=='')):
                 data = data.annotate(orderField=ExpressionWrapper(
                               Round(Cast(F('sumC'), FloatField()) / Cast(F('count'), FloatField()), 2),
                               output_field=FloatField()))
-            elif 'get_avg_speed' in entities or criterioOrd == 'velocità media':
+            elif criterioOrd == 'velocità media' or ('get_avg_speed' in entities and (criterioOrd =='velcoità media' or criterioOrd=='')):
                 data = data.annotate(orderField=ExpressionWrapper(
                                   Round(Cast(F('sumS'), FloatField()) / Cast(F('count'), FloatField()), 2),
                                   output_field=FloatField()))
@@ -203,28 +219,32 @@ def askInfo(request):
             else:
                 results = results[-50:]
 
+            if len(results) > 0 and len(dateList) > 0:
+                results.append(dateList)
+
             resultsJS = json.dumps(results, default=json_serial)
 
             return HttpResponse(resultsJS)
 
         if intent == 'order':
-            if ('get_vote' in entities and criterioOrd is None) or criterioOrd == 'voto':
-                newData = data.values('item_user_id').annotate(sum=Sum('mark'), count=Count('item_user_id'))
-                results = newData.values('item_user_id').annotate(
+            print(criterioOrd)
+            if criterioOrd == 'voto' or ('get_vote' in entities and (criterioOrd =='voto' or criterioOrd=='')):
+                data = data.values('item_user_id').annotate(sum=Sum('mark'), count=Count('item_user_id'))
+                results = data.values('item_user_id').annotate(
                     orderField=ExpressionWrapper(
                         Round(Cast(F('sum'), FloatField()) / Cast(F('count'), FloatField()), 2),
                         output_field=FloatField()))
 
-            if ('get_calories' in entities and criterioOrd is None) or criterioOrd == 'calorie':
-                newData = data.values('item_user_id').annotate(sum=Sum('calories'), count=Count('item_user_id'))
-                results = newData.values('item_user_id').annotate(
+            elif criterioOrd == 'calorie' or ('get_calories' in entities and (criterioOrd =='calorie' or criterioOrd=='')):
+                data = data.values('item_user_id').annotate(sum=Sum('calories'), count=Count('item_user_id'))
+                results = data.values('item_user_id').annotate(
                     orderField=ExpressionWrapper(
                         Round(Cast(F('sum'), FloatField()) / Cast(F('count'), FloatField()), 2),
                         output_field=FloatField()))
 
-            if ('get_avg_speed' in entities and criterioOrd is None) or criterioOrd == 'velocità media' or criterioOrd == 'velocità':
-                newData = data.values('item_user_id').annotate(sum=Sum('avgspeed'), count=Count('item_user_id'))
-                results = newData.values('item_user_id').annotate(
+            elif criterioOrd == 'velocità media' or ('get_avg_speed' in entities and (criterioOrd =='velcoità media' or criterioOrd=='')):
+                data = data.values('item_user_id').annotate(sum=Sum('avgspeed'), count=Count('item_user_id'))
+                results = data.values('item_user_id').annotate(
                     orderField=ExpressionWrapper(
                         Round(Cast(F('sum'), FloatField()) / Cast(F('count'), FloatField()), 2),
                         output_field=FloatField()))

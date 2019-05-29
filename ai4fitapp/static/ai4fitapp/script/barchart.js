@@ -1,4 +1,5 @@
 function drawChart(data) {
+
     $('#barchartV').addClass('hidden');
     $('#barchart').removeClass('hidden');
 
@@ -165,10 +166,6 @@ function populateVerBar(list, svgVar, newx, newy, height) {
 }
 
 $(document).ready(function () {
-    var currentMode = $('#dropdownMenu4').text();
-    var currentSort = $('#dropdownMenu1').text();
-    var currentOrient = $('#dropdownMenu3').text();
-
     var sliderRange = d3.sliderBottom()
         .min(1)
         .max(5)
@@ -193,6 +190,8 @@ $(document).ready(function () {
                     d3.select("#xAxis").select("g").remove();
                     data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1]);
                     $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
+                    manageErrors();
+                    setFeedbackColor();
                     if (currentOrient.includes('Orizzontale')) {
                         drawChart(data);
                     } else {
@@ -215,6 +214,10 @@ $(document).ready(function () {
 
     gRange.call(sliderRange);
 
+    var currentSort = $('#dropdownMenu1').text();
+    var currentMode = $('#dropdownMenu4').text();
+    var currentOrient = $('#dropdownMenu3').text();
+
     $('#ordinamento').on("click", function () {
         if (currentSort !== $('#dropdownMenu1').text()) {
             currentSort = $('#dropdownMenu1').text();
@@ -232,10 +235,14 @@ $(document).ready(function () {
                     d3.select("#barchartV").select("#svgbar").remove();
                     d3.select('#xAxis').select("g").remove();
 
-                    if(currentMode == 'voto')
+                    if (currentMode == 'voto')
                         if (sliderRange.value()[0] != 1 || sliderRange.value()[1] != 1) {
                             data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
                         }
+
+                    $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
+                    manageErrors();
+                    setFeedbackColor();
 
                     if (currentOrient.includes('Orizzontale')) {
                         drawChart(data);
@@ -268,12 +275,16 @@ $(document).ready(function () {
                     d3.select("#barchartV").select("#svgbar").remove();
                     d3.select('#xAxis').select("g").remove();
 
-                    if(currentMode == 'voto') {
+                    if (currentMode == 'voto') {
                         if ($('#inputQuestion').val().includes('ordina') &&
                             (sliderRange.value()[0] != 1 || sliderRange.value()[1] != 1)) {
                             data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
                         }
                     }
+
+                    $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
+                    manageErrors();
+                    setFeedbackColor();
 
                     if (currentOrient.includes('Orizzontale')) {
                         drawChart(data);
@@ -306,11 +317,15 @@ $(document).ready(function () {
                     d3.select("#barchartV").select("#svgbar").remove();
                     d3.select("#xAxis").select("g").remove();
 
-                    if (currentMode !== 'voto') {
+                    if (currentMode !== 'voto' || $('#inputQuestion').val().includes('migliori')) {
                         $('#sliderVoto').addClass('hidden');
                     } else {
                         $('#sliderVoto').removeClass('hidden');
                     }
+
+                    $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
+                    manageErrors();
+                    setFeedbackColor();
 
                     if (currentOrient.includes('Orizzontale')) {
                         drawChart(data);
