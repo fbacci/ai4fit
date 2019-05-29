@@ -1,5 +1,5 @@
 function drawChart(data) {
-
+    $('#rowVer').addClass('hidden');
     $('#barchartV').addClass('hidden');
     $('#barchart').removeClass('hidden');
 
@@ -84,6 +84,7 @@ function populateBar(list, svgVar, newx, newy) {
 
 function drawVerChart(data) {
     $('#barchartV').removeClass('hidden');
+    $('#rowVer').removeClass('hidden');
     $('#barchart').addClass('hidden');
     var margin = {top: 20, right: 20, bottom: 30, left: 80},
         width = getWidth(data);
@@ -107,26 +108,31 @@ function drawVerChart(data) {
         .attr("height", height)
         .append("g")
         .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
+            "translate(0," + margin.top + ")");
 
     populateVerBar(data, svg, x, y, height);
 
-    svg.append("text")
+    /*svg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", -65)
         .attr("x", -margin.left * 1.7)
         .attr("dy", "1em")
         .style("text-anchor", "middle")
-        .text("Criterio di ordinamento");
+        .text("Criterio di ordinamento");*/
 
-    svg.append("g")
-        .call(d3.axisLeft(y));
     svg.append("g").attr('transform', 'translate(0,' + (height - 50) + ')')
         .call(d3.axisBottom(x)).selectAll("text")
         .style("text-anchor", "end")
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
         .attr("transform", "rotate(-65)");
+
+    d3.select("#yAxis")
+        .attr("height", height)
+        .attr("width", 55)
+        .append("g")
+        .attr("transform", "translate(50, 20)")
+        .call(d3.axisLeft(y));
 
     var toolt = d3.select("body").append("div")
         .attr("class", "tooltip")
@@ -188,6 +194,7 @@ $(document).ready(function () {
                     d3.select("#barchart").select("#svgbar").remove();
                     d3.select("#barchartV").select("#svgbar").remove();
                     d3.select("#xAxis").select("g").remove();
+                    d3.select("#yAxis").select("g").remove();
                     data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1]);
                     $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
                     manageErrors();

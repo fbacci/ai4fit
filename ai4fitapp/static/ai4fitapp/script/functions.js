@@ -17,17 +17,17 @@ $(document).ready(function () {
         $('#linechartDiv').addClass('hidden');
         $('#chooseDate').addClass('hidden');
         $('#barchartDiv').addClass('hidden');
+        $('#rowVer').addClass('hidden');
         $('#piechartDiv').addClass('hidden');
         $('#numres').addClass('hidden');
         $('#numres').text('');
         $('#info').addClass('hidden');
-
-        console.log($('#inputQuestion').val())
     });
 
     $('#inputQuestion').on('itemRemoved', function (event) {
         if (event.item.includes('ordina') || event.item.includes('migliori') || event.item.includes('atleti con')) {
             $('#barchartDiv').addClass('hidden');
+            $('#rowVer').addClass('hidden');
             $('#linechartDiv').css("height", 340);
         }
 
@@ -43,11 +43,13 @@ $(document).ready(function () {
             $('#barchart').css("height", 300);
         }
 
-        if ($('#inputQuestion').val() === '') {
-            setValue($('#inputQuestion').val(''));
+        if ($('#inputQuestion').val() == '') {
             $('#numres').addClass('hidden');
+            $('#numres').text('');
             $('#info').addClass('hidden');
         }
+
+        setValue($('#inputQuestion').val());
 
         manageErrors();
         setFeedbackColor();
@@ -59,6 +61,7 @@ $(document).ready(function () {
             success: function (data) {
                 data = JSON.parse(data);
                 d3.select("#barchart").select("#svgbar").remove();
+                d3.select("#barchartV").select("#svgbar").remove();
                 d3.select("#linechart").select("#svgbar").remove();
                 d3.select("#piechart").select("#svgbar").remove();
                 d3.select("#xAxis").select("g").remove();
@@ -88,11 +91,14 @@ $(document).ready(function () {
             $.ajax({
                 url: '',
                 type: 'POST',
-                data: {question: $('#inputQuestion').val(), orderMode: currentSort.toLowerCase(),
-                        criterio: currentMode},
+                data: {
+                    question: $('#inputQuestion').val(), orderMode: currentSort.toLowerCase(),
+                    criterio: currentMode
+                },
                 success: function (data) {
                     data = JSON.parse(data);
                     d3.select("#barchart").select("#svgbar").remove();
+                    d3.select("#barchartV").select("#svgbar").remove();
                     d3.select("#linechart").select("#svgbar").remove();
                     d3.select("#piechart").select("#svgbar").remove();
                     d3.select("#xAxis").select("g").remove();
@@ -205,6 +211,8 @@ function drawCharts(value, data) {
     $('#piechartDiv').addClass('hidden');
     $('#linechartDiv').addClass('hidden');
 
+    $('#rowVer').addClass('hidden');
+
     $('#dropOrdinamento').addClass('hidden');
     $('#dropCriterio').addClass('hidden');
     $('#sliderVoto').addClass('hidden');
@@ -230,7 +238,7 @@ function drawCharts(value, data) {
                 $('#barchartDiv').css("height", 170);
                 $('#barchart').css("height", 170);
 
-                $('#linechartDiv').css("height", 240);
+                $('#linechartDiv').css("height", 170);
                 $('#linechartDiv').addClass('mymargintop');
 
                 $('#barchartText').text('Lista atleti');
@@ -275,7 +283,7 @@ function drawCharts(value, data) {
             }
 
             if (value.includes('ordina')) {
-                $('#barchartText').text('Atleti ordinati per: ');
+                $('#barchartText').text('Criterio: ');
                 $('#barchartDiv').removeClass('hidden');
                 $('#dropOrdinamento').removeClass('hidden');
 
@@ -331,7 +339,7 @@ function setValue(value) {
         $('a#dropdownMenu4').text('calorie');
     } else if (value.includes('velocità')) {
         $('a#dropdownMenu4').text('velocità media');
-    } else if(value.includes('migliori')){
+    } else if (value.includes('migliori')) {
         $('a#dropdownMenu4').text('voto');
     }
 
@@ -451,7 +459,7 @@ function setDatasetInfo(data) {
 function setLinechartHeight() {
     if ($('#inputQuestion').val().includes('login') && ($('#inputQuestion').val().includes('atleti con')
         || $('#inputQuestion').val().includes('migliori'))) {
-        return 160;
+        return 140;
     } else {
         return 250;
     }

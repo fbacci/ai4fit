@@ -108,10 +108,10 @@ $(document).ready(function () {
                 success: function (data) {
                     data = JSON.parse(data);
                     d3.select("#linechart").select("#svgbar").remove();
-                    $('#numres').text('Risultati trovati: '.concat(getNumRes(data)));
                     manageErrors();
                     setFeedbackColor();
                     if ($('#barchartDiv').hasClass('hidden')) {
+                        $('#numres').text('Risultati trovati: '.concat(getNumRes(data)));
                         drawLineChart(data)
                     } else {
                         drawLineChart(data[(data.length) - 1])

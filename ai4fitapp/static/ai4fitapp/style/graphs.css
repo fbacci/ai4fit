@@ -15,9 +15,13 @@
 
 #barchartV{
     height: 350px;
-    width: 600px;
+    width: 500px;
     overflow-y: hidden;
     overflow-x: scroll;
+}
+
+#colVer {
+    width: 55px;
 }
 
 #piechartDiv{

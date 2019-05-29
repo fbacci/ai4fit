@@ -50,10 +50,6 @@
                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Workout
                 </button>
-                <div class="dropdown-menu" id="dataset" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="#">Dataset 1</a>
-                    <a class="dropdown-item" href="#">Dataset 2</a>
-                </div>
             </div>
         </div>
     </div>
@@ -110,8 +106,9 @@
                 </div>
 
                 <div id="barchart"></div>
-                <div id="barchartV"></div>
                 <svg id="xAxis"></svg>
+
+                <div class="row" id="rowVer"><div id="colVer"><svg id="yAxis"></svg></div><div id="barchartV" class="col"></div></div>
 
                 <div class="row mymarginleft hidden" id="sliderVoto">
                     <div class="col-6 col-md-1 mt-3">Voto</div>
