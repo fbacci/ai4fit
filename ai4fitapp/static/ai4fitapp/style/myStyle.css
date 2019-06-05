@@ -1,13 +1,14 @@
 @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
 
 html {
-    height: 98%;
+    height: 100%;
 }
 
 body {
     background: -webkit-linear-gradient(left, #3931af, #00c6ff);
     font-family: 'Source Sans Pro', sans-serif;
-    height: 98%;
+    height: 100%;
+    overflow: hidden;
 }
 
 h2 {
@@ -25,10 +26,6 @@ h2 {
     margin-left: 150px;
 }
 
-.mymargintop{
-    margin-top: 100px;
-}
-
 #arrow {
     width: 20px;
     height: 20px;
@@ -38,18 +35,24 @@ h2 {
     display: none;
 }
 
-#info{
-    top: -50px;
-    right: 0;
+.h-55{
+    height: 55.5%;
 }
 
-#helper{
-    display: inline-block;
-    height: 100%;
-    vertical-align: middle;
+.h-40{
+    height: 45%;
 }
 
-#numres{
+.noPadding{
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.noMargin{
+    margin-bottom: 0px;
+}
+
+#numres {
     color: forestgreen;
 }
 
@@ -93,12 +96,12 @@ h2 {
     height: 38px;
 }
 
-#calImg{
+#calImg {
     width: 20px;
     height: 20px;
 }
 
-#chooseDate{
+#chooseDate {
     margin-left: 100px;
 }
 

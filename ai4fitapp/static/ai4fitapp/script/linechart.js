@@ -1,5 +1,6 @@
 function drawLineChart(data) {
     var width = 700, height = setLinechartHeight();
+    var w = $('#linechartDiv').width(), h = $('#linechartDiv').height();
 
     var margin = {
         top: 20,
@@ -9,7 +10,7 @@ function drawLineChart(data) {
     };
 
     /* Add Axis into SVG */
-    var xScale = d3.scalePoint().range([0, width - 100]);
+    var xScale = d3.scalePoint().range([0, w]);
 
     var yScale = d3.scaleLinear()
         .range([height - 50, 0])
@@ -35,13 +36,13 @@ function drawLineChart(data) {
 
     var svg = d3.select("#linechart").append("svg")
         .attr('id', 'svgbar')
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom);
+        .attr('viewBox', '-40 0 ' + (w+130) + ' ' + height);
 
     svg.append("g")
         .attr("transform", "translate(" + margin.left + "," + (height - 30) + ")")
         .call(xAxis).selectAll("text")
-        .style("text-anchor", "middle");
+        .style("text-anchor", "middle")
+        .style("font-size", "11pt");
 
     svg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -107,10 +108,14 @@ $(document).ready(function () {
                 },
                 success: function (data) {
                     data = JSON.parse(data);
+
                     d3.select("#linechart").select("#svgbar").remove();
                     manageErrors();
                     setFeedbackColor();
-                    if ($('#barchartDiv').hasClass('hidden')) {
+
+                    manageDropdown();
+
+                    if ($('#rowBar').hasClass('hidden')) {
                         $('#numres').text('Risultati trovati: '.concat(getNumRes(data)));
                         drawLineChart(data)
                     } else {

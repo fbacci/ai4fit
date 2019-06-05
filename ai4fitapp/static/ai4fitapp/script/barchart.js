@@ -3,9 +3,14 @@ function drawChart(data) {
     $('#barchartV').addClass('hidden');
     $('#barchart').removeClass('hidden');
 
+    var w = $('#barchartDiv').width(), h = $('#barchartDiv').height();
+    var wX = $('#asseX').width(), hX = $('#asseX').height();
+
+    console.log(wX);
+
     var margin = {top: 20, right: 20, bottom: 30, left: 80},
-        width = 660 - margin.left - margin.right;
-    var height = getHeight(data) + 35;
+        width = 700;
+    var height = getHeight(data) + margin.bottom;
 
     var y = d3.scalePoint()
         .domain(data.map(function (d) {
@@ -19,38 +24,94 @@ function drawChart(data) {
             return d.orderField;
         })]);
 
-    var svg = d3.select("#barchart").append("svg")
-        .attr("id", "svgbar")
-        .attr("padding_bottom", "25")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height)
+    var xAxis = d3.scaleLinear()
+        .range([2, width + 200])
+        .domain([0, d3.max(data, function (d) {
+            return d.orderField;
+        })]);
+
+    if (!($('#inputQuestion').val().includes('login'))) {
+        $('#barchart').css('height', '400px');
+    } else {
+        $('#barchart').css('height', '200px');
+    }
+
+    var svg = d3.select("#barchart")
+        .append("svg")
+        .attr("id", "svgBar")
+        .attr('viewBox', function () {
+            if(!($('#inputQuestion').val().includes('login'))){
+                if(!($('#inputQuestion').val().includes('raggruppati'))){
+                    return '0 0 ' + (w-298) + ' ' + height;
+                } else {
+                    return '0 0 ' + (w+100) + ' ' + height;
+                }
+            } else {
+                return '0 0 ' + (w - h - 250) + ' ' + height;
+            }
+        })
         .append("g")
         .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
+            function () {
+                if($('#inputQuestion').val().includes('raggruppati')){
+                    return "translate(" + margin.left*1.5 + ', ' + margin.top + ")";
+                } else {
+                    return "translate(" + margin.left*2 + ', ' + margin.top + ")"
+                }
+            });
 
-    populateBar(data, svg, x, y);
+    populateBar(data, svg, x, y, height);
 
     svg.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", -65)
-        .attr("x", -50)
+        .attr("y", function () {
+            if ($('#inputQuestion').val().includes('raggruppati')) {
+                return -95;
+            } else {
+                return -65;
+            }
+        })
+        .attr("x", -80)
         .attr("dy", "1em")
         .style("text-anchor", "middle")
+        .style("font-size", function () {
+            if ($('#inputQuestion').val().includes('raggruppati')) {
+                return "20px";
+            } else {
+                return "13px";
+            }
+        })
         .text("Nome atleta");
 
-    d3.select("#xAxis")
-        .attr("height", margin.top)
-        .attr("width", 650)
+    d3.select("#asseX").append('svg')
+        .attr('id', 'xAxis')
+        .attr("viewBox", function () {
+            if(!($('#inputQuestion').val().includes('login'))){
+                if(!($('#inputQuestion').val().includes('raggruppati'))){
+                    return (-margin.left*2.55) + ' 0 ' + wX + ' ' + hX;
+                } else {
+                    return (-margin.left*1.9) + ' 0 ' + wX*1.5 + ' ' + hX;
+                }
+            } else {
+                return (-margin.left*1.9) + ' -2 ' + (wX + 20) + ' ' + hX;
+            }
+        })
         .append("g")
-        .attr("transform", "translate(" + margin.left + ",0)")
-        .call(d3.axisBottom(x).ticks(6));
+        .style("font-size", function () {
+            if ($('#inputQuestion').val().includes('raggruppati')) {
+                return "18px";
+            } else {
+                return "10px";
+            }
+        })
+        .call(d3.axisBottom(xAxis).ticks(6));
 
     var toolt = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0);
 }
 
-function populateBar(list, svgVar, newx, newy) {
+function populateBar(list, svgVar, newx, newy, height) {
     svgVar.selectAll(".bar")
         .data(list)
         .enter().append("rect")
@@ -79,6 +140,13 @@ function populateBar(list, svgVar, newx, newy) {
         });
 
     svgVar.append("g")
+        .style("font-size", function () {
+            if ($('#inputQuestion').val().includes('raggruppati')) {
+                return "15px";
+            } else {
+                return "10px";
+            }
+        })
         .call(d3.axisLeft(newy));
 }
 
@@ -89,6 +157,8 @@ function drawVerChart(data) {
     var margin = {top: 20, right: 20, bottom: 30, left: 80},
         width = getWidth(data);
     var height = 320;
+
+    var w = $('#rowVer').width(), h = $('#rowVer').height();
 
     var x = d3.scalePoint()
         .range([getWidth(data), 0])
@@ -103,9 +173,9 @@ function drawVerChart(data) {
         })]);
 
     var svg = d3.select("#barchartV").append("svg")
-        .attr("id", "svgbar")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height)
+        .attr("id", "svgBarVer")
+        .attr('width', width)
+        .attr('height', height)
         .append("g")
         .attr("transform",
             "translate(0," + margin.top + ")");
@@ -172,6 +242,10 @@ function populateVerBar(list, svgVar, newx, newy, height) {
 }
 
 $(document).ready(function () {
+    var currentSort = $('#dropdownMenu1').text();
+    var currentMode = $('#dropdownMenu4').text();
+    var currentOrient = $('#dropdownMenu3').text();
+
     var sliderRange = d3.sliderBottom()
         .min(1)
         .max(5)
@@ -191,14 +265,17 @@ $(document).ready(function () {
                 },
                 success: function (data) {
                     data = JSON.parse(data);
-                    d3.select("#barchart").select("#svgbar").remove();
-                    d3.select("#barchartV").select("#svgbar").remove();
-                    d3.select("#xAxis").select("g").remove();
+                    d3.select("#barchart").select("#svgBar").remove();
+                    d3.select("#barchartV").select("#svgBarVer").remove();
+                    d3.select("#asseX").select("#xAxis").remove();
                     d3.select("#yAxis").select("g").remove();
                     data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1]);
                     $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
                     manageErrors();
                     setFeedbackColor();
+
+                    console.log($('#barchart'));
+
                     if (currentOrient.includes('Orizzontale')) {
                         drawChart(data);
                     } else {
@@ -215,15 +292,11 @@ $(document).ready(function () {
         .select('div#slider-range')
         .append('svg')
         .attr('width', 300)
-        .attr('height', 100)
+        .attr('height', 80)
         .append('g')
         .attr('transform', 'translate(20,30)');
 
     gRange.call(sliderRange);
-
-    var currentSort = $('#dropdownMenu1').text();
-    var currentMode = $('#dropdownMenu4').text();
-    var currentOrient = $('#dropdownMenu3').text();
 
     $('#ordinamento').on("click", function () {
         if (currentSort !== $('#dropdownMenu1').text()) {
@@ -238,9 +311,10 @@ $(document).ready(function () {
                 },
                 success: function (data) {
                     data = JSON.parse(data);
-                    d3.select('#barchart').select("#svgbar").remove();
-                    d3.select("#barchartV").select("#svgbar").remove();
-                    d3.select('#xAxis').select("g").remove();
+                    d3.select('#barchart').select("#svgBar").remove();
+                    d3.select("#barchartV").select("#svgBarVer").remove();
+                    d3.select("#asseX").select("#xAxis").remove();
+                    d3.select('#yAxis').select("g").remove();
 
                     if (currentMode == 'voto')
                         if (sliderRange.value()[0] != 1 || sliderRange.value()[1] != 1) {
@@ -278,9 +352,10 @@ $(document).ready(function () {
                 },
                 success: function (data) {
                     data = JSON.parse(data);
-                    d3.select('#barchart').select("#svgbar").remove();
-                    d3.select("#barchartV").select("#svgbar").remove();
-                    d3.select('#xAxis').select("g").remove();
+                    d3.select('#barchart').select("#svgBar").remove();
+                    d3.select("#barchartV").select("#svgBarVer").remove();
+                    d3.select("#asseX").select("#xAxis").remove();
+                    d3.select('#yAxis').select("g").remove();
 
                     if (currentMode == 'voto') {
                         if ($('#inputQuestion').val().includes('ordina') &&
@@ -290,6 +365,7 @@ $(document).ready(function () {
                     }
 
                     $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
+
                     manageErrors();
                     setFeedbackColor();
 
@@ -307,7 +383,6 @@ $(document).ready(function () {
     });
 
     $('#criterio').on("click", function () {
-        console.log($('#inputQuestion').val());
         if (currentMode !== $('#dropdownMenu4').text()) {
             currentMode = $('#dropdownMenu4').text();
             $.ajax({
@@ -320,9 +395,10 @@ $(document).ready(function () {
                 },
                 success: function (data) {
                     data = JSON.parse(data);
-                    d3.select("#barchart").select("#svgbar").remove();
-                    d3.select("#barchartV").select("#svgbar").remove();
-                    d3.select("#xAxis").select("g").remove();
+                    d3.select("#barchart").select("#svgBar").remove();
+                    d3.select("#barchartV").select("#svgBarVer").remove();
+                    d3.select("#asseX").select("#xAxis").remove();
+                    d3.select('#yAxis').select("g").remove();
 
                     if (currentMode !== 'voto' || $('#inputQuestion').val().includes('migliori')) {
                         $('#sliderVoto').addClass('hidden');
@@ -331,8 +407,11 @@ $(document).ready(function () {
                     }
 
                     $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
+
                     manageErrors();
                     setFeedbackColor();
+
+                    manageDropdown();
 
                     if (currentOrient.includes('Orizzontale')) {
                         drawChart(data);

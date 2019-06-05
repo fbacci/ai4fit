@@ -1,41 +1,89 @@
-.bar { fill: dodgerblue; }
-
-#barchartDiv{
-    width: 680px;
-    height: 420px;
-    border: black 1px;
+#scatterDiv {
+    width: 90%;
+    height: 540px;
+    border: 1px solid silver;
 }
 
-#barchart{
-    height: 300px;
-    width: 680px;
+.bordered{
+    border: 1px solid silver;
+}
+
+.bar {
+    fill: dodgerblue;
+}
+
+/*.dimBarDiv {
+    width: 90%;
+    height: 540px;
+    border: 1px solid silver;
+}
+
+.dimBarDiv2 {
+    width: 90%;
+    height: 481px;
+    border: 1px solid silver;
+}
+
+.dimBarDiv3 {
+    width: 90%;
+    height: 310px;
+    border: 1px solid silver;
+}*/
+
+#barchart {
     overflow-y: scroll;
     overflow-x: hidden;
 }
 
-#barchartV{
-    height: 350px;
-    width: 500px;
+#barchartV {
+    width: 60%;
     overflow-y: hidden;
     overflow-x: scroll;
+}
+
+#asseX {
+    height: 25px;
+    width: 100%;
+}
+
+#rowVer {
+    width: 90%;
 }
 
 #colVer {
     width: 55px;
 }
 
-#piechartDiv{
-    height: 130px;
-    width: 500px;
+/*.dimPieDiv {
+    width: 90%;
+    height: 481px;
+    border: 1px solid silver;
 }
 
-#linechart{
-    height: 200px;
-    width: 700px;
+.dimPieDiv2 {
+    width: 90%;
+    height: 527px;
+    border: 1px solid silver;
+}*/
+
+.dimLineDiv {
+    width: 90%;
+    height: 520px;
+    border: 1px solid silver;
 }
 
-#linechartDiv{
-    height: 340px;
+.dimLineDiv2 {
+    width: 90%;
+    height: 209px;
+    border: 1px solid silver;
+}
+
+#linechart {
+    width: 90%;
+}
+
+#colOrdinamento {
+    left: 120px;
 }
 
 div.tooltip {

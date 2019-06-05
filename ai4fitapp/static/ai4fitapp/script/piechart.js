@@ -1,17 +1,25 @@
 function drawPieChart(percent) {
-    console.log(percent);
-    var width = 500, height = setPieHeight(), margin = 40;
+    var width = 500, height = 447, margin = 40;
     var legendRectSize = 18, legendSpacing = 4;
 
     var radius = Math.min(width, height) / 2 - margin;
 
+    var w = $('#piechartDiv').width(), h = $('#piechartDiv').height() - margin;
+
     var svg = d3.select("#piechart")
         .append("svg")
-        .attr("id", "svgbar")
-        .attr("width", width)
-        .attr("height", height)
-        .append("g")
-        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+        .attr("id", "svgPie")
+        .attr("preserveAspectRatio", "xMinYMin")
+        .attr('viewBox', function () {
+            if(!($('#inputQuestion')).val().includes('login')){
+                return '0 0 ' + w + ' ' + h;
+            } else {
+                return '0 0 ' + w + ' ' + h*2;
+            }
+        })
+        .append('g')
+        .attr('transform',
+            'translate(' + ($('#svgPie').width() / 2 - 45) + ', ' + ($('#piechartDiv').height() / 2 - 30) + ')')
 
 // set the color scale
     var color = d3.scaleOrdinal()
@@ -27,11 +35,9 @@ function drawPieChart(percent) {
 
     var data_ready = pie(d3.entries(percent));
 
-    console.log(data_ready)
-
     var arcGenerator = d3.arc()
         .innerRadius(0)
-        .outerRadius(radius)
+        .outerRadius(radius);
 
 // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
     svg
@@ -72,7 +78,7 @@ function drawPieChart(percent) {
             var offset = height * color.domain().length / 2;
             var horz = -2 * legendRectSize;
             var vert = i * height - offset;
-            return 'translate(150, ' + vert + ')';
+            return 'translate(210, ' + vert + ')';
         });
 
     legend.append('rect')
@@ -98,12 +104,6 @@ function drawPieChart(percent) {
             d3.selectAll('.tooltip').html(d.item_user_id + " - " + d.orderField + "<br/>" + d.groupField)
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
-
-            d3.select(this)
-                .style('fill', function (d) {
-                    return color(d.data.key);
-                });
-
         })
         .on("mouseout", function (d) {
             d3.selectAll('.tooltip').transition()

@@ -1,0 +1,40 @@
+.highlight {
+    width: 20px;
+}
+
+.container i {
+    transition: all 0.4s ease;
+}
+
+/******************/
+
+#info {
+    width: 600px;
+    top: 140px;
+    position: absolute;
+}
+
+#header {
+    width: 340px;
+    height: 450px;
+    position: absolute;
+    right: 0;
+    border: 1px solid #d8d8d8;
+    margin-left: 40px;
+    padding: 20px 40px;
+    border-radius: 3px;
+    box-shadow: 0 0 8px gray;
+    background-color: white;
+}
+
+#sidebar {
+    position: absolute;
+    top: 200px;
+    left: 220px;
+}
+
+#sidebar1 {
+    position: absolute;
+    top: 200px;
+    left: 220px;
+}
