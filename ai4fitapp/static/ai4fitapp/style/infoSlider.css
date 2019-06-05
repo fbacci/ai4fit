@@ -2,6 +2,10 @@
     width: 20px;
 }
 
+.shadow{
+    box-shadow:0 0 8px white;
+}
+
 .container i {
     transition: all 0.4s ease;
 }

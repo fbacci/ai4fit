@@ -14,7 +14,7 @@ function drawPieChart(percent) {
             if(!($('#inputQuestion')).val().includes('login')){
                 return '0 0 ' + w + ' ' + h;
             } else {
-                return '0 0 ' + w + ' ' + h*2;
+                return '0 0 ' + w + ' ' + (h + h/2);
             }
         })
         .append('g')

@@ -22,8 +22,8 @@ h2 {
     border-radius: 25px;
 }
 
-.mymarginleft {
-    margin-left: 150px;
+#chooseDate{
+    margin-left: 0;
 }
 
 #arrow {
@@ -35,12 +35,16 @@ h2 {
     display: none;
 }
 
+.h-50{
+    height: 50%;
+}
+
 .h-55{
-    height: 55.5%;
+    height: 55%;
 }
 
 .h-40{
-    height: 45%;
+    height: 46.5%;
 }
 
 .noPadding{
@@ -87,10 +91,6 @@ h2 {
     margin-top: 10px;
 }
 
-#rangeLineChart {
-    left: 270px;
-}
-
 #btnDate {
     width: 80px;
     height: 38px;
@@ -99,10 +99,6 @@ h2 {
 #calImg {
     width: 20px;
     height: 20px;
-}
-
-#chooseDate {
-    margin-left: 100px;
 }
 
 #loginForm {

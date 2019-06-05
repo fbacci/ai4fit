@@ -6,8 +6,6 @@ function drawChart(data) {
     var w = $('#barchartDiv').width(), h = $('#barchartDiv').height();
     var wX = $('#asseX').width(), hX = $('#asseX').height();
 
-    console.log(wX);
-
     var margin = {top: 20, right: 20, bottom: 30, left: 80},
         width = 700;
     var height = getHeight(data) + margin.bottom;
@@ -40,23 +38,23 @@ function drawChart(data) {
         .append("svg")
         .attr("id", "svgBar")
         .attr('viewBox', function () {
-            if(!($('#inputQuestion').val().includes('login'))){
-                if(!($('#inputQuestion').val().includes('raggruppati'))){
-                    return '0 0 ' + (w-298) + ' ' + height;
+            if (!($('#inputQuestion').val().includes('login'))) {
+                if (!($('#inputQuestion').val().includes('raggruppati'))) {
+                    return '0 0 ' + (w - 298) + ' ' + height;
                 } else {
-                    return '0 0 ' + (w+100) + ' ' + height;
+                    return '0 0 ' + (w + 100) + ' ' + height;
                 }
             } else {
-                return '0 0 ' + (w - h - 250) + ' ' + height;
+                return '0 0 ' + (w * 1.2) + ' ' + height;
             }
         })
         .append("g")
         .attr("transform",
             function () {
-                if($('#inputQuestion').val().includes('raggruppati')){
-                    return "translate(" + margin.left*1.5 + ', ' + margin.top + ")";
+                if ($('#inputQuestion').val().includes('raggruppati')) {
+                    return "translate(" + margin.left * 1.3 + ', ' + margin.top + ")";
                 } else {
-                    return "translate(" + margin.left*2 + ', ' + margin.top + ")"
+                    return "translate(" + margin.left * 2 + ', ' + margin.top + ")"
                 }
             });
 
@@ -86,14 +84,14 @@ function drawChart(data) {
     d3.select("#asseX").append('svg')
         .attr('id', 'xAxis')
         .attr("viewBox", function () {
-            if(!($('#inputQuestion').val().includes('login'))){
-                if(!($('#inputQuestion').val().includes('raggruppati'))){
-                    return (-margin.left*2.55) + ' 0 ' + wX + ' ' + hX;
+            if (!($('#inputQuestion').val().includes('login'))) {
+                if (!($('#inputQuestion').val().includes('raggruppati'))) {
+                    return (-margin.left * 2.55) + ' 0 ' + wX + ' ' + hX;
                 } else {
-                    return (-margin.left*1.9) + ' 0 ' + wX*1.5 + ' ' + hX;
+                    return (-margin.left - 52) + ' 0 ' + wX * 1.5 + ' ' + hX;
                 }
             } else {
-                return (-margin.left*1.9) + ' -2 ' + (wX + 20) + ' ' + hX;
+                return (-margin.left - 51) + ' -2 ' + (wX * 1.5 + 55) + ' ' + hX;
             }
         })
         .append("g")
@@ -106,12 +104,32 @@ function drawChart(data) {
         })
         .call(d3.axisBottom(xAxis).ticks(6));
 
+    d3.select('#asseX').select('svg')
+        .append("text")
+        .attr("y", 35)
+        .attr("x", function () {
+            if($('#piechartDiv').hasClass('hidden')){
+                return $('#asseX').width() - 450;
+            } else {
+                return $('#asseX').width() + 100;
+            }
+        })
+        .style("text-anchor", "middle")
+        .style("font-size", function () {
+            if ($('#inputQuestion').val().includes('raggruppati')) {
+                return "20px";
+            } else {
+                return "15px";
+            }
+        })
+        .text(setXAxisText());
+
     var toolt = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0);
 }
 
-function populateBar(list, svgVar, newx, newy, height) {
+function populateBar(list, svgVar, newx, newy) {
     svgVar.selectAll(".bar")
         .data(list)
         .enter().append("rect")
@@ -182,14 +200,6 @@ function drawVerChart(data) {
 
     populateVerBar(data, svg, x, y, height);
 
-    /*svg.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -65)
-        .attr("x", -margin.left * 1.7)
-        .attr("dy", "1em")
-        .style("text-anchor", "middle")
-        .text("Criterio di ordinamento");*/
-
     svg.append("g").attr('transform', 'translate(0,' + (height - 50) + ')')
         .call(d3.axisBottom(x)).selectAll("text")
         .style("text-anchor", "end")
@@ -255,6 +265,8 @@ $(document).ready(function () {
         .default([1, 5])
         .fill('dodgerblue')
         .on('onchange', val => {
+            var currentSort = $('#dropdownMenu1').text();
+            var currentMode = $('#dropdownMenu4').text();
             $.ajax({
                 url: '',
                 type: 'POST',
@@ -299,6 +311,8 @@ $(document).ready(function () {
     gRange.call(sliderRange);
 
     $('#ordinamento').on("click", function () {
+        var currentMode = $('#dropdownMenu4').text();
+
         if (currentSort !== $('#dropdownMenu1').text()) {
             currentSort = $('#dropdownMenu1').text();
             $.ajax({
@@ -324,6 +338,8 @@ $(document).ready(function () {
                     $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
                     manageErrors();
                     setFeedbackColor();
+
+                    manageDropdown();
 
                     if (currentOrient.includes('Orizzontale')) {
                         drawChart(data);
@@ -413,6 +429,10 @@ $(document).ready(function () {
 
                     manageDropdown();
 
+                    if ($('#inputQuestion').val().includes('login')) {
+                        data = data.slice(0, data.length - 1);
+                    }
+
                     if (currentOrient.includes('Orizzontale')) {
                         drawChart(data);
                     } else {
@@ -426,3 +446,25 @@ $(document).ready(function () {
         }
     });
 });
+
+function setXAxisText() {
+    var value = $('#inputQuestion').val();
+
+    if (value.includes('ordina') || value.includes('migliori')) {
+        var currentMode = $('#dropdownMenu4').text();
+
+        if (currentMode === 'calorie') {
+            return 'Calorie';
+        } else if (currentMode === 'velocità media') {
+            return 'Velocità media';
+        } else {
+            return 'Voto';
+        }
+    } else if (value.includes('atleti con')){
+        if(value.includes('atleti con bpm')){
+            return "bpm";
+        } else if(value.includes('atleti con età')){
+            return "Età"
+        }
+    }
+}

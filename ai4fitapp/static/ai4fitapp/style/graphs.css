@@ -1,34 +1,10 @@
-#scatterDiv {
-    width: 90%;
-    height: 540px;
-    border: 1px solid silver;
-}
-
-.bordered{
+.bordered {
     border: 1px solid silver;
 }
 
 .bar {
     fill: dodgerblue;
 }
-
-/*.dimBarDiv {
-    width: 90%;
-    height: 540px;
-    border: 1px solid silver;
-}
-
-.dimBarDiv2 {
-    width: 90%;
-    height: 481px;
-    border: 1px solid silver;
-}
-
-.dimBarDiv3 {
-    width: 90%;
-    height: 310px;
-    border: 1px solid silver;
-}*/
 
 #barchart {
     overflow-y: scroll;
@@ -42,7 +18,7 @@
 }
 
 #asseX {
-    height: 25px;
+    height: 40px;
     width: 100%;
 }
 
@@ -54,32 +30,14 @@
     width: 55px;
 }
 
-/*.dimPieDiv {
-    width: 90%;
-    height: 481px;
-    border: 1px solid silver;
-}
-
-.dimPieDiv2 {
-    width: 90%;
-    height: 527px;
-    border: 1px solid silver;
-}*/
-
-.dimLineDiv {
-    width: 90%;
-    height: 520px;
-    border: 1px solid silver;
-}
-
-.dimLineDiv2 {
-    width: 90%;
-    height: 209px;
-    border: 1px solid silver;
-}
-
 #linechart {
     width: 90%;
+}
+
+#scatterDiv {
+    width: 90%;
+    height: 540px;
+    border: 1px solid silver;
 }
 
 #colOrdinamento {

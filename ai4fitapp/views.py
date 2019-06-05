@@ -131,9 +131,10 @@ def askInfo(request):
                 newData = newData.annotate(orderField=ExpressionWrapper(
                     Round(Cast(F('sumB'), FloatField()) / Cast(F('count'), FloatField()), 2),
                     output_field=FloatField()))
-
-            if 'get_age' in entities:
+            elif 'get_age' in entities:
                 newData = newData.annotate(orderField=F('age'))
+            else:
+                newData = newData.annotate(orderField=Value(0, IntegerField()))
 
             if orderMode == "crescente":
                 newData = newData.order_by('-orderField')
@@ -162,8 +163,8 @@ def askInfo(request):
                     for d in newData:
                         d['y'] = getTime(d['y'])
 
-                for d in newData:
-                    results.append(d)
+                    for d in newData:
+                        results.append(d)
 
             if 'number' in entities:
                 if len(entities['number']) > 1:
@@ -184,7 +185,13 @@ def askInfo(request):
 
             results.sort(key=lambda x: x['orderField'])
 
-            if len(results) > 0 and len(dateList) > 0:
+            print(results)
+
+            if len(entities) == 3 and len(dateList) > 0 and len(results) == 0\
+                    and ('group_by_age' in entities or 'group_by_calories' in entities):
+                results = list(newData)
+                results.append(dateList)
+            elif len(results) > 0 and len(dateList) > 0:
                 results.append(dateList)
             elif len(dateList) > 0 and len(results) == 0:
                 results = dateList

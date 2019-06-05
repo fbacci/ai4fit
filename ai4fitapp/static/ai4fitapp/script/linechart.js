@@ -1,4 +1,6 @@
 function drawLineChart(data) {
+    data = manageDateFormat(data);
+
     var width = 700, height = setLinechartHeight();
     var w = $('#linechartDiv').width(), h = $('#linechartDiv').height();
 
@@ -36,22 +38,31 @@ function drawLineChart(data) {
 
     var svg = d3.select("#linechart").append("svg")
         .attr('id', 'svgbar')
-        .attr('viewBox', '-40 0 ' + (w+130) + ' ' + height);
+        .attr('viewBox', '-40 0 ' + (w + 130) + ' ' + height)
+        .attr('transform', function () {
+            if (!$('#piechartDiv').hasClass('hidden')) {
+                return "translate(2," + -margin.top / 2 + ")"
+            } else {
+                return "translate(" + margin.left + ', ' + -margin.top / 2 + ")"
+            }
+        });
 
     svg.append("g")
         .attr("transform", "translate(" + margin.left + "," + (height - 30) + ")")
         .call(xAxis).selectAll("text")
         .style("text-anchor", "middle")
-        .style("font-size", "11pt");
+        .style("font-size", "15px");
 
     svg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .style("font-size", "15px")
         .call(yAxis);
 
     svg.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", 20)
-        .attr("x", -120)
+        .attr("y", -15)
+        .attr("x", -150)
+        .style("font-size", "20px")
         .text("Totale accessi");
 
     var line = svg.append("path").attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -136,6 +147,7 @@ $(document).ready(function () {
             data: {question: $('#inputQuestion').val(), data1: $('#d1').val(), data2: $('#d2').val()},
             success: function (data) {
                 data = JSON.parse(data);
+                setValue($('#inputQuestion').val());
                 d3.select("#linechart").select('#svgbar').remove();
                 drawLineChart(data);
             },
@@ -145,3 +157,15 @@ $(document).ready(function () {
         })
     });
 });
+
+function manageDateFormat(d) {
+    var i, currentRange = $('#dropdownMenu5').text();
+
+    if (currentRange === 'anno') {
+        for (i = 0; i < d.length; i++) {
+            d[i][0] = d[i][0].substr(d[i][0].length - 7)
+        }
+    }
+
+    return d;
+}
