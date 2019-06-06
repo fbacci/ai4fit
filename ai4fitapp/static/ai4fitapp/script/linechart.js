@@ -43,7 +43,11 @@ function drawLineChart(data) {
             if (!$('#piechartDiv').hasClass('hidden')) {
                 return "translate(2," + -margin.top / 2 + ")"
             } else {
-                return "translate(" + margin.left + ', ' + -margin.top / 2 + ")"
+                if($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')){
+                    return "translate(" + margin.left/2 + ', ' + -margin.top / 2 + ")"
+                } else {
+                    return "translate(" + margin.left + ', ' + -margin.top / 2 + ")"
+                }
             }
         });
 

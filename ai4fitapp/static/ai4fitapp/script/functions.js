@@ -1,3 +1,5 @@
+barLineColCnt = undefined;
+
 $(document).ready(function () {
     var queries = ["ordina gli atleti per voto", "ordina gli atleti per velocità media", "ordina gli atleti per calorie",
         "mostra i migliori atleti", "raggruppati per calorie", "raggruppati per calorie giornaliere",
@@ -12,6 +14,8 @@ $(document).ready(function () {
         $('#inputQuestion').val('');
         $('#inputQuestion').tagsinput('removeAll');
 
+        $('#barLineCol').replaceWith(barLineColCnt);
+
         reset();
 
         $('#numres').text('');
@@ -20,7 +24,10 @@ $(document).ready(function () {
     });
 
     $('#inputQuestion').on('itemRemoved', function (event) {
-        reset();
+        if (event.item.includes('login')) {
+            $('#barLineCol').replaceWith(barLineColCnt);
+            $('#rowBar')
+        }
 
         var v = setValue($('#inputQuestion').val());
 
@@ -178,22 +185,34 @@ function drawCharts(value, data) {
             }
         } else if (value.includes('login') && (value.includes('atleti con') || value.includes('migliori'))) {
             if (n != 0) {
+                barLineColCnt = $('#barLineCol').clone();
+
                 var bar = $("#rowBar").contents();
                 $("#rowBar").replaceWith(bar);
 
                 var line = $("#rowLine").contents();
                 $("#rowLine").replaceWith(line);
 
-                var $newRow = $("<div class='row' id='barLineRow'></div>"),
+                var $newRow = $("<div class='row h-100' id='barLineRow'></div>"),
                     newRow2 = document.createElement("div"),
                     barLineCol = document.getElementById("barLineCol");
 
-                $("#graphRow > #barLineCol").append( $newRow, [ newRow2, barLineCol ] );
+                $("#graphRow > #barLineCol").append($newRow, [newRow2, barLineCol]);
 
                 $('#barLineRow').append($('#barchartDiv'));
                 $('#barLineRow').append($('#linechartDiv'));
 
-                drawChart(data);
+                $('#linechartDiv').removeClass('mt-2');
+                $('#linechartDiv').removeClass('mb-2');
+                $('#linechart').addClass('mt-5');
+                $('#chooseDate').removeClass('hidden');
+                $('#chooseDate').removeClass('w-50');
+                $('#chooseDate').addClass('w-100');
+                $('#barchartDiv').addClass('mr-2');
+                $('#barchart').addClass('mt-5');
+                $('.spaceLine').addClass('hidden');
+
+                drawChart(data.slice(0, data.length - 1));
                 drawLineChart(data[data.length - 1]);
             } else {
                 $('#numres').text('NESSUN RISULTATO!');
@@ -309,8 +328,7 @@ function setValue(value) {
         }
     }
 
-
-    if ($('#d1').val() == '' && $('#d1').val() == '') {
+    if (($('#d1').val() == '' && $('#d2').val() == '')) {
         $('#colDropData > #dropData > a').removeClass('hidden')
         $('#colDropData > #dropData').removeClass('hidden');
         $('#colDropData').removeClass('hidden');
@@ -327,7 +345,7 @@ function setValue(value) {
             $('#rangeLineChart').text("Intervallo: ");
             $('a#dropdownMenu5').text('anno');
         }
-    } else {
+    } else if (typeof $('#d1').val() !== 'undefined' && typeof $('#d2').val() !== 'undefined') {
         $('#rangeLineChart').removeClass('col-md-6');
         $('#rangeLineChart').addClass('col-md-7');
         $('#rangeLineChart').text("Intervallo date: ".concat($('#d1').val().concat(' - ').concat($('#d2').val())));
@@ -460,7 +478,7 @@ function getWidth(data) {
 
 function setLinechartHeight() {
     if ($('#inputQuestion').val().includes('login') && ($('#inputQuestion').val().includes('atleti con')
-        || $('#inputQuestion').val().includes('migliori'))) {
+        || $('#inputQuestion').val().includes('migliori')) && $('#inputQuestion').val().includes('raggruppati')) {
         return 250;
     } else {
         return 400;

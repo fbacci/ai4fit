@@ -31,7 +31,11 @@ function drawChart(data) {
     if (!($('#inputQuestion').val().includes('login'))) {
         $('#barchart').css('height', '400px');
     } else {
-        $('#barchart').css('height', '200px');
+        if($('#inputQuestion').val().includes('raggruppati')){
+            $('#barchart').css('height', '200px');
+        } else {
+            $('#barchart').css('height', '300px');
+        }
     }
 
     var svg = d3.select("#barchart")
@@ -45,7 +49,11 @@ function drawChart(data) {
                     return '0 0 ' + (w + 100) + ' ' + height;
                 }
             } else {
-                return '0 0 ' + (w * 1.2) + ' ' + height;
+                if(!($('#inputQuestion').val().includes('raggruppati'))){
+                    return '0 0 ' + (w + 170) + ' ' + height;
+                } else {
+                    return '0 0 ' + (w * 1.2) + ' ' + height;
+                }
             }
         })
         .append("g")
@@ -54,7 +62,11 @@ function drawChart(data) {
                 if ($('#inputQuestion').val().includes('raggruppati')) {
                     return "translate(" + margin.left * 1.3 + ', ' + margin.top + ")";
                 } else {
-                    return "translate(" + margin.left * 2 + ', ' + margin.top + ")"
+                    if($('#inputQuestion').val().includes('login')){
+                        return "translate(" + margin.left + ', ' + margin.top + ")"
+                    } else {
+                        return "translate(" + margin.left * 2 + ', ' + margin.top + ")"
+                    }
                 }
             });
 
@@ -66,7 +78,11 @@ function drawChart(data) {
             if ($('#inputQuestion').val().includes('raggruppati')) {
                 return -95;
             } else {
-                return -65;
+                if($('#inputQuestion').val().includes('login')){
+                    return -85;
+                } else {
+                    return -65;
+                }
             }
         })
         .attr("x", -80)
@@ -76,7 +92,11 @@ function drawChart(data) {
             if ($('#inputQuestion').val().includes('raggruppati')) {
                 return "20px";
             } else {
-                return "13px";
+                if($('#inputQuestion').val().includes('login')){
+                    return "20px"
+                } else {
+                    return "13px";
+                }
             }
         })
         .text("Nome atleta");
@@ -91,7 +111,11 @@ function drawChart(data) {
                     return (-margin.left - 52) + ' 0 ' + wX * 1.5 + ' ' + hX;
                 }
             } else {
-                return (-margin.left - 51) + ' -2 ' + (wX * 1.5 + 55) + ' ' + hX;
+                if($('#inputQuestion').val().includes('raggruppati')){
+                    return (-margin.left - 51) + ' -2 ' + (wX * 1.5 + 55) + ' ' + hX;
+                } else {
+                    return (-margin.left - 20) + ' -2 ' + (wX * 1.5 + 110) + ' ' + hX;
+                }
             }
         })
         .append("g")
@@ -99,7 +123,11 @@ function drawChart(data) {
             if ($('#inputQuestion').val().includes('raggruppati')) {
                 return "18px";
             } else {
-                return "10px";
+                if($('#inputQuestion').val().includes('login')){
+                    return "17px"
+                } else {
+                    return "10px";
+                }
             }
         })
         .call(d3.axisBottom(xAxis).ticks(6));
@@ -109,7 +137,11 @@ function drawChart(data) {
         .attr("y", 35)
         .attr("x", function () {
             if($('#piechartDiv').hasClass('hidden')){
-                return $('#asseX').width() - 450;
+                if($('#inputQuestion').val().includes('login')){
+                    return $('#asseX').width() + 200;
+                } else {
+                    return $('#asseX').width() - 450;
+                }
             } else {
                 return $('#asseX').width() + 100;
             }
@@ -119,7 +151,11 @@ function drawChart(data) {
             if ($('#inputQuestion').val().includes('raggruppati')) {
                 return "20px";
             } else {
-                return "15px";
+                if($('#inputQuestion').val().includes('login')){
+                    return "25px"
+                } else {
+                    return "15px";
+                }
             }
         })
         .text(setXAxisText());
@@ -162,7 +198,11 @@ function populateBar(list, svgVar, newx, newy) {
             if ($('#inputQuestion').val().includes('raggruppati')) {
                 return "15px";
             } else {
-                return "10px";
+                if($('#inputQuestion').val().includes('login')){
+                    return "15px"
+                } else {
+                    return "10px";
+                }
             }
         })
         .call(d3.axisLeft(newy));
