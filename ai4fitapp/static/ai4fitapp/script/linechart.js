@@ -1,8 +1,19 @@
 function drawLineChart(data) {
     data = manageDateFormat(data);
 
-    var width = 700, height = setLinechartHeight();
+    var width = 700, height;
     var w = $('#linechartDiv').width(), h = $('#linechartDiv').height();
+
+    if ($('#inputQuestion').val().includes('login') && ($('#inputQuestion').val().includes('atleti con')
+        || $('#inputQuestion').val().includes('migliori')) && $('#inputQuestion').val().includes('raggruppati')) {
+        height = 250;
+    } else {
+        if ($('#inputQuestion').val().includes('atleti con') || $('#inputQuestion').val().includes('migliori')){
+            height = 510;
+        } else {
+            height = 400;
+        }
+    }
 
     var margin = {
         top: 20,
@@ -38,13 +49,20 @@ function drawLineChart(data) {
 
     var svg = d3.select("#linechart").append("svg")
         .attr('id', 'svgbar')
-        .attr('viewBox', '-40 0 ' + (w + 130) + ' ' + height)
+        .attr('viewBox', function () {
+            if ($('#inputQuestion').val().includes('raggruppati') &&
+                (!($('#inputQuestion').val().includes('atleti con')) || !($('#inputQuestion').val().includes('migliori')))) {
+                return '-40 0 ' + 900 + ' ' + height;
+            } else {
+                return '-40 0 ' + (w + 130) + ' ' + height;
+            }
+        })
         .attr('transform', function () {
             if (!$('#piechartDiv').hasClass('hidden')) {
                 return "translate(2," + -margin.top / 2 + ")"
             } else {
-                if($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')){
-                    return "translate(" + margin.left/2 + ', ' + -margin.top / 2 + ")"
+                if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
+                    return "translate(" + margin.left / 2 + ', ' + -margin.top / 2 + ")"
                 } else {
                     return "translate(" + margin.left + ', ' + -margin.top / 2 + ")"
                 }

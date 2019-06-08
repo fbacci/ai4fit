@@ -102,11 +102,8 @@ def askInfo(request):
 
             if len(entities) > 1:
                 newData = data.values('item_user_id', 'user_birthdate', 'user_lastlogin', 'user_gender') \
-                    .annotate(sumD=Sum('duration'), sumC=Sum('calories'), sumB=Sum('avgbpm'), sumS=Sum('avgspeed'),
+                    .annotate(sumDist = Sum('distance'), sumD=Sum('duration'), sumC=Sum('calories'), sumB=Sum('avgbpm'), sumS=Sum('avgspeed'),
                               count=Count('item_user_id'))
-
-            # if 'group_by_gender' in entities:
-            #    newData = newData.annotate(groupField=F('user_gender')).distinct()
 
             if 'group_by_age' in entities:
                 newData = newData.annotate(groupField=F('age')).distinct()
@@ -136,11 +133,6 @@ def askInfo(request):
             else:
                 newData = newData.annotate(orderField=Value(0, IntegerField()))
 
-            if orderMode == "crescente":
-                newData = newData.order_by('-orderField')
-            else:
-                newData = newData.order_by('orderField')
-
             if 'get_distribution' in entities:
                 if 'get_calories' in entities:
                     newData = newData.annotate(orderField=ExpressionWrapper(
@@ -163,8 +155,16 @@ def askInfo(request):
                     for d in newData:
                         d['y'] = getTime(d['y'])
 
+                if 'get_distance' in entities:
+                    newData = newData.annotate(y=ExpressionWrapper(
+                        Round(Cast(F('sumDist'), FloatField()) / Cast(F('count'), FloatField()), 2),
+                        output_field=FloatField()))
+
                     for d in newData:
-                        results.append(d)
+                        d['y'] = getDistance(d['y'])
+
+                for d in newData:
+                    results.append(d)
 
             if 'number' in entities:
                 if len(entities['number']) > 1:
@@ -185,7 +185,8 @@ def askInfo(request):
 
             results.sort(key=lambda x: x['orderField'])
 
-            print(results)
+            if orderMode == 'crescente':
+                results = results[::-1]
 
             if len(entities) == 3 and len(dateList) > 0 and len(results) == 0\
                     and ('group_by_age' in entities or 'group_by_calories' in entities):
@@ -279,9 +280,8 @@ def askInfo(request):
                         Round(Cast(F('sum'), FloatField()) / Cast(F('count'), FloatField()), 2),
                         output_field=FloatField()))
 
-            elif criterioOrd == 'calorie' or ('get_calories' in entities
-                                              and (
-                                                      criterioOrd == 'calorie' or criterioOrd == '' or criterioOrd is None)):
+            elif criterioOrd == 'calorie' or ('get_calories' in entities and
+                                              (criterioOrd == 'calorie' or criterioOrd == '' or criterioOrd is None)):
                 data = data.values('item_user_id').annotate(sum=Sum('calories'), count=Count('item_user_id'))
                 results = data.values('item_user_id').annotate(
                     orderField=ExpressionWrapper(
@@ -442,7 +442,11 @@ def getYear(day):
 
 
 def getTime(t):
-    return t/3600;
+    return t/3600
+
+
+def getDistance(d):
+    return d/1000
 
 
 @csrf_exempt

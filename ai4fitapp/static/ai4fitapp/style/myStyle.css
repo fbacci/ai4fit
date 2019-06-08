@@ -16,10 +16,14 @@ h2 {
 }
 
 #mycontainer {
-    min-height: 98%;
+    height: 98%;
     width: 90%;
     margin-top: 5px;
     border-radius: 25px;
+}
+
+#graphRow{
+    height: 85%;
 }
 
 #chooseDate{

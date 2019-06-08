@@ -1,10 +1,10 @@
 barLineColCnt = undefined;
-
 $(document).ready(function () {
     var queries = ["ordina gli atleti per voto", "ordina gli atleti per velocità media", "ordina gli atleti per calorie",
         "mostra i migliori atleti", "raggruppati per calorie", "raggruppati per calorie giornaliere",
         "raggruppati per età", "mostra andamento login di questa settimana", "mostra andamento login di questo mese",
-        "mostra andamento login di quest'anno"];
+        "mostra andamento login di quest'anno", "mostra la distribuzione degli atleti per calorie e durata allenamento",
+        "mostra la distribuzione degli atleti per calorie ed età", "mostra la distribuzione degli atleti per calorie e velocità"];
     //var fakerator = new Fakerator();
 
     manageDropdown();
@@ -14,58 +14,19 @@ $(document).ready(function () {
         $('#inputQuestion').val('');
         $('#inputQuestion').tagsinput('removeAll');
 
-        $('#barLineCol').replaceWith(barLineColCnt);
+        console.log(barLineColCnt);
+
+        if (!typeof barLineColCnt === undefined) {
+            $('#barLineCol').replaceWith(barLineColCnt);
+        }
 
         reset();
-
-        $('#numres').text('');
-        $('a#dropdownMenu3').text('Orizzontale');
-        $('a#dropdownMenu1').text('Decrescente');
+        setValue($('#inputQuestion').val());
+        setDatePicker();
     });
 
     $('#inputQuestion').on('itemRemoved', function (event) {
-        if (event.item.includes('login')) {
-            $('#barLineCol').replaceWith(barLineColCnt);
-            $('#rowBar')
-        }
-
-        var v = setValue($('#inputQuestion').val());
-
-        manageErrors();
-        setFeedbackColor();
-        manageDropdown();
-
-        if (v == '') {
-            $('#numres').addClass('hidden');
-            $('#numres').text('');
-            $('#info').addClass('hidden');
-            $('a#dropdownMenu3').text('Orizzontale');
-            $('a#dropdownMenu1').text('Decrescente');
-        } else {
-            $.ajax({
-                url: '',
-                type: 'POST',
-                data: {question: $('#inputQuestion').val(), criterio: $('#dropdownMenu4').text()},
-                success: function (data) {
-                    data = JSON.parse(data);
-                    d3.select("#barchart").select("#svgBar").remove();
-                    d3.select("#barchartV").select("#svgBarVer").remove();
-                    d3.select("#linechart").select("#svgbar").remove();
-                    d3.select("#piechart").select("#svgPie").remove();
-                    d3.select("#asseX").select("#xAxis").remove();
-                    d3.select("#yAxis").select("g").remove();
-                    d3.select("#scatter").select("#svgScat").remove();
-                    $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
-                    manageErrors();
-                    setFeedbackColor();
-                    drawCharts($('#inputQuestion').val(), data);
-                },
-                error: function () {
-                    console.log('errore cancellazione')
-                }
-            })
-        }
-
+        onItemRemoved();
     });
 
     $('#inputQuestion').tagsinput({
@@ -77,39 +38,10 @@ $(document).ready(function () {
         }
     });
 
-    setValue($('#inputQuestion').val());
-
-    $(function () {
-        $.ajax({
-            url: 'infodataset',
-            type: 'POST',
-            data: {dataset: 'Workout'},
-            success: function (data) {
-                data = JSON.parse(data);
-                setDatasetInfo(data);
-            },
-            error: function () {
-                console.log('errore 7')
-            }
-        });
-    });
+    setDatasetInfo();
 
     /*** GESTIONE PICKER DATE***/
-    $(function () {
-        $('#datetimepicker7').datetimepicker({
-            format: 'DD/MM/YYYY'
-        });
-        $('#datetimepicker8').datetimepicker({
-            format: 'DD/MM/YYYY',
-            useCurrent: false
-        });
-        $("#datetimepicker7").on("change.datetimepicker", function (e) {
-            $('#datetimepicker8').datetimepicker('minDate', e.date);
-        });
-        $("#datetimepicker8").on("change.datetimepicker", function (e) {
-            $('#datetimepicker7').datetimepicker('maxDate', e.date);
-        });
-    });
+    setDatePicker();
 
     $('#qForm').keyup(function (e) {
         manageForm(e);
@@ -119,184 +51,167 @@ $(document).ready(function () {
 
 /*** FUNZIONE GRAFICI ***/
 function drawCharts(value, data) {
+    setValue(value);
+
     var currentOrient = $('#dropdownMenu3').text();
 
-    $('#rowBar').addClass('hidden');
-    $('#piechartDiv').addClass('hidden');
-    $('#rowLine').addClass('hidden');
-    $('#rowScatter').addClass('hidden');
+    if (value.includes('login') && (value.includes('atleti con') || value.includes('migliori')) && value.includes('raggruppati per')) {
+        $('#dropOrientamento').removeClass('hidden');
+        $('#colOrdinamento').removeClass('hidden');
 
-    $('#rowVer').addClass('hidden');
+        $('#rowBar').removeClass('hidden');
+        $('#rowBar').removeClass('h-100');
+        $('#rowBar').addClass('h-55');
 
-    $('#colOrdinamento').addClass('hidden');
-    $('#dropCriterio').addClass('hidden');
-    $('#sliderVoto').addClass('hidden');
+        $('#rowLine').removeClass('hidden');
+        $('#rowLine').removeClass('h-100');
+        $('#rowLine').addClass('h-40');
+        $('.spaceLine').addClass('hidden');
 
-    $('#chooseDate').addClass('hidden');
-
-    $('#numres').addClass('hidden');
-
-    var n = 0, d;
-
-    if (!(Array.isArray(data[0])) && Array.isArray(data[data.length - 1])) {
-        for (d in data) {
-            n += d[1];
+        if (value.includes('atleti con')) {
+            $('#barchartText').text('Lista atleti');
+        } else {
+            $('#dropCriterio').removeClass('hidden');
+            $('#barchartText').text('Migliori atleti per: ');
         }
-    }
 
-    if (data.length != 0) {
-        setValue(value);
+        $('#piechartDiv').removeClass('hidden');
 
-        if (value.includes('login') && (value.includes('atleti con') || value.includes('migliori')) && value.includes('raggruppati per')) {
-            if (n != 0) {
-                $('#dropOrientamento').addClass('hidden');
+        if (currentOrient.includes('Orizzontale'))
+            drawChart(data.slice(0, data.length - 1));
+        else {
+            drawVerChart(data.slice(0, data.length - 1));
+        }
+
+        var perc = getPercList(data.slice(0, data.length - 1), value);
+        drawPieChart(perc);
+
+        drawLineChart(data[data.length - 1]);
+
+    } else if (value.includes('login') && (value.includes('atleti con') || value.includes('migliori'))) {
+
+        barLineColCnt = $('#barLineCol').clone();
+
+        if (value.includes('migliori')) {
+            $('#dropOrientamento').removeClass('hidden');
+            $('#colOrdinamento').addClass('hidden');
+        } else {
+            $('#dropOrientamento').removeClass('hidden');
+            $('#colOrdinamento').removeClass('hidden');
+        }
+
+        var bar = $("#rowBar").contents();
+        $("#rowBar").replaceWith(bar);
+
+        var line = $("#rowLine").contents();
+        $("#rowLine").replaceWith(line);
+
+        var $newRow = $("<div class='row h-100' id='barLineRow'></div>"),
+            newRow2 = document.createElement("div"),
+            barLineCol = document.getElementById("barLineCol");
+
+        $("#graphRow > #barLineCol").append($newRow, [newRow2, barLineCol]);
+
+        $('#barLineRow').append($('#barchartDiv'));
+        $('#barLineRow').append($('#linechartDiv'));
+
+        $('#linechartDiv').removeClass('mt-2');
+        $('#linechartDiv').removeClass('mb-2');
+        $('#linechart').addClass('mt-4');
+        $('#chooseDate').removeClass('hidden');
+        $('#chooseDate').removeClass('w-50');
+        $('#chooseDate').addClass('w-100');
+        $('#barchartDiv').addClass('mr-2');
+        $('#barchart').addClass('mt-4');
+        $('.spaceLine').addClass('hidden');
+
+        if (value.includes('atleti con')) {
+            $('#barchartText').text('Lista atleti');
+        } else {
+            $('#dropCriterio').removeClass('hidden');
+            $('#barchartText').text('Migliori atleti per: ');
+        }
+
+        drawChart(data.slice(0, data.length - 1));
+        drawLineChart(data[data.length - 1]);
+    } else if (value.includes('login') && value.includes('raggruppati')) {
+        $('#rowLine').removeClass('hidden');
+        $('#linechartDiv').removeClass('mb-2');
+        $('#linechartDiv').removeClass('mt-2');
+        $('.spaceLine').addClass('hidden');
+        drawLineChart(data[data.length - 1]);
+
+        $('#piechartDiv').removeClass('hidden');
+        var perc = getPercList(data, value);
+        drawPieChart(perc)
+    } else {
+        if (value.includes('login')) {
+            $('#linechartDiv').removeClass('mymargintop');
+            $('#rowLine').removeClass('hidden');
+            $('.spaceLine').removeClass('hidden');
+            $('#chooseDate').removeClass('hidden');
+            $('#chooseDate').css('margin-left', $('#linechartDiv').width() / 4 + "px");
+            drawLineChart(data);
+        }
+
+        if (value.includes('ordina')) {
+            $('#barchartText').text('Criterio: ');
+            $('#rowBar').removeClass('hidden');
+            $('#colOrdinamento').removeClass('hidden');
+
+            $('#dropCriterio').removeClass('hidden');
+
+            if (!value.includes('voto')) {
+                $('#sliderVoto').addClass('hidden');
+            } else {
+                $('#sliderVoto').removeClass('hidden');
+            }
+
+            if (currentOrient.includes('Orizzontale')) {
+                drawChart(data);
+            } else drawVerChart(data);
+        }
+
+        if (value.includes('migliori') || value.includes('atleti con')) {
+            $('#rowBar').removeClass('hidden');
+            $('#dropOrientamento').removeClass('hidden');
+
+            if (value.includes('migliori')) {
+                $('#dropCriterio').removeClass('hidden');
+                $('#colOrdinamento').addClass('hidden');
+                $('#barchartText').text('Migliori atleti per: ');
+            } else {
+                $('#dropCriterio').addClass('hidden');
                 $('#colOrdinamento').removeClass('hidden');
+                $('#barchartText').text('Lista atleti ');
+            }
 
-                $('#rowBar').removeClass('hidden');
-                $('#rowBar').removeClass('h-100');
-                $('#rowBar').addClass('h-55');
-
-                $('#rowLine').removeClass('hidden');
-                $('#rowLine').removeClass('h-100');
-                $('#rowLine').addClass('h-40');
-                $('.spaceLine').addClass('hidden');
-
-                if (value.includes('atleti con')) {
-                    $('#barchartText').text('Lista atleti');
-                } else {
-                    $('#dropCriterio').removeClass('hidden');
-                    $('#barchartText').text('Migliori atleti per: ');
-                }
-
+            if (value.includes('raggruppati per')) {
                 $('#piechartDiv').removeClass('hidden');
 
                 if (currentOrient.includes('Orizzontale'))
-                    drawChart(data.slice(0, data.length - 1));
-                else {
-                    drawVerChart(data.slice(0, data.length - 1));
-                }
+                    drawChart(data);
+                else drawVerChart(data);
 
-                var perc = getPercList(data.slice(0, data.length - 1), value);
-                drawPieChart(perc);
-
-                drawLineChart(data[data.length - 1]);
+                var perc = getPercList(data, value);
+                drawPieChart(perc)
             } else {
-                $('#numres').text('Nessun risultato.');
-            }
-        } else if (value.includes('login') && (value.includes('atleti con') || value.includes('migliori'))) {
-            if (n != 0) {
-                barLineColCnt = $('#barLineCol').clone();
-
-                var bar = $("#rowBar").contents();
-                $("#rowBar").replaceWith(bar);
-
-                var line = $("#rowLine").contents();
-                $("#rowLine").replaceWith(line);
-
-                var $newRow = $("<div class='row h-100' id='barLineRow'></div>"),
-                    newRow2 = document.createElement("div"),
-                    barLineCol = document.getElementById("barLineCol");
-
-                $("#graphRow > #barLineCol").append($newRow, [newRow2, barLineCol]);
-
-                $('#barLineRow').append($('#barchartDiv'));
-                $('#barLineRow').append($('#linechartDiv'));
-
-                $('#linechartDiv').removeClass('mt-2');
-                $('#linechartDiv').removeClass('mb-2');
-                $('#linechart').addClass('mt-5');
-                $('#chooseDate').removeClass('hidden');
-                $('#chooseDate').removeClass('w-50');
-                $('#chooseDate').addClass('w-100');
-                $('#barchartDiv').addClass('mr-2');
-                $('#barchart').addClass('mt-5');
-                $('.spaceLine').addClass('hidden');
-
-                drawChart(data.slice(0, data.length - 1));
-                drawLineChart(data[data.length - 1]);
-            } else {
-                $('#numres').text('NESSUN RISULTATO!');
-            }
-        } else if (value.includes('login') && value.includes('raggruppati')) {
-            $('#rowLine').removeClass('hidden');
-            drawLineChart(data[data.length - 1]);
-
-            $('#piechartDiv').removeClass('hidden');
-            var perc = getPercList(data, value);
-            drawPieChart(perc)
-        } else {
-            if (value.includes('login')) {
-                $('#linechartDiv').removeClass('mymargintop');
-                $('#rowLine').removeClass('hidden');
-                $('.spaceLine').removeClass('hidden');
-                $('#chooseDate').removeClass('hidden');
-                $('#chooseDate').css('margin-left', $('#linechartDiv').width() / 4 + "px");
-                drawLineChart(data);
-            }
-
-            if (value.includes('ordina')) {
-                $('#barchartText').text('Criterio: ');
-                $('#rowBar').removeClass('hidden');
-                $('#colOrdinamento').removeClass('hidden');
-
-                $('#dropCriterio').removeClass('hidden');
-
-                if (!value.includes('voto')) {
-                    $('#sliderVoto').addClass('hidden');
-                } else {
-                    $('#sliderVoto').removeClass('hidden');
-                }
-
                 if (currentOrient.includes('Orizzontale'))
                     drawChart(data);
                 else drawVerChart(data);
             }
 
-            if (value.includes('migliori') || value.includes('atleti con')) {
-                $('#rowBar').removeClass('hidden');
-                $('#dropOrientamento').removeClass('hidden');
 
-                if (value.includes('migliori')) {
-                    $('#dropCriterio').removeClass('hidden');
-                    $('#barchartText').text('Migliori atleti per: ');
-                } else {
-                    $('#dropCriterio').addClass('hidden');
-                    $('#colOrdinamento').removeClass('hidden');
-                    $('#barchartText').text('Lista atleti ');
-                }
-
-                if (value.includes('raggruppati per')) {
-                    $('#piechartDiv').removeClass('hidden');
-
-                    if (currentOrient.includes('Orizzontale'))
-                        drawChart(data);
-                    else drawVerChart(data);
-
-                    var perc = getPercList(data, value);
-                    drawPieChart(perc)
-                } else {
-                    if (currentOrient.includes('Orizzontale'))
-                        drawChart(data);
-                    else drawVerChart(data);
-                }
-
-
-            }
-
-            if (value.includes('distribuzione')) {
-                $('#rowScatter').removeClass('hidden');
-                drawScatterPlot(data);
-            }
         }
-    } else {
-        $('#numres').text('NESSUN RISULTATO!');
+
+        if (value.includes('distribuzione')) {
+            $('#rowScatter').removeClass('hidden');
+            drawScatterPlot(data);
+        }
     }
 
     $('#info').removeClass('hidden');
     $('#numres').removeClass('hidden');
-
-    manageErrors();
-    setFeedbackColor();
 }
 
 /*** FUNZIONE SET VALORI DROPDOWN ETC ***/
@@ -306,6 +221,8 @@ function setValue(value) {
         $('#d2').val('');
         $('a#dropdownMenu4').text('');
         $('a#dropdownMenu5').text('');
+        $('a#dropdownMenu1').text('Decrescente');
+        $('a#dropdownMenu3').text('Orizzontale');
     }
 
     if (value.includes('ordina')) {
@@ -328,7 +245,12 @@ function setValue(value) {
         }
     }
 
-    if (($('#d1').val() == '' && $('#d2').val() == '')) {
+    if ($('#inputQuestion').val().includes('login tra')) {
+        $('#rangeLineChart').text("Intervallo date");
+        $('#colDropData > #dropData > a').addClass('hidden')
+        $('#colDropData > #dropData').addClass('hidden');
+        $('#colDropData').addClass('hidden');
+    } else if (($('#d1').val() == '' && $('#d2').val() == '') || (typeof $('#d1').val() === 'undefined' && typeof $('#d2').val() === 'undefined')) {
         $('#colDropData > #dropData > a').removeClass('hidden')
         $('#colDropData > #dropData').removeClass('hidden');
         $('#colDropData').removeClass('hidden');
@@ -353,33 +275,27 @@ function setValue(value) {
         $('#colDropData > #dropData').addClass('hidden');
         $('#colDropData').addClass('hidden');
     }
-
-
-    $('a#dropdownMenu3').text('Orizzontale');
-    $('a#dropdownMenu1').text('Decrescente');
-}
-
-/*** FUNZIONE ERRORI ***/
-function manageErrors() {
-    if ($('#inputQuestion').val().includes('ordina') && $('#inputQuestion').val().includes('raggruppati')) {
-        $('#barchartDiv').addClass('hidden');
-        $('#piechartDiv').addClass('hidden');
-        $('#info').addClass('hidden');
-        $('#numres').text('ERRORE!');
-    }
-}
-
-/*** FUNZIONE SET COLOR ERRORI/RISULTATI ***/
-function setFeedbackColor() {
-    if ($('#numres').text().includes('ERRORE') || $('#numres').text().includes('Nessun risultato')) {
-        $('#numres').css('color', 'red');
-    } else {
-        $('#numres').css('color', 'forestgreen');
-    }
 }
 
 /*** FUNZIONE INFO DATASET ***/
-function setDatasetInfo(data) {
+function setDatasetInfo() {
+    $(function () {
+        $.ajax({
+            url: 'infodataset',
+            type: 'POST',
+            data: {dataset: 'Workout'},
+            success: function (data) {
+                data = JSON.parse(data);
+                getDatasetInfo(data);
+            },
+            error: function () {
+                console.log('errore 7')
+            }
+        });
+    });
+}
+
+function getDatasetInfo(data) {
     var i, minE = 100, maxE = 0, minS = 1000.0, maxS = 0.0, minB = 300, maxB = 0, minC = 3500, maxC = 0, maxM = 0,
         minM = 5;
     var txtP = $('#persone').text(), txtE = $('#eta').text(), txtS = $('#velocita').text(), txtB = $('#bpm').text(),
@@ -473,15 +389,6 @@ function getWidth(data) {
             return w;
         default:
             return w + (((data.length - 10) / 10) * 250);
-    }
-}
-
-function setLinechartHeight() {
-    if ($('#inputQuestion').val().includes('login') && ($('#inputQuestion').val().includes('atleti con')
-        || $('#inputQuestion').val().includes('migliori')) && $('#inputQuestion').val().includes('raggruppati')) {
-        return 250;
-    } else {
-        return 400;
     }
 }
 
@@ -581,14 +488,6 @@ function createRangeList(min, max, step) {
 }
 
 function reset() {
-    setValue($('#inputQuestion').val());
-    $('#rowScatter').addClass('hidden');
-
-    $('#rowLine').addClass('hidden');
-    $('#rowLine').addClass('h-100');
-    $('#rowLine').removeClass('h-40');
-    $('#chooseDate').addClass('hidden');
-
     $('#rowBar').addClass('hidden');
     $('#rowBar').addClass('h-100');
     $('#rowBar').removeClass('h-55');
@@ -596,12 +495,91 @@ function reset() {
 
     $('#piechartDiv').addClass('hidden');
 
+    $('#rowLine').addClass('hidden');
+    $('#rowLine').addClass('h-100');
+    $('#rowLine').removeClass('h-40');
+    $('#linechartDiv').addClass('mb-2');
+    $('#linechartDiv').addClass('mt-2');
+    $('#chooseDate').addClass('hidden');
+
+    $('#rowScatter').addClass('hidden');
+
     $('#numres').addClass('hidden');
     $('#info').addClass('hidden');
+
+    $('#numres').text('');
 }
 
 function manageForm(e) {
     if (e.keyCode == 13) {
+        $.ajax({
+            url: '',
+            type: 'POST',
+            data: {
+                question: $('#inputQuestion').val(),
+                criterio: $('#dropdownMenu4').text(),
+                orderMode: $('#dropdownMenu1').text().toLowerCase()
+            },
+            success: function (data) {
+                data = JSON.parse(data);
+                reset();
+                d3.select("#barchart").select("#svgBar").remove();
+                d3.select("#barchartV").select("#svgBarVer").remove();
+                d3.select("#linechart").select("#svgbar").remove();
+                d3.select("#piechart").select("#svgPie").remove();
+                d3.select("#asseX").select("#xAxis").remove();
+                d3.select("#yAxis").select("g").remove();
+                d3.select("#scatter").select("#svgScat").remove();
+                $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
+                /*for (var i = 0; i < data.length; i++) {
+                    data[i].item_user_id = fakerator.names.firstName();
+                }*/
+
+                drawCharts($('#inputQuestion').val(), data);
+            },
+            error: function () {
+                console.log("errore 2")
+            },
+        })
+    }
+}
+
+function manageDropdown() {
+    $(".dropdown-toggle").dropdown();
+    $('.dropdown-menu').on('click', 'a', function () {
+        var target = $(this).closest('.dropdown').find('.dropdown-toggle')
+        var selectedVal = $(this).html();
+        target.html(selectedVal);
+    });
+}
+
+function setDatePicker() {
+    $(function () {
+        $('#datetimepicker7').datetimepicker({
+            format: 'DD/MM/YYYY'
+        });
+        $('#datetimepicker8').datetimepicker({
+            format: 'DD/MM/YYYY',
+            useCurrent: false
+        });
+        $("#datetimepicker7").on("change.datetimepicker", function (e) {
+            $('#datetimepicker8').datetimepicker('minDate', e.date);
+        });
+        $("#datetimepicker8").on("change.datetimepicker", function (e) {
+            $('#datetimepicker7').datetimepicker('maxDate', e.date);
+        });
+    });
+}
+
+function onItemRemoved() {
+    if (event.item.includes('login')) {
+        $('#barLineCol').replaceWith(barLineColCnt);
+    }
+
+    reset();
+    setValue($('#inputQuestion').val());
+
+    if (!($('#inputQuestion').val() === '')) {
         $.ajax({
             url: '',
             type: 'POST',
@@ -620,25 +598,11 @@ function manageForm(e) {
                 d3.select("#yAxis").select("g").remove();
                 d3.select("#scatter").select("#svgScat").remove();
                 $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
-                /*for (var i = 0; i < data.length; i++) {
-                    data[i].item_user_id = fakerator.names.firstName();
-                }*/
-
-                $('#dropdownMenu4').text()
                 drawCharts($('#inputQuestion').val(), data);
             },
             error: function () {
-                console.log("errore 2")
-            },
+                console.log('errore cancellazione')
+            }
         })
     }
-}
-
-function manageDropdown() {
-    $(".dropdown-toggle").dropdown();
-    $('.dropdown-menu').on('click', 'a', function () {
-        var target = $(this).closest('.dropdown').find('.dropdown-toggle')
-        var selectedVal = $(this).html();
-        target.html(selectedVal);
-    });
 }

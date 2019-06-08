@@ -18,8 +18,13 @@ function drawPieChart(percent) {
             }
         })
         .append('g')
-        .attr('transform',
-            'translate(' + ($('#svgPie').width() / 2 - 45) + ', ' + ($('#piechartDiv').height() / 2 - 30) + ')')
+        .attr('transform', function(){
+            if($('#rowLine').hasClass('hidden') || $('#rowBar').hasClass('hidden')){
+                return 'translate(' + ($('#svgPie').width() / 2 - 45) + ', ' + ($('#piechartDiv').height() / 2 - 30) + ')'
+            } else {
+                return 'translate(' + ($('#svgPie').width() / 2 - 45) + ', ' + ($('#piechartDiv').height() / 2) + ')'
+            }
+        });
 
 // set the color scale
     var color = d3.scaleOrdinal()

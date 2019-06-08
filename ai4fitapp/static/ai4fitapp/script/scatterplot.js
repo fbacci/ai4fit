@@ -26,7 +26,9 @@ function drawScatterPlot(data) {
     var svg = d3.select("#scatter")
         .append("svg")
         .attr('id', 'svgScat')
-        .attr('viewBox', '0 0 ' + w + ' ' + height);
+        .attr('viewBox', -padding + ' 0 ' + w + ' ' + height);
+
+    console.log(data);
 
     svg.selectAll("circle")
         .data(data)
@@ -40,7 +42,7 @@ function drawScatterPlot(data) {
         })
         .attr("r", 5)
         .attr("fill", function (d) {
-            if(d.user_gender === 'M'){
+            if (d.user_gender === 'M') {
                 return 'blue';
             } else {
                 return 'pink';
@@ -58,4 +60,17 @@ function drawScatterPlot(data) {
         .attr("class", "y axis")
         .attr("transform", "translate(" + padding + ", 0)")
         .call(yAxis);
+
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0)
+        .attr("x", -150)
+        .style("font-size", "17px")
+        .text("ASSE Y");
+
+    svg.append("text")
+        .attr("y", $('#scatterDiv').height() - 100)
+        .attr("x", $('#scatterDiv').height()*2.15)
+        .style("font-size", "17px")
+        .text("ASSE X");
 }
