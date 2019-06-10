@@ -144,7 +144,7 @@
 
             // add a tag element
 
-            var $tag = $('<span class="tag ' + htmlEncode(tagClass) + (itemTitle !== null ? ('" title="' + itemTitle) : '') + '">' + htmlEncode(itemText) + '<span data-role="remove"></span></span>');
+            var $tag = $('<span class="tag ' + htmlEncode(tagClass) + (itemTitle !== null ? ('" title="' + itemTitle) : '') + '">' + htmlEncode(itemText) + '<span data-role="remove" class="rem"></span></span>');
             $tag.data('item', item);
             self.findInputWrapper().before($tag);
             $tag.after(' ');
@@ -457,6 +457,7 @@
                         var $nextTag = $inputWrapper.next();
                         if ($input.val().length === 0 && $nextTag[0]) {
                             $nextTag.after($inputWrapper);
+                            $input.focus();
                             $input.focus();
                         }
                         break;

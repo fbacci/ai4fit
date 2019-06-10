@@ -1,6 +1,6 @@
 function drawChart(data) {
-    $('#rowVer').addClass('hidden');
     $('#barchartV').addClass('hidden');
+    $('#asseX').removeClass('hidden');
     $('#barchart').removeClass('hidden');
 
     var w = $('#barchartDiv').width(), h = $('#barchartDiv').height();
@@ -37,10 +37,20 @@ function drawChart(data) {
         })]);
 
     if (!($('#inputQuestion').val().includes('login'))) {
-        if(!$('#inputQuestion').val().includes('ordina')){
-            $('#barchart').css('height', '450px');
+        if ($('#inputQuestion').val().includes('raggruppati')) {
+            $('#rowBar').removeClass('w-100');
         } else {
-            $('#barchart').css('height', '400px');
+            $('#rowBar').addClass('w-100');
+        }
+
+        if (!$('#inputQuestion').val().includes('ordina')) {
+            $('#barchart').css('height', '480px');
+        } else {
+            if ($('#dropdownMenu4').text() === 'voto') {
+                $('#barchart').css('height', '400px');
+            } else {
+                $('#barchart').css('height', '480px');
+            }
         }
     } else {
         if ($('#inputQuestion').val().includes('raggruppati')) {
@@ -58,11 +68,15 @@ function drawChart(data) {
                 if (!($('#inputQuestion').val().includes('raggruppati'))) {
                     return '0 0 ' + (w - 298) + ' ' + height;
                 } else {
-                    return '0 0 ' + (w + 100) + ' ' + height;
+                    return '0 0 ' + (w + 150) + ' ' + height;
                 }
             } else {
                 if (!($('#inputQuestion').val().includes('raggruppati'))) {
-                    return '0 0 ' + (w + 170) + ' ' + height * 2;
+                    if(data.length > 20){
+                        return '0 0 ' + (w + 170) + ' ' + height;
+                    } else {
+                        return '0 0 ' + (w + 170) + ' ' + height*2;
+                    }
                 } else {
                     return '0 0 ' + (w * 1.2) + ' ' + height;
                 }
@@ -118,9 +132,9 @@ function drawChart(data) {
         .attr("viewBox", function () {
             if (!($('#inputQuestion').val().includes('login'))) {
                 if (!($('#inputQuestion').val().includes('raggruppati'))) {
-                    return (-margin.left * 2.55) + ' 0 ' + wX + ' ' + hX;
+                    return (-margin.left * 2.55) + ' 0 ' + (wX - 10) + ' ' + hX;
                 } else {
-                    return (-margin.left - 52) + ' 0 ' + wX * 1.5 + ' ' + hX;
+                    return (-margin.left - 52) + ' 0 ' + wX * 1.6 + ' ' + hX;
                 }
             } else {
                 if ($('#inputQuestion').val().includes('raggruppati')) {
@@ -170,7 +184,7 @@ function drawChart(data) {
                 }
             }
         })
-        .text(setXAxisText());
+        .text(setAxisText());
 
     var toolt = d3.select("body").append("div")
         .attr("class", "tooltip")
@@ -231,14 +245,22 @@ function populateBar(list, svgVar, newx, newy) {
 }
 
 function drawVerChart(data) {
-    $('#barchartV').removeClass('hidden');
-    $('#rowVer').removeClass('hidden');
     $('#barchart').addClass('hidden');
-    var margin = {top: 20, right: 20, bottom: 30, left: 80},
-        width = getWidth(data);
-    var height = 320;
+    $('#asseX').addClass('hidden');
+    $('#barchartV').removeClass('hidden');
 
-    var w = $('#rowVer').width(), h = $('#rowVer').height();
+    var margin = {top: 20, right: 20, bottom: 30, left: 80}
+    var width = getWidth(data), height = 440;
+    var w = $('#barLineCol').width(), h = $('#barLineCol').height();
+    var wY = $('#asseY').width(), hY = $('#asseY').height();
+
+    if ($('#inputQuestion').val().includes('raggruppati')) {
+        $('#barchartV').css('width', (w - 50));
+    } else if ($('#inputQuestion').val().includes('login')) {
+        $('#barchartV').css('width', (w / 2));
+    } else {
+        $('#barchartV').css('width', '');
+    }
 
     var x = d3.scalePoint()
         .range([getWidth(data), 0])
@@ -247,18 +269,38 @@ function drawVerChart(data) {
         })).padding(0.35);
 
     var y = d3.scaleLinear()
-        .range([height - 50, 0])
+        .range([height - 80, 0])
         .domain([0, d3.max(data, function (d) {
             return d.orderField;
         })]);
 
     var svg = d3.select("#barchartV").append("svg")
+        .attr('height', function () {
+            if ($('#inputQuestion').val().includes('raggruppati')) {
+                if ($('#inputQuestion').val().includes('ordina') && $('#dropdownMenu4').text() === 'voto') {
+                    return h - 120;
+                } else {
+                    return h - 100;
+                }
+            } else {
+                if ($('#inputQuestion').val().includes('ordina') && $('#dropdownMenu4').text() === 'voto') {
+                    return h - 180;
+                } else {
+                    return h - 120;
+                }
+            }
+        })
         .attr("id", "svgBarVer")
-        .attr('width', width)
-        .attr('height', height)
+        .attr('viewBox', function () {
+            if ($('#inputQuestion').val().includes('raggruppati')) {
+                return (-margin.bottom - 10) + ' 0 ' + (width + 120) + ' ' + (h - 120)
+            } else {
+                return (-margin.bottom - 10) + ' ' + margin.top / 2 + ' ' + (width + 65) + ' ' + (h - 130);
+            }
+        })
         .append("g")
         .attr("transform",
-            "translate(0," + margin.top + ")");
+            "translate(" + margin.top + ', ' + margin.top + ")");
 
     populateVerBar(data, svg, x, y, height);
 
@@ -269,12 +311,30 @@ function drawVerChart(data) {
         .attr("dy", ".15em")
         .attr("transform", "rotate(-65)");
 
-    d3.select("#yAxis")
-        .attr("height", height)
-        .attr("width", 55)
-        .append("g")
-        .attr("transform", "translate(50, 20)")
-        .call(d3.axisLeft(y));
+    svg.append("g").attr('transform', 'translate(0, ' + margin.bottom + ')')
+        .call(d3.axisLeft(y)).selectAll("text")
+        .style("text-anchor", "middle")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em");
+
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -45)
+        .attr("x", -margin.left * 2)
+        .style("font-size", "17px")
+        .text(setAxisText());
+
+    svg.append("text")
+        .attr("y", height)
+        .attr("x", function () {
+            if ($('#inputQuestion').val().includes('ordina') && $('#dropdownMenu4').text() === 'voto') {
+                return $('#barchartV').width() - 200;
+            } else {
+                return $('#barchartV').width() - 380;
+            }
+        })
+        .style("font-size", "14px")
+        .text('Codice Atleta');
 
     var toolt = d3.select("body").append("div")
         .attr("class", "tooltip")
@@ -288,13 +348,13 @@ function populateVerBar(list, svgVar, newx, newy, height) {
         .attr("class", "bar")
         .attr("width", 15)
         .attr("height", function (d) {
-            return height - newy(d.orderField) - 50;
+            return height - newy(d.orderField) - 80;
         })
         .attr("x", function (d) {
             return newx(d.item_user_id) - 7.5;
         })
         .attr("y", function (d) {
-            return newy(d.orderField);
+            return (newy(d.orderField) + 30);
         })
         .on("mouseover", function (d) {
             d3.selectAll('.tooltip').transition()
@@ -314,10 +374,6 @@ function populateVerBar(list, svgVar, newx, newy, height) {
 }
 
 $(document).ready(function () {
-    var currentSort = $('a#dropdownMenu1').text();
-    var currentMode = $('#dropdownMenu4').text();
-    var currentOrient = $('#dropdownMenu3').text();
-
     var sliderRange = d3.sliderBottom()
         .min(1)
         .max(5)
@@ -327,26 +383,22 @@ $(document).ready(function () {
         .default([1, 5])
         .fill('dodgerblue')
         .on('onchange', val => {
-            var currentSort = $('#dropdownMenu1').text();
-            var currentMode = $('#dropdownMenu4').text();
             $.ajax({
                 url: '',
                 type: 'POST',
                 data: {
                     question: $('#inputQuestion').val(),
-                    orderMode: currentSort.toLowerCase(),
-                    criterio: currentMode
+                    orderMode: $('#dropdownMenu1').text().toLowerCase(),
+                    criterio: $('#dropdownMenu4').text()
                 },
                 success: function (data) {
                     data = JSON.parse(data);
                     d3.select("#barchart").select("#svgBar").remove();
                     d3.select("#barchartV").select("#svgBarVer").remove();
                     d3.select("#asseX").select("#xAxis").remove();
-                    d3.select("#yAxis").select("g").remove();
                     data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1]);
-                    $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
 
-                    if (currentOrient.includes('Orizzontale')) {
+                    if ($('#dropdownMenu3').text().includes('Orizzontale')) {
                         drawChart(data);
                     } else {
                         drawVerChart(data);
@@ -369,131 +421,118 @@ $(document).ready(function () {
     gRange.call(sliderRange);
 
     $('#ordinamento').on("click", function () {
-        var currentMode = $('#dropdownMenu4').text();
+        $.ajax({
+            url: '',
+            type: 'POST',
+            data: {
+                question: $('#inputQuestion').val(),
+                criterio: $('#dropdownMenu4').text(),
+                orderMode: $('#dropdownMenu1').text().toLowerCase()
+            },
+            success: function (data) {
+                data = JSON.parse(data);
+                d3.select('#barchart').select("#svgBar").remove();
+                d3.select("#barchartV").select("#svgBarVer").remove();
+                d3.select("#asseX").select("#xAxis").remove();
 
-        if (currentSort !== $('#dropdownMenu1').text()) {
-            currentSort = $('#dropdownMenu1').text();
-            $.ajax({
-                url: '',
-                type: 'POST',
-                data: {
-                    question: $('#inputQuestion').val(),
-                    criterio: currentMode,
-                    orderMode: currentSort.toLowerCase()
-                },
-                success: function (data) {
-                    data = JSON.parse(data);
-                    d3.select('#barchart').select("#svgBar").remove();
-                    d3.select("#barchartV").select("#svgBarVer").remove();
-                    d3.select("#asseX").select("#xAxis").remove();
-                    d3.select('#yAxis').select("g").remove();
-
-                    if (currentMode == 'voto')
-                        if (!$('#sliderVoto').hasClass('hidden') && (sliderRange.value()[0] != 1 || sliderRange.value()[1] != 1)) {
-                            data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
-                        }
-
-                    $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
-
-                    if (currentOrient.includes('Orizzontale')) {
-                        drawChart(data);
-                    } else {
-                        drawVerChart(data);
-                    }
-
-                },
-                error: function () {
-                    console.log("errore");
+                if ($('#inputQuestion').val().includes('ordina') && $('#dropdownMenu4').text() === 'voto') {
+                    data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
                 }
-            })
-        }
+
+                if ($('#inputQuestion').val().includes('login')) {
+                    data = data.slice(0, data.length - 1);
+                }
+
+                if ($('#dropdownMenu3').text().includes('Orizzontale')) {
+                    drawChart(data);
+                } else {
+                    drawVerChart(data);
+                }
+
+            },
+            error: function () {
+                console.log("errore");
+            }
+        })
     });
 
     $('#orientamento').on("click", function () {
-        if (currentOrient !== $('#dropdownMenu3').text()) {
-            currentOrient = $('#dropdownMenu3').text();
-            $.ajax({
-                url: '',
-                type: 'POST',
-                data: {
-                    question: $('#inputQuestion').val(),
-                    criterio: currentMode,
-                    orderMode: currentSort.toLowerCase()
-                },
-                success: function (data) {
-                    data = JSON.parse(data);
-                    d3.select('#barchart').select("#svgBar").remove();
-                    d3.select("#barchartV").select("#svgBarVer").remove();
-                    d3.select("#asseX").select("#xAxis").remove();
-                    d3.select('#yAxis').select("g").remove();
+        $.ajax({
+            url: '',
+            type: 'POST',
+            data: {
+                question: $('#inputQuestion').val(),
+                criterio: $('#dropdownMenu4').text(),
+                orderMode: $('#dropdownMenu1').text().toLowerCase()
+            },
+            success: function (data) {
+                data = JSON.parse(data);
+                d3.select('#barchart').select("#svgBar").remove();
+                d3.select("#barchartV").select("#svgBarVer").remove();
+                d3.select("#asseX").select("#xAxis").remove();
+                d3.select("#asseY").select("#yAxis").remove();
 
-                    if (currentMode == 'voto') {
-                        if ($('#inputQuestion').val().includes('ordina') &&
-                            (sliderRange.value()[0] != 1 || sliderRange.value()[1] != 1)) {
-                            data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
-                        }
-                    }
-
-                    $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
-
-                    if (currentOrient.includes('Orizzontale')) {
-                        drawChart(data);
-                    } else {
-                        drawVerChart(data);
-                    }
-                },
-                error: function () {
-                    console.log("errore hor");
+                if ($('#inputQuestion').val().includes('ordina') && $('#dropdownMenu4').text() === 'voto') {
+                    data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
                 }
-            })
-        }
+
+                if ($('#inputQuestion').val().includes('login')) {
+                    data = data.slice(0, data.length - 1);
+                }
+
+                if ($('#dropdownMenu3').text().includes('Orizzontale')) {
+                    drawChart(data);
+                } else {
+                    drawVerChart(data);
+                }
+            },
+            error: function () {
+                console.log("errore hor");
+            }
+        })
     });
 
     $('#criterio').on("click", function () {
-        if (currentMode !== $('#dropdownMenu4').text()) {
-            currentMode = $('#dropdownMenu4').text();
-            $.ajax({
-                url: '',
-                type: 'POST',
-                data: {
-                    question: $('#inputQuestion').val(),
-                    criterio: currentMode,
-                    orderMode: currentSort.toLowerCase()
-                },
-                success: function (data) {
-                    data = JSON.parse(data);
-                    d3.select("#barchart").select("#svgBar").remove();
-                    d3.select("#barchartV").select("#svgBarVer").remove();
-                    d3.select("#asseX").select("#xAxis").remove();
-                    d3.select('#yAxis').select("g").remove();
+        console.log($('#dropdownMenu4').text());
+        $.ajax({
+            url: '',
+            type: 'POST',
+            data: {
+                question: $('#inputQuestion').val(),
+                criterio: $('#dropdownMenu4').text(),
+                orderMode: $('#dropdownMenu1').text().toLowerCase()
+            },
+            success: function (data) {
+                data = JSON.parse(data);
+                d3.select("#barchart").select("#svgBar").remove();
+                d3.select("#barchartV").select("#svgBarVer").remove();
+                d3.select("#asseX").select("#xAxis").remove();
+                d3.select("#asseY").select("#yAxis").remove();
 
-                    if (currentMode !== 'voto' || $('#inputQuestion').val().includes('migliori')) {
-                        $('#sliderVoto').addClass('hidden');
-                    } else {
-                        $('#sliderVoto').removeClass('hidden');
-                    }
-
-                    $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
-
-                    if ($('#inputQuestion').val().includes('login')) {
-                        data = data.slice(0, data.length - 1);
-                    }
-
-                    if (currentOrient.includes('Orizzontale')) {
-                        drawChart(data);
-                    } else {
-                        drawVerChart(data);
-                    }
-                },
-                error: function () {
-                    console.log('errore 3')
+                if ($('#dropdownMenu4').text() !== 'voto' || $('#inputQuestion').val().includes('migliori')) {
+                    $('#sliderVoto').addClass('hidden');
+                } else {
+                    $('#sliderVoto').removeClass('hidden');
                 }
-            })
-        }
+
+                if ($('#inputQuestion').val().includes('login')) {
+                    data = data.slice(0, data.length - 1);
+                }
+
+                if ($('#dropdownMenu3').text().includes('Orizzontale')) {
+                    drawChart(data);
+                } else {
+                    drawVerChart(data);
+                }
+            },
+            error: function () {
+                console.log('errore 3')
+            }
+        })
     });
 });
 
-function setXAxisText() {
+function setAxisText() {
     var value = $('#inputQuestion').val();
 
     if (value.includes('ordina') || value.includes('migliori')) {

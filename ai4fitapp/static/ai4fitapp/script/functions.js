@@ -1,32 +1,102 @@
-barLineColCnt = undefined;
 $(document).ready(function () {
+    var barLineColCnt = $('#barLineCol').html();
     var queries = ["ordina gli atleti per voto", "ordina gli atleti per velocità media", "ordina gli atleti per calorie",
         "mostra i migliori atleti", "raggruppati per calorie", "raggruppati per calorie giornaliere",
         "raggruppati per età", "mostra andamento login di questa settimana", "mostra andamento login di questo mese",
         "mostra andamento login di quest'anno", "mostra la distribuzione degli atleti per calorie e durata allenamento",
-        "mostra la distribuzione degli atleti per calorie ed età", "mostra la distribuzione degli atleti per calorie e velocità"];
-    //var fakerator = new Fakerator();
+        "mostra la distribuzione degli atleti per calorie ed età"];
 
-    manageDropdown();
+    manageDrop();
 
     /*** GESTIONE INPUT ***/
     $('#clearBtn').on('click', function () {
-        $('#inputQuestion').val('');
+        if ($('#inputQuestion').val().includes('login') &&
+            ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con'))) {
+            $('#barLineCol').empty();
+            $('#barLineCol').html(barLineColCnt);
+        }
+
         $('#inputQuestion').tagsinput('removeAll');
 
-        console.log(barLineColCnt);
+        $('a#dropdownMenu1').text('Decrescente');
+        $('a#dropdownMenu3').text('Orizzontale');
+        reset();
+        setValue($('#inputQuestion').val());
 
-        if (!typeof barLineColCnt === undefined) {
-            $('#barLineCol').replaceWith(barLineColCnt);
+        manageDrop();
+    });
+
+    $('#inputQuestion').on('itemRemoved', function (event) {
+        var itemRem = event.item, value = $('#inputQuestion').val();
+
+        if (value !== '') {
+            if ((value.includes('login') && itemRem.includes('migliori') || itemRem.includes('ordina') || itemRem.includes('atleti con'))) {
+                var orient = $('#dropdownMenu1').text();
+                var ord = $('#dropdownMenu3').text();
+
+                $('#barLineCol').empty();
+                $('#barLineCol').html(barLineColCnt);
+                $('a#dropdownMenu1').text(orient.charAt(0).toUpperCase().concat(orient.substr(1, orient.length)));
+                $('a#dropdownMenu3').text(ord.charAt(0).toUpperCase().concat(ord.substr(1, orient.length)));
+
+                $('#d1').val('');
+                $('#d2').val('');
+
+            }
+
+            if ((value.includes('migliori') || value.includes('ordina') || value.includes('atleti con'))
+                && itemRem.includes('login')) {
+                var orient = $('#dropdownMenu1').text();
+                var ord = $('#dropdownMenu3').text();
+
+                $('#barLineCol').empty();
+                $('#barLineCol').html(barLineColCnt);
+                $('a#dropdownMenu1').text(orient.charAt(0).toUpperCase().concat(orient.substr(1, orient.length)));
+                $('a#dropdownMenu3').text(ord.charAt(0).toUpperCase().concat(ord.substr(1, orient.length)));
+
+                $('#d1').val('');
+                $('#d2').val('');
+
+                $('a#dropdownMenu5').text('');
+            }
+        } else {
+            if (event.item.includes('migliori') || event.item.includes('ordina') || event.item.includes('atleti con')) {
+                $('a#dropdownMenu1').text('Decrescente');
+                $('a#dropdownMenu3').text('Orizzontale');
+                $('a#dropdownMenu4').text('');
+                $('a#dropdownMenu5').text('');
+            }
         }
 
         reset();
         setValue($('#inputQuestion').val());
-        setDatePicker();
-    });
+        manageDrop();
 
-    $('#inputQuestion').on('itemRemoved', function (event) {
-        onItemRemoved();
+        if ($('#inputQuestion').val() !== '') {
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: {
+                    question: $('#inputQuestion').val(),
+                    criterio: $('#dropdownMenu4').text(),
+                    orderMode: $('#dropdownMenu1').text()
+                },
+                success: function (data) {
+                    data = JSON.parse(data);
+                    console.log(data);
+                    d3.select("#barchart").select("#svgBar").remove();
+                    d3.select("#barchartV").select("#svgBarVer").remove();
+                    d3.select("#linechart").select("#svgbar").remove();
+                    d3.select("#piechart").select("#svgPie").remove();
+                    d3.select("#asseX").select("#xAxis").remove();
+                    d3.select("#scatter").select("#svgScat").remove();
+                    drawCharts($('#inputQuestion').val(), data);
+                },
+                error: function () {
+                    console.log('errore cancellazione')
+                }
+            })
+        }
     });
 
     $('#inputQuestion').tagsinput({
@@ -39,8 +109,6 @@ $(document).ready(function () {
     });
 
     setDatasetInfo();
-
-    /*** GESTIONE PICKER DATE***/
     setDatePicker();
 
     $('#qForm').keyup(function (e) {
@@ -49,180 +117,14 @@ $(document).ready(function () {
 
 });
 
-/*** FUNZIONE GRAFICI ***/
-function drawCharts(value, data) {
-    setValue(value);
-
-    var currentOrient = $('#dropdownMenu3').text();
-
-    if (value.includes('login') && (value.includes('atleti con') || value.includes('migliori')) && value.includes('raggruppati per')) {
-        $('#dropOrientamento').removeClass('hidden');
-        $('#colOrdinamento').removeClass('hidden');
-
-        $('#rowBar').removeClass('hidden');
-        $('#rowBar').removeClass('h-100');
-        $('#rowBar').addClass('h-55');
-
-        $('#rowLine').removeClass('hidden');
-        $('#rowLine').removeClass('h-100');
-        $('#rowLine').addClass('h-40');
-        $('.spaceLine').addClass('hidden');
-
-        if (value.includes('atleti con')) {
-            $('#barchartText').text('Lista atleti');
-        } else {
-            $('#dropCriterio').removeClass('hidden');
-            $('#barchartText').text('Migliori atleti per: ');
-        }
-
-        $('#piechartDiv').removeClass('hidden');
-
-        if (currentOrient.includes('Orizzontale'))
-            drawChart(data.slice(0, data.length - 1));
-        else {
-            drawVerChart(data.slice(0, data.length - 1));
-        }
-
-        var perc = getPercList(data.slice(0, data.length - 1), value);
-        drawPieChart(perc);
-
-        drawLineChart(data[data.length - 1]);
-
-    } else if (value.includes('login') && (value.includes('atleti con') || value.includes('migliori'))) {
-
-        barLineColCnt = $('#barLineCol').clone();
-
-        if (value.includes('migliori')) {
-            $('#dropOrientamento').removeClass('hidden');
-            $('#colOrdinamento').addClass('hidden');
-        } else {
-            $('#dropOrientamento').removeClass('hidden');
-            $('#colOrdinamento').removeClass('hidden');
-        }
-
-        var bar = $("#rowBar").contents();
-        $("#rowBar").replaceWith(bar);
-
-        var line = $("#rowLine").contents();
-        $("#rowLine").replaceWith(line);
-
-        var $newRow = $("<div class='row h-100' id='barLineRow'></div>"),
-            newRow2 = document.createElement("div"),
-            barLineCol = document.getElementById("barLineCol");
-
-        $("#graphRow > #barLineCol").append($newRow, [newRow2, barLineCol]);
-
-        $('#barLineRow').append($('#barchartDiv'));
-        $('#barLineRow').append($('#linechartDiv'));
-
-        $('#linechartDiv').removeClass('mt-2');
-        $('#linechartDiv').removeClass('mb-2');
-        $('#linechart').addClass('mt-4');
-        $('#chooseDate').removeClass('hidden');
-        $('#chooseDate').removeClass('w-50');
-        $('#chooseDate').addClass('w-100');
-        $('#barchartDiv').addClass('mr-2');
-        $('#barchart').addClass('mt-4');
-        $('.spaceLine').addClass('hidden');
-
-        if (value.includes('atleti con')) {
-            $('#barchartText').text('Lista atleti');
-        } else {
-            $('#dropCriterio').removeClass('hidden');
-            $('#barchartText').text('Migliori atleti per: ');
-        }
-
-        drawChart(data.slice(0, data.length - 1));
-        drawLineChart(data[data.length - 1]);
-    } else if (value.includes('login') && value.includes('raggruppati')) {
-        $('#rowLine').removeClass('hidden');
-        $('#linechartDiv').removeClass('mb-2');
-        $('#linechartDiv').removeClass('mt-2');
-        $('.spaceLine').addClass('hidden');
-        drawLineChart(data[data.length - 1]);
-
-        $('#piechartDiv').removeClass('hidden');
-        var perc = getPercList(data, value);
-        drawPieChart(perc)
-    } else {
-        if (value.includes('login')) {
-            $('#linechartDiv').removeClass('mymargintop');
-            $('#rowLine').removeClass('hidden');
-            $('.spaceLine').removeClass('hidden');
-            $('#chooseDate').removeClass('hidden');
-            $('#chooseDate').css('margin-left', $('#linechartDiv').width() / 4 + "px");
-            drawLineChart(data);
-        }
-
-        if (value.includes('ordina')) {
-            $('#barchartText').text('Criterio: ');
-            $('#rowBar').removeClass('hidden');
-            $('#colOrdinamento').removeClass('hidden');
-
-            $('#dropCriterio').removeClass('hidden');
-
-            if (!value.includes('voto')) {
-                $('#sliderVoto').addClass('hidden');
-            } else {
-                $('#sliderVoto').removeClass('hidden');
-            }
-
-            if (currentOrient.includes('Orizzontale')) {
-                drawChart(data);
-            } else drawVerChart(data);
-        }
-
-        if (value.includes('migliori') || value.includes('atleti con')) {
-            $('#rowBar').removeClass('hidden');
-            $('#dropOrientamento').removeClass('hidden');
-
-            if (value.includes('migliori')) {
-                $('#dropCriterio').removeClass('hidden');
-                $('#colOrdinamento').addClass('hidden');
-                $('#barchartText').text('Migliori atleti per: ');
-            } else {
-                $('#dropCriterio').addClass('hidden');
-                $('#colOrdinamento').removeClass('hidden');
-                $('#barchartText').text('Lista atleti ');
-            }
-
-            if (value.includes('raggruppati per')) {
-                $('#piechartDiv').removeClass('hidden');
-
-                if (currentOrient.includes('Orizzontale'))
-                    drawChart(data);
-                else drawVerChart(data);
-
-                var perc = getPercList(data, value);
-                drawPieChart(perc)
-            } else {
-                if (currentOrient.includes('Orizzontale'))
-                    drawChart(data);
-                else drawVerChart(data);
-            }
-
-
-        }
-
-        if (value.includes('distribuzione')) {
-            $('#rowScatter').removeClass('hidden');
-            drawScatterPlot(data);
-        }
-    }
-
-    $('#info').removeClass('hidden');
-    $('#numres').removeClass('hidden');
-}
-
 /*** FUNZIONE SET VALORI DROPDOWN ETC ***/
 function setValue(value) {
+    console.log(value === '');
     if (value === '') {
         $('#d1').val('');
         $('#d2').val('');
         $('a#dropdownMenu4').text('');
         $('a#dropdownMenu5').text('');
-        $('a#dropdownMenu1').text('Decrescente');
-        $('a#dropdownMenu3').text('Orizzontale');
     }
 
     if (value.includes('ordina')) {
@@ -257,16 +159,28 @@ function setValue(value) {
         $('#rangeLineChart').removeClass('col-md-7');
         $('#rangeLineChart').addClass('col-md-6');
 
-        if (value.includes('settimana')) {
-            $('#rangeLineChart').text("Intervallo: ");
-            $('a#dropdownMenu5').text('settimana');
-        } else if (value.includes('mese')) {
-            $('#rangeLineChart').text("Intervallo: ");
-            $('a#dropdownMenu5').text('mese');
-        } else if (value.includes('anno')) {
-            $('#rangeLineChart').text("Intervallo: ");
-            $('a#dropdownMenu5').text('anno');
+
+        if ($('#dropdownMenu5').text() === 'settimana' || value.includes('settimana')) {
+            if ($('#dropdownMenu5').text() === 'settimana' || $('#dropdownMenu5').text() === '') {
+                $('#rangeLineChart').text("Intervallo: ");
+                $('a#dropdownMenu5').text('settimana');
+            }
         }
+
+        if ($('#dropdownMenu5').text() === 'mese' || value.includes('mese')) {
+            if ($('#dropdownMenu5').text() === 'mese' || $('#dropdownMenu5').text() === '') {
+                $('#rangeLineChart').text("Intervallo: ");
+                $('a#dropdownMenu5').text('mese');
+            }
+        }
+
+        if ($('#dropdownMenu5').text() === 'anno' || value.includes('anno')) {
+            if ($('#dropdownMenu5').text() === 'anno' || $('#dropdownMenu5').text() === '') {
+                $('#rangeLineChart').text("Intervallo: ");
+                $('a#dropdownMenu5').text('anno');
+            }
+        }
+
     } else if (typeof $('#d1').val() !== 'undefined' && typeof $('#d2').val() !== 'undefined') {
         $('#rangeLineChart').removeClass('col-md-6');
         $('#rangeLineChart').addClass('col-md-7');
@@ -388,7 +302,7 @@ function getWidth(data) {
         case 10:
             return w;
         default:
-            return w + (((data.length - 10) / 10) * 250);
+            return w + (((data.length - 10) / 10) * 300);
     }
 }
 
@@ -490,8 +404,8 @@ function createRangeList(min, max, step) {
 function reset() {
     $('#rowBar').addClass('hidden');
     $('#rowBar').addClass('h-100');
+    $('#rowBar').addClass('w-100');
     $('#rowBar').removeClass('h-55');
-    $('#rowVer').addClass('hidden');
 
     $('#piechartDiv').addClass('hidden');
 
@@ -515,26 +429,26 @@ function manageForm(e) {
         $.ajax({
             url: '',
             type: 'POST',
-            data: {
+            data: ($('#dropdownMenu5').text() !== '') ? {
+                question: $('#inputQuestion').val(),
+                criterio: $('#dropdownMenu4').text(),
+                orderMode: $('#dropdownMenu1').text().toLowerCase(),
+                intervallo: $('#dropdownMenu5').text()
+            } : {
                 question: $('#inputQuestion').val(),
                 criterio: $('#dropdownMenu4').text(),
                 orderMode: $('#dropdownMenu1').text().toLowerCase()
             },
             success: function (data) {
                 data = JSON.parse(data);
-                reset();
                 d3.select("#barchart").select("#svgBar").remove();
                 d3.select("#barchartV").select("#svgBarVer").remove();
                 d3.select("#linechart").select("#svgbar").remove();
                 d3.select("#piechart").select("#svgPie").remove();
                 d3.select("#asseX").select("#xAxis").remove();
-                d3.select("#yAxis").select("g").remove();
+                d3.select("#asseY").select("#yAxis").remove();
                 d3.select("#scatter").select("#svgScat").remove();
-                $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
-                /*for (var i = 0; i < data.length; i++) {
-                    data[i].item_user_id = fakerator.names.firstName();
-                }*/
-
+                //createDropQuery($('#inputQuestion'));
                 drawCharts($('#inputQuestion').val(), data);
             },
             error: function () {
@@ -542,15 +456,6 @@ function manageForm(e) {
             },
         })
     }
-}
-
-function manageDropdown() {
-    $(".dropdown-toggle").dropdown();
-    $('.dropdown-menu').on('click', 'a', function () {
-        var target = $(this).closest('.dropdown').find('.dropdown-toggle')
-        var selectedVal = $(this).html();
-        target.html(selectedVal);
-    });
 }
 
 function setDatePicker() {
@@ -571,38 +476,34 @@ function setDatePicker() {
     });
 }
 
-function onItemRemoved() {
-    if (event.item.includes('login')) {
-        $('#barLineCol').replaceWith(barLineColCnt);
-    }
+function manageDrop() {
+    $(".dropdown-toggle").dropdown();
+    $('.dropdown-menu').on('click', 'a', function () {
+        var target = $(this).closest('.dropdown').find('.dropdown-toggle');
+        var selectedVal = $(this).html();
+        target.html(selectedVal);
+    });
+}
 
-    reset();
-    setValue($('#inputQuestion').val());
-
-    if (!($('#inputQuestion').val() === '')) {
-        $.ajax({
-            url: '',
-            type: 'POST',
-            data: {
-                question: $('#inputQuestion').val(),
-                criterio: $('#dropdownMenu4').text(),
-                orderMode: $('#dropdownMenu1').text()
-            },
-            success: function (data) {
-                data = JSON.parse(data);
-                d3.select("#barchart").select("#svgBar").remove();
-                d3.select("#barchartV").select("#svgBarVer").remove();
-                d3.select("#linechart").select("#svgbar").remove();
-                d3.select("#piechart").select("#svgPie").remove();
-                d3.select("#asseX").select("#xAxis").remove();
-                d3.select("#yAxis").select("g").remove();
-                d3.select("#scatter").select("#svgScat").remove();
-                $('#numres').text('Risultati trovati: '.concat(Object.keys(data).length));
-                drawCharts($('#inputQuestion').val(), data);
-            },
-            error: function () {
-                console.log('errore cancellazione')
-            }
-        })
+function createDropQuery(v) {
+    var remove = "<span data-role='remove'></span>";
+    if (v.val().includes('voto')) {
+        var c = 'voto';
+        var txt = v.val().replace('voto', '');
+        $('.bootstrap-tagsinput .tag').text(txt);
+        $('.bootstrap-tagsinput .tag').append(getDropDown(c));
+        $('.bootstrap-tagsinput .tag').append(remove);
     }
+}
+
+function getDropDown(c) {
+    var b = `<button class="dropdown-toggle" type="button" id="dropdownMenuQuery"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${c}</button>
+                <div class="dropdown-menu" id="query" aria-labelledby="dropdownMenuQuery">
+                    <a class="dropdown-item" href="#" id="c1">calorie</a>
+                    <a class="dropdown-item" href="#" id="c2">velocità media</a>
+                    <a class="dropdown-item" href="#" id="c3">voto</a>
+                </div>`
+
+    return b;
 }

@@ -28,8 +28,6 @@ function drawScatterPlot(data) {
         .attr('id', 'svgScat')
         .attr('viewBox', -padding + ' 0 ' + w + ' ' + height);
 
-    console.log(data);
-
     svg.selectAll("circle")
         .data(data)
         .enter()
@@ -41,11 +39,12 @@ function drawScatterPlot(data) {
             return h - yScale(d.y);
         })
         .attr("r", 5)
+        .attr("opacity", 0.7)
         .attr("fill", function (d) {
             if (d.user_gender === 'M') {
-                return 'blue';
+                return 'dodgerblue';
             } else {
-                return 'pink';
+                return 'red';
             }
         });
 
@@ -64,13 +63,29 @@ function drawScatterPlot(data) {
     svg.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 0)
-        .attr("x", -150)
+        .attr("x", function () {
+            if($('#inputQuestion').val().includes('età')){
+                return -150
+            } else {
+                return -250;
+            }
+        })
         .style("font-size", "17px")
-        .text("ASSE Y");
+        .text(setAxisTextScatt);
 
     svg.append("text")
         .attr("y", $('#scatterDiv').height() - 100)
         .attr("x", $('#scatterDiv').height()*2.15)
         .style("font-size", "17px")
-        .text("ASSE X");
+        .text("Calorie");
+
+
+}
+
+function setAxisTextScatt() {
+    if($('#inputQuestion').val().includes('età')){
+        return 'Età';
+    } else if($('#inputQuestion').val().includes('durata')){
+        return 'Durata allenamento in ore'
+    }
 }

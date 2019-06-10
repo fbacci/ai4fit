@@ -27,6 +27,7 @@
     <script type="text/javascript" src="../../static/ai4fitapp/script/linechart.js"></script>
     <script type="text/javascript" src="../../static/ai4fitapp/script/scatterplot.js"></script>
     <script type="text/javascript" src="../../static/ai4fitapp/script/infoSlider.js"></script>
+    <script type="text/javascript" src="../../static/ai4fitapp/script/draw.js"></script>
     <script type="text/javascript" src="../../static/ai4fitapp/script/bootstrap-tagsinput.js"></script>
     <script type="text/javascript" src="../../static/ai4fitapp/script/bootstrap-datetimepicker.js"></script>
     <script type="text/javascript" src="../../static/ai4fitapp/script/typeahead.js"></script>
@@ -69,37 +70,44 @@
             <div class="row h-100 hidden" id="rowBar">
                 <div class="col-md mh-100 p-3 bordered" id="barchartDiv">
                     <div class="row mb-3" id="barchartMenu">
+
                         <div class="col-md">
-                            <div class="dropdown" id="dropOrientamento">
-                                <a class="btn btn-secondary btn-sm dropdown-toggle text-light" type="button"
-                                   id="dropdownMenu3"
-                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Orizzontale
-                                </a>
-                                <div class="dropdown-menu" id="orientamento" aria-labelledby="dropdownMenuButton">
-                                    <a class="dropdown-item" href="#">Verticale</a>
-                                    <a class="dropdown-item" href="#">Orizzontale</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md hidden position-absolute" id="colOrdinamento">
-                            <div class="dropdown" id="dropOrdinamento">
-                                <a class="btn btn-secondary btn-sm dropdown-toggle text-light" type="button"
-                                   id="dropdownMenu1"
-                                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Decrescente
-                                </a>
-                                <div class="dropdown-menu" id="ordinamento" aria-labelledby="dropdownMenuButton">
-                                    <a class="dropdown-item" href="#">Crescente</a>
-                                    <a class="dropdown-item" href="#">Decrescente</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
                             <div class="row">
-                                <div class="col-md span12 text-right my-auto noPadding" id="barchartText"></div>
-                                <div class="col-md noPadding">
-                                    <div class="dropdown hidden" id="dropCriterio">
+                                <div class="col-md-5 mr-3" id="colOrientamento">
+                                        <div class="dropdown" id="dropOrientamento">
+                                            <a class="btn btn-secondary btn-sm dropdown-toggle text-light" type="button"
+                                               id="dropdownMenu3"
+                                               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Orizzontale
+                                            </a>
+                                            <div class="dropdown-menu" id="orientamento"
+                                                 aria-labelledby="dropdownMenuButton">
+                                                <a class="dropdown-item" href="#">Verticale</a>
+                                                <a class="dropdown-item" href="#">Orizzontale</a>
+                                            </div>
+                                        </div>
+                                </div>
+
+                                <div class="col-md-5 hidden" id="colOrdinamento">
+                                    <div class="dropdown" id="dropOrdinamento">
+                                        <a class="btn btn-secondary btn-sm dropdown-toggle text-light" type="button"
+                                           id="dropdownMenu1"
+                                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Decrescente
+                                        </a>
+                                        <div class="dropdown-menu" id="ordinamento"
+                                             aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item" href="#">Crescente</a>
+                                            <a class="dropdown-item" href="#">Decrescente</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="row">
+                                <div class="col-md-6 span12 text-right my-auto noPadding" id="barchartText"></div>
+                                <div class="col-md hidden noPadding" id="colCriterio">
+                                    <div class="dropdown" id="dropCriterio">
                                         <a class="btn btn-sm dropdown-toggle" type="button" id="dropdownMenu4"
                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
                                         <div class="dropdown-menu" id="criterio" aria-labelledby="dropdownMenu4">
@@ -122,12 +130,7 @@
                     <div id="barchart"></div>
                     <div id="asseX"></div>
 
-                    <div class="row" id="rowVer">
-                        <div id="colVer">
-                            <svg id="yAxis"></svg>
-                        </div>
-                        <div id="barchartV"></div>
-                    </div>
+                    <div id="barchartV"></div>
 
                     <div class="row justify-content-md-center hidden" id="sliderVoto">
                         <div class="col-md-1 mt-3">Voto</div>
@@ -203,7 +206,7 @@
             <div class="row h-100 hidden" id="rowScatter">
                 <div class="col-md p-3 bordered mh-100" id="scatterDiv">
                     <div class="row mb-3" id="scatterMenu">
-                        <div class="col-md-8 span12 text-left">Distribuzione atleti</div>
+                        <div class="col-md-8 span12 text-left">Distribuzione atleti (distinzione per sesso)</div>
                         <div class="col-md-4"><h4><span class="badge badge-secondary float-right">Scatterplot</span>
                         </h4>
                         </div>
@@ -235,12 +238,12 @@
 
             <div class="mt-5">
                 <ul class="list-group">
-                    <li class="list-group-item" id="persone">Atleti: </li>
-                    <li class="list-group-item" id="eta">Età: </li>
-                    <li class="list-group-item" id="calorie">Calorie: </li>
-                    <li class="list-group-item" id="velocita">Velocità: </li>
-                    <li class="list-group-item" id="bpm">Bpm: </li>
-                    <li class="list-group-item" id="voto">Voto: </li>
+                    <li class="list-group-item" id="persone">Atleti:</li>
+                    <li class="list-group-item" id="eta">Età:</li>
+                    <li class="list-group-item" id="calorie">Calorie:</li>
+                    <li class="list-group-item" id="velocita">Velocità:</li>
+                    <li class="list-group-item" id="bpm">Bpm:</li>
+                    <li class="list-group-item" id="voto">Voto:</li>
                 </ul>
             </div>
         </div>

@@ -1,17 +1,24 @@
 function drawLineChart(data) {
     data = manageDateFormat(data);
 
-    var width = 700, height;
-    var w = $('#linechartDiv').width(), h = $('#linechartDiv').height();
+    var height;
+    var w = $('#barLineCol').width(), h = $('#barLineCol').height();
 
     if ($('#inputQuestion').val().includes('login') && ($('#inputQuestion').val().includes('atleti con')
         || $('#inputQuestion').val().includes('migliori')) && $('#inputQuestion').val().includes('raggruppati')) {
         height = 250;
     } else {
-        if ($('#inputQuestion').val().includes('atleti con') || $('#inputQuestion').val().includes('migliori')){
+        if ($('#inputQuestion').val().includes('atleti con') || $('#inputQuestion').val().includes('migliori')) {
             height = 510;
+            $('#chooseDate').addClass('mt-5');
         } else {
-            height = 400;
+            if (!$('#inputQuestion').val().includes('raggruppati')) {
+                height = 400;
+                $('#chooseDate').removeClass('mt-5');
+            } else {
+                height = 700;
+                $('#chooseDate').addClass('mt-5');
+            }
         }
     }
 
@@ -25,11 +32,41 @@ function drawLineChart(data) {
     /* Add Axis into SVG */
     var xScale = d3.scalePoint().range([0, w]);
 
-    var yScale = d3.scaleLinear()
-        .range([height - 50, 0])
-        .domain([0, d3.max(data, function (d) {
-            return d[1];
-        })]);
+    if ($('#inputQuestion').val().includes('raggruppati')) {
+        if ($('#inputQuestion').val().includes('atleti con') || $('#inputQuestion').val().includes('migliori')) {
+            var yScale = d3.scaleLinear()
+                .range([height - 50, 0])
+                .domain([0, d3.max(data, function (d) {
+                    return d[1];
+                })]);
+            $('#linechart').css('width', '');
+        } else {
+            var yScale = d3.scaleLinear()
+                .range([height + 100, 0])
+                .domain([0, d3.max(data, function (d) {
+                    return d[1];
+                })]);
+
+            $('#linechart').css('width', w / 2);
+        }
+    } else {
+        if ($('#inputQuestion').val().includes('atleti con') || $('#inputQuestion').val().includes('migliori')) {
+            var yScale = d3.scaleLinear()
+                .range([height * 2, 0])
+                .domain([0, d3.max(data, function (d) {
+                    return d[1];
+                })]);
+            $('#linechart').css('width', '');
+        } else {
+            var yScale = d3.scaleLinear()
+                .range([height - 50, 0])
+                .domain([0, d3.max(data, function (d) {
+                    return d[1];
+                })]);
+
+            $('#linechart').css('width', '');
+        }
+    }
 
     var xAxis = d3.axisBottom(xScale).ticks(7),
         yAxis = d3.axisLeft(yScale).ticks(5);
@@ -40,7 +77,19 @@ function drawLineChart(data) {
             return xScale(d[0]);
         })
         .y(function (d) {
-            return yScale(d[1]);
+            if ($('#inputQuestion').val().includes('raggruppati')) {
+                if ($('#inputQuestion').val().includes('atleti con') || $('#inputQuestion').val().includes('migliori')) {
+                    return yScale(d[1]);
+                } else {
+                    return yScale(d[1]) - 15;
+                }
+            } else {
+                if ($('#inputQuestion').val().includes('atleti con') || $('#inputQuestion').val().includes('migliori')) {
+                    return yScale(d[1]) - 20;
+                } else {
+                    return yScale(d[1]);
+                }
+            }
         });
 
     xScale.domain(data.map(function (d) {
@@ -50,41 +99,148 @@ function drawLineChart(data) {
     var svg = d3.select("#linechart").append("svg")
         .attr('id', 'svgbar')
         .attr('viewBox', function () {
-            if ($('#inputQuestion').val().includes('raggruppati') &&
-                (!($('#inputQuestion').val().includes('atleti con')) || !($('#inputQuestion').val().includes('migliori')))) {
-                return '-40 0 ' + 900 + ' ' + height;
+            if ($('#inputQuestion').val().includes('raggruppati')) {
+                if ($('#inputQuestion').val().includes('atleti con') || $('#inputQuestion').val().includes('migliori')) {
+                    return '-40 0 ' + (w + 120) + ' ' + height;
+                } else {
+                    return '-40 0 ' + (w + 200) + ' ' + (height + 200);
+                }
             } else {
-                return '-40 0 ' + (w + 130) + ' ' + height;
+                if ($('#inputQuestion').val().includes('atleti con') || $('#inputQuestion').val().includes('migliori')) {
+                    return '-40 -10 ' + (w + 200) + ' ' + (height * 2 + 50);
+                } else {
+                    return '-40 0 ' + (w + 130) + ' ' + height;
+                }
             }
         })
         .attr('transform', function () {
-            if (!$('#piechartDiv').hasClass('hidden')) {
-                return "translate(2," + -margin.top / 2 + ")"
-            } else {
+            if ($('#inputQuestion').val().includes('raggruppati')) {
                 if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
                     return "translate(" + margin.left / 2 + ', ' + -margin.top / 2 + ")"
                 } else {
-                    return "translate(" + margin.left + ', ' + -margin.top / 2 + ")"
+                    return "translate(" + margin.left + ", " + margin.top + ")"
+                }
+            } else {
+                if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
+                    return "translate(" + margin.bottom + ", 5)"
+                } else {
+                    return "translate(" + (margin.bottom + 20) + ', ' + -margin.top / 2 + ")"
                 }
             }
         });
 
     svg.append("g")
-        .attr("transform", "translate(" + margin.left + "," + (height - 30) + ")")
+        .attr("transform", function () {
+            if ($('#inputQuestion').val().includes('raggruppati')) {
+                if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
+                    return "translate(" + margin.left + "," + (height - 30) + ")"
+                } else {
+                    return "translate(" + margin.left + "," + (height + 105) + ")"
+                }
+            } else {
+                if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
+                    return "translate(" + margin.left + "," + (height + 510) + ")"
+                } else {
+                    return "translate(" + margin.left + "," + (height - 30) + ")"
+                }
+            }
+        })
         .call(xAxis).selectAll("text")
         .style("text-anchor", "middle")
-        .style("font-size", "15px");
+        .style("font-size", function () {
+            if ($('#inputQuestion').val().includes('raggruppati')) {
+                if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
+                    return "15px"
+                } else {
+                    return "25px";
+                }
+            } else {
+                if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
+                    return "25px";
+                } else {
+                    return "15px";
+                }
+            }
+        });
 
     svg.append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-        .style("font-size", "15px")
+        .attr("transform", function () {
+            if ($('#inputQuestion').val().includes('raggruppati')) {
+                if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
+                    return "translate(" + margin.left + "," + margin.top + ")"
+                } else {
+                    return "translate(" + margin.left + ", 5)"
+                }
+            } else {
+                if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
+                    return "translate(" + margin.left + ",0)"
+                } else {
+                    return "translate(" + margin.left + "," + margin.top + ")"
+                }
+            }
+        })
+        .style("font-size", function () {
+            if ($('#inputQuestion').val().includes('raggruppati')) {
+                if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
+                    return "15px"
+                } else {
+                    return "25px";
+                }
+            } else {
+                if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
+                    return "25px";
+                } else {
+                    return "15px";
+                }
+            }
+        })
         .call(yAxis);
 
     svg.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", -15)
-        .attr("x", -150)
-        .style("font-size", "20px")
+        .attr("y", function () {
+            if ($('#inputQuestion').val().includes('raggruppati')) {
+                if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
+                    return -15;
+                } else {
+                    return -10;
+                }
+            } else {
+                if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
+                    return -10;
+                } else {
+                    return -15;
+                }
+            }
+        })
+        .attr("x", function () {
+            if ($('#inputQuestion').val().includes('raggruppati')) {
+                if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
+                    return -150;
+                } else {
+                    return -230;
+                }
+            } else {
+                if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
+                    return -230;
+                } else {
+                    return -150;
+                }
+            }
+        })
+        .style("font-size", function () {
+            if ($('#inputQuestion').val().includes('raggruppati')) {
+                if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
+                    return "20px";
+                } else {
+                    return "40px";
+                }
+            } else {
+                if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
+                    return "40px"
+                } else return "20px";
+            }
+        })
         .text("Totale accessi");
 
     var line = svg.append("path").attr("transform", "translate(" + margin.left + "," + margin.top + ")")
@@ -107,7 +263,19 @@ function drawLineChart(data) {
             return xScale(d[0]) + 50;
         })
         .attr("cy", function (d) {
-            return yScale(d[1]) + 20;
+            if ($('#inputQuestion').val().includes('raggruppati')) {
+                if ($('#inputQuestion').val().includes('atleti con') || $('#inputQuestion').val().includes('migliori')) {
+                    return yScale(d[1]) + 20;
+                } else {
+                    return yScale(d[1]) + 5;
+                }
+            } else {
+                if ($('#inputQuestion').val().includes('atleti con') || $('#inputQuestion').val().includes('migliori')) {
+                    return yScale(d[1]);
+                } else {
+                    return yScale(d[1]) + 20;
+                }
+            }
         })
         .attr("fill", "#1034A6")
         .on("mouseover", function (d) {
@@ -127,39 +295,34 @@ function drawLineChart(data) {
 }
 
 $(document).ready(function () {
-    var currentRange = $('#dropdownMenu5').text();
-
     $('#intervallo').on("click", function () {
-        if (currentRange !== $('#dropdownMenu5').text()) {
-            currentRange = $('#dropdownMenu5').text();
-            $.ajax({
-                url: '',
-                type: 'POST',
-                data: {
-                    question: $('#inputQuestion').val(),
-                    intervallo: currentRange
-                },
-                success: function (data) {
-                    data = JSON.parse(data);
+        $.ajax({
+            url: '',
+            type: 'POST',
+            data: {
+                question: $('#inputQuestion').val(),
+                intervallo: $('#dropdownMenu5').text()
+            },
+            success: function (data) {
+                data = JSON.parse(data);
 
-                    d3.select("#linechart").select("#svgbar").remove();
-                    manageErrors();
-                    setFeedbackColor();
+                d3.select("#linechart").select('#svgbar').remove();
+                d3.select("#piechartDiv").select('#svgPie').remove();
+                d3.select("#barchartV").select('#svgBarVer').remove();
+                d3.select("#barchart").select('#svgBar').remove();
+                d3.select("#asseX").select('#xAxis').remove();
 
-                    manageDropdown();
-
-                    if ($('#rowBar').hasClass('hidden')) {
-                        $('#numres').text('Risultati trovati: '.concat(getNumRes(data)));
-                        drawLineChart(data)
-                    } else {
-                        drawLineChart(data[(data.length) - 1])
-                    }
-                },
-                error: function () {
-                    console.log('errore 3')
+                if ($('#inputQuestion').val().length === 1) {
+                    drawLineChart(data);
+                } else {
+                    reset();
+                    drawCharts($('#inputQuestion').val(), data)
                 }
-            })
-        }
+            },
+            error: function () {
+                console.log('errore 3')
+            }
+        })
     });
 
     $('#btnDate').on("click", function () {
@@ -181,9 +344,9 @@ $(document).ready(function () {
 });
 
 function manageDateFormat(d) {
-    var i, currentRange = $('#dropdownMenu5').text();
+    var i;
 
-    if (currentRange === 'anno') {
+    if ($('#dropdownMenu5').text() === 'anno') {
         for (i = 0; i < d.length; i++) {
             d[i][0] = d[i][0].substr(d[i][0].length - 7)
         }

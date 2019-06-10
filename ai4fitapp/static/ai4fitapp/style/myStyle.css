@@ -23,7 +23,7 @@ h2 {
 }
 
 #graphRow{
-    height: 85%;
+    height: 89%;
 }
 
 #chooseDate{
@@ -44,11 +44,15 @@ h2 {
 }
 
 .h-55{
-    height: 55%;
+    height: 51%;
 }
 
 .h-40{
-    height: 46.5%;
+    height: 50.5%;
+}
+
+w-90{
+    width: 90%;
 }
 
 .noPadding{

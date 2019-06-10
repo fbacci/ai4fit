@@ -11,18 +11,18 @@ function drawPieChart(percent) {
         .attr("id", "svgPie")
         .attr("preserveAspectRatio", "xMinYMin")
         .attr('viewBox', function () {
-            if(!($('#inputQuestion')).val().includes('login')){
+            if (!($('#inputQuestion')).val().includes('login')) {
                 return '0 0 ' + w + ' ' + h;
             } else {
-                return '0 0 ' + w + ' ' + (h + h/2);
+                return '0 0 ' + w + ' ' + (h + h / 2);
             }
         })
         .append('g')
-        .attr('transform', function(){
-            if($('#rowLine').hasClass('hidden') || $('#rowBar').hasClass('hidden')){
+        .attr('transform', function () {
+            if ($('#rowLine').hasClass('hidden') && $('#rowBar').hasClass('hidden')) {
                 return 'translate(' + ($('#svgPie').width() / 2 - 45) + ', ' + ($('#piechartDiv').height() / 2 - 30) + ')'
             } else {
-                return 'translate(' + ($('#svgPie').width() / 2 - 45) + ', ' + ($('#piechartDiv').height() / 2) + ')'
+                return 'translate(' + ($('#svgPie').width() / 2 - 45) + ', ' + (($('#piechartDiv').height() / 2) - 10) + ')'
             }
         });
 
@@ -99,22 +99,24 @@ function drawPieChart(percent) {
             return d;
         });
 
-    d3.selectAll(".bar")
-        .data(data_ready)
-        .enter()
-        .on("mouseover", function (d) {
-            d3.selectAll('.tooltip').transition()
-                .duration(200)
-                .style("opacity", .9);
-            d3.selectAll('.tooltip').html(d.item_user_id + " - " + d.orderField + "<br/>" + d.groupField)
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
-        })
-        .on("mouseout", function (d) {
-            d3.selectAll('.tooltip').transition()
-                .duration(500)
-                .style("opacity", 0);
+    if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
+        d3.selectAll(".bar")
+            .data(data_ready)
+            .enter()
+            .on("mouseover", function (d) {
+                d3.selectAll('.tooltip').transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                d3.selectAll('.tooltip').html(d.item_user_id + " - " + d.orderField + "<br/>" + d.groupField)
+                    .style("left", (d3.event.pageX) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px");
+            })
+            .on("mouseout", function (d) {
+                d3.selectAll('.tooltip').transition()
+                    .duration(500)
+                    .style("opacity", 0);
 
-            d3.select(this).style('fill', 'dodgerblue');
-        });
+                d3.select(this).style('fill', 'dodgerblue');
+            });
+    }
 }

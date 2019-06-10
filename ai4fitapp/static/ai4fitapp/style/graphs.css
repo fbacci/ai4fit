@@ -12,7 +12,6 @@
 }
 
 #barchartV {
-    width: 60%;
     overflow-y: hidden;
     overflow-x: scroll;
 }
@@ -22,12 +21,12 @@
     width: 100%;
 }
 
-#rowVer {
-    width: 90%;
+#asseY {
+    width: 255px;
 }
 
-#colVer {
-    width: 55px;
+#rowVer {
+    width: 90%;
 }
 
 #linechart {
@@ -38,10 +37,6 @@
     width: 90%;
     height: 540px;
     border: 1px solid silver;
-}
-
-#colOrdinamento {
-    left: 120px;
 }
 
 div.tooltip {
