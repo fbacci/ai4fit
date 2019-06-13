@@ -46,7 +46,7 @@ function drawChart(data) {
         if (!$('#inputQuestion').val().includes('ordina')) {
             $('#barchart').css('height', '480px');
         } else {
-            if ($('#dropdownMenu4').text() === 'voto') {
+            if ($('#curCriterio').text() === 'voto') {
                 $('#barchart').css('height', '400px');
             } else {
                 $('#barchart').css('height', '480px');
@@ -72,10 +72,10 @@ function drawChart(data) {
                 }
             } else {
                 if (!($('#inputQuestion').val().includes('raggruppati'))) {
-                    if(data.length > 20){
+                    if (data.length > 20) {
                         return '0 0 ' + (w + 170) + ' ' + height;
                     } else {
-                        return '0 0 ' + (w + 170) + ' ' + height*2;
+                        return '0 0 ' + (w + 170) + ' ' + height * 2;
                     }
                 } else {
                     return '0 0 ' + (w * 1.2) + ' ' + height;
@@ -217,7 +217,13 @@ function populateBar(list, svgVar, newx, newy) {
             d3.selectAll('.tooltip').transition()
                 .duration(200)
                 .style("opacity", .9);
-            d3.selectAll('.tooltip').html(d.item_user_id + "<br/>" + d.orderField)
+            d3.selectAll('.tooltip').html(function () {
+                if ($('#inputQuestion').val().includes('raggruppati')) {
+                    return d.item_user_id + ' - ' + d.orderField + "<br/>" + d.groupField
+                } else {
+                    return d.item_user_id + "<br/>" + d.orderField
+                }
+            })
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
 
@@ -249,10 +255,18 @@ function drawVerChart(data) {
     $('#asseX').addClass('hidden');
     $('#barchartV').removeClass('hidden');
 
-    var margin = {top: 20, right: 20, bottom: 30, left: 80}
-    var width = getWidth(data), height = 440;
-    var w = $('#barLineCol').width(), h = $('#barLineCol').height();
-    var wY = $('#asseY').width(), hY = $('#asseY').height();
+    if (data.length > 20) {
+        $('#barchartV').css('overflow-x', 'scroll');
+    } else {
+        if($('#inputQuestion').val().includes('login') && data.length > 5){
+            $('#barchartV').css('overflow-x', 'scroll');
+        } else $('#barchartV').css('overflow-x', 'hidden');
+    }
+
+    var margin = {top: 20, right: 20, bottom: 30, left: 80},
+        width = getWidth(data), height = 440;
+    var w = $('#barLineCol').width(), h = $('#barLineCol').height(),
+        wY = $('#asseY').width(), hY = $('#asseY').height();
 
     if ($('#inputQuestion').val().includes('raggruppati')) {
         $('#barchartV').css('width', (w - 50));
@@ -277,13 +291,13 @@ function drawVerChart(data) {
     var svg = d3.select("#barchartV").append("svg")
         .attr('height', function () {
             if ($('#inputQuestion').val().includes('raggruppati')) {
-                if ($('#inputQuestion').val().includes('ordina') && $('#dropdownMenu4').text() === 'voto') {
+                if ($('#inputQuestion').val().includes('ordina') && $('#curCriterio').text() === 'voto') {
                     return h - 120;
                 } else {
                     return h - 100;
                 }
             } else {
-                if ($('#inputQuestion').val().includes('ordina') && $('#dropdownMenu4').text() === 'voto') {
+                if ($('#inputQuestion').val().includes('ordina') && $('#curCriterio').text() === 'voto') {
                     return h - 180;
                 } else {
                     return h - 120;
@@ -295,12 +309,39 @@ function drawVerChart(data) {
             if ($('#inputQuestion').val().includes('raggruppati')) {
                 return (-margin.bottom - 10) + ' 0 ' + (width + 120) + ' ' + (h - 120)
             } else {
-                return (-margin.bottom - 10) + ' ' + margin.top / 2 + ' ' + (width + 65) + ' ' + (h - 130);
+                if (data.length < 16 && (($('#inputQuestion').val().includes('migliori') ||
+                    $('#inputQuestion').val().includes('atleti con')) &&
+                    (!$('#inputQuestion').val().includes('raggruppati')
+                        || !$('#inputQuestion').val().includes('login')))) {
+                    return (-margin.bottom - 10) + ' ' + margin.top / 2 + ' ' + (width + width / 2) + ' ' + (h - 130);
+                }
+                if (data.length < 20 && (($('#inputQuestion').val().includes('migliori') ||
+                    $('#inputQuestion').val().includes('atleti con')) &&
+                    (!$('#inputQuestion').val().includes('raggruppati')
+                        || !$('#inputQuestion').val().includes('login')))) {
+                    return (-margin.bottom - 10) + ' ' + margin.top / 2 + ' ' + (width + width / 1.5) + ' ' + (h - 130);
+                } else {
+                    return (-margin.bottom - 10) + ' ' + margin.top / 2 + ' ' + (width + 65) + ' ' + (h - 130);
+                }
             }
         })
         .append("g")
-        .attr("transform",
-            "translate(" + margin.top + ', ' + margin.top + ")");
+        .attr("transform", function () {
+                if (data.length < 16 && (($('#inputQuestion').val().includes('migliori') ||
+                    $('#inputQuestion').val().includes('atleti con')) &&
+                    ((!($('#inputQuestion').val().includes('raggruppati')))
+                        && (!$('#inputQuestion').val().includes('login'))))) {
+                    return "translate(" + margin.left * 2 + ', ' + margin.top + ")"
+                } else if (data.length < 20 && (($('#inputQuestion').val().includes('migliori') ||
+                    $('#inputQuestion').val().includes('atleti con')) &&
+                    ((!$('#inputQuestion').val().includes('raggruppati'))
+                        && (!$('#inputQuestion').val().includes('login'))))) {
+                    return "translate(" + margin.left + ', ' + margin.top + ")"
+                } else {
+                    return "translate(" + margin.top + ', ' + margin.top + ")"
+                }
+            }
+        );
 
     populateVerBar(data, svg, x, y, height);
 
@@ -327,7 +368,7 @@ function drawVerChart(data) {
     svg.append("text")
         .attr("y", height)
         .attr("x", function () {
-            if ($('#inputQuestion').val().includes('ordina') && $('#dropdownMenu4').text() === 'voto') {
+            if ($('#inputQuestion').val().includes('ordina') && $('#curCriterio').text() === 'voto') {
                 return $('#barchartV').width() - 200;
             } else {
                 return $('#barchartV').width() - 380;
@@ -346,12 +387,12 @@ function populateVerBar(list, svgVar, newx, newy, height) {
         .data(list)
         .enter().append("rect")
         .attr("class", "bar")
-        .attr("width", 15)
+        .attr("width", 25)
         .attr("height", function (d) {
             return height - newy(d.orderField) - 80;
         })
         .attr("x", function (d) {
-            return newx(d.item_user_id) - 7.5;
+            return newx(d.item_user_id) - 10.5;
         })
         .attr("y", function (d) {
             return (newy(d.orderField) + 30);
@@ -373,174 +414,21 @@ function populateVerBar(list, svgVar, newx, newy, height) {
         });
 }
 
-$(document).ready(function () {
-    var sliderRange = d3.sliderBottom()
-        .min(1)
-        .max(5)
-        .step(1)
-        .width(250)
-        .ticks(5)
-        .default([1, 5])
-        .fill('dodgerblue')
-        .on('onchange', val => {
-            $.ajax({
-                url: '',
-                type: 'POST',
-                data: {
-                    question: $('#inputQuestion').val(),
-                    orderMode: $('#dropdownMenu1').text().toLowerCase(),
-                    criterio: $('#dropdownMenu4').text()
-                },
-                success: function (data) {
-                    data = JSON.parse(data);
-                    d3.select("#barchart").select("#svgBar").remove();
-                    d3.select("#barchartV").select("#svgBarVer").remove();
-                    d3.select("#asseX").select("#xAxis").remove();
-                    data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1]);
-
-                    if ($('#dropdownMenu3').text().includes('Orizzontale')) {
-                        drawChart(data);
-                    } else {
-                        drawVerChart(data);
-                    }
-                },
-                error: function () {
-                    console.log("errore 4");
-                }
-            })
-        });
-
-    var gRange = d3
-        .select('div#slider-range')
-        .append('svg')
-        .attr('width', 300)
-        .attr('height', 80)
-        .append('g')
-        .attr('transform', 'translate(20,30)');
-
-    gRange.call(sliderRange);
-
-    $('#ordinamento').on("click", function () {
-        $.ajax({
-            url: '',
-            type: 'POST',
-            data: {
-                question: $('#inputQuestion').val(),
-                criterio: $('#dropdownMenu4').text(),
-                orderMode: $('#dropdownMenu1').text().toLowerCase()
-            },
-            success: function (data) {
-                data = JSON.parse(data);
-                d3.select('#barchart').select("#svgBar").remove();
-                d3.select("#barchartV").select("#svgBarVer").remove();
-                d3.select("#asseX").select("#xAxis").remove();
-
-                if ($('#inputQuestion').val().includes('ordina') && $('#dropdownMenu4').text() === 'voto') {
-                    data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
-                }
-
-                if ($('#inputQuestion').val().includes('login')) {
-                    data = data.slice(0, data.length - 1);
-                }
-
-                if ($('#dropdownMenu3').text().includes('Orizzontale')) {
-                    drawChart(data);
-                } else {
-                    drawVerChart(data);
-                }
-
-            },
-            error: function () {
-                console.log("errore");
-            }
-        })
-    });
-
-    $('#orientamento').on("click", function () {
-        $.ajax({
-            url: '',
-            type: 'POST',
-            data: {
-                question: $('#inputQuestion').val(),
-                criterio: $('#dropdownMenu4').text(),
-                orderMode: $('#dropdownMenu1').text().toLowerCase()
-            },
-            success: function (data) {
-                data = JSON.parse(data);
-                d3.select('#barchart').select("#svgBar").remove();
-                d3.select("#barchartV").select("#svgBarVer").remove();
-                d3.select("#asseX").select("#xAxis").remove();
-                d3.select("#asseY").select("#yAxis").remove();
-
-                if ($('#inputQuestion').val().includes('ordina') && $('#dropdownMenu4').text() === 'voto') {
-                    data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
-                }
-
-                if ($('#inputQuestion').val().includes('login')) {
-                    data = data.slice(0, data.length - 1);
-                }
-
-                if ($('#dropdownMenu3').text().includes('Orizzontale')) {
-                    drawChart(data);
-                } else {
-                    drawVerChart(data);
-                }
-            },
-            error: function () {
-                console.log("errore hor");
-            }
-        })
-    });
-
-    $('#criterio').on("click", function () {
-        console.log($('#dropdownMenu4').text());
-        $.ajax({
-            url: '',
-            type: 'POST',
-            data: {
-                question: $('#inputQuestion').val(),
-                criterio: $('#dropdownMenu4').text(),
-                orderMode: $('#dropdownMenu1').text().toLowerCase()
-            },
-            success: function (data) {
-                data = JSON.parse(data);
-                d3.select("#barchart").select("#svgBar").remove();
-                d3.select("#barchartV").select("#svgBarVer").remove();
-                d3.select("#asseX").select("#xAxis").remove();
-                d3.select("#asseY").select("#yAxis").remove();
-
-                if ($('#dropdownMenu4').text() !== 'voto' || $('#inputQuestion').val().includes('migliori')) {
-                    $('#sliderVoto').addClass('hidden');
-                } else {
-                    $('#sliderVoto').removeClass('hidden');
-                }
-
-                if ($('#inputQuestion').val().includes('login')) {
-                    data = data.slice(0, data.length - 1);
-                }
-
-                if ($('#dropdownMenu3').text().includes('Orizzontale')) {
-                    drawChart(data);
-                } else {
-                    drawVerChart(data);
-                }
-            },
-            error: function () {
-                console.log('errore 3')
-            }
-        })
-    });
-});
-
 function setAxisText() {
     var value = $('#inputQuestion').val();
 
     if (value.includes('ordina') || value.includes('migliori')) {
-        var currentMode = $('#dropdownMenu4').text();
+        var currentMode;
+
+        if (value.includes('ordina')) {
+            currentMode = $('#curCriterio').text()
+        } else {
+            currentMode = $('#dropdownMenu4').text()
+        }
 
         if (currentMode === 'calorie') {
             return 'Calorie';
-        } else if (currentMode === 'velocità media') {
+        } else if (currentMode === 'velocità') {
             return 'Velocità media';
         } else {
             return 'Voto';
@@ -553,3 +441,247 @@ function setAxisText() {
         }
     }
 }
+
+$(document).ready(function () {
+    var sliderRange = d3.sliderBottom()
+        .min(1)
+        .max(5)
+        .step(1)
+        .width(250)
+        .ticks(5)
+        .default([1, 5])
+        .fill('dodgerblue');
+
+    document.dispatchEvent(new Event("setListenerSlider"));
+
+    document.addEventListener('setListenerSlider', () => {
+        sliderRange.on('onchange', val => {
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: {
+                    question: $('#inputQuestion').val(),
+                    orderMode: $('#dropdownMenu1').text().toLowerCase(),
+                    criterio: $('#curCriterio').text()
+                },
+                success: function (data) {
+                    data = JSON.parse(data);
+                    d3.select("#barchart").select("#svgBar").remove();
+                    d3.select("#barchartV").select("#svgBarVer").remove();
+                    d3.select("#asseX").select("#xAxis").remove();
+                    data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1]);
+
+                    setNumRes($('#inputQuestion').val(), data)
+
+                    if ($('#dropdownMenu3').text().includes('Orizzontale')) {
+                        drawChart(data);
+                    } else {
+                        drawVerChart(data);
+                    }
+                },
+                error: function () {
+                    console.log("errore 4");
+                }
+            })
+        })
+    });
+
+    var gRange = d3
+        .select('div#slider-range')
+        .append('svg')
+        .attr('width', 300)
+        .attr('height', 80)
+        .append('g')
+        .attr('transform', 'translate(20,30)');
+
+    gRange.call(sliderRange);
+
+    document.addEventListener('setListenerDropdown', () => {
+        $('#ordinamento').on("click", function () {
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: (!($('#inputQuestion').val().includes('migliori'))) ?
+                    {
+                        question: $('#inputQuestion').val(),
+                        criterio: $('#curCriterio').text(),
+                        orderMode: $('#dropdownMenu1').text().toLowerCase(),
+                        group: $('#curGroup').text()
+                    } : {
+                        question: $('#inputQuestion').val(),
+                        criterio: $('#dropdownMenu4').text(),
+                        group: $('#curGroup').text(),
+                        orderMode: $('#dropdownMenu1').text().toLowerCase()
+                    },
+                success: function (data) {
+                    data = JSON.parse(data);
+                    d3.select('#barchart').select("#svgBar").remove();
+                    d3.select("#barchartV").select("#svgBarVer").remove();
+                    d3.select("#asseX").select("#xAxis").remove();
+
+                    if ($('#inputQuestion').val().includes('ordina') && $('#curCriterio').text() === 'voto') {
+                        data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
+                    }
+
+                    var val = $('#inputQuestion').val();
+
+                    setNumRes(val, data);
+
+                    if (val.includes('login') && val.includes('raggruppati') &&
+                        (val.includes('migliori') || val.includes('atleti con'))) {
+                        $('#dropdownMenu3').text('Orizzontale');
+                    }
+
+                    //// PROBLEMA QUERY GRANDE
+                    if ($('#dropdownMenu3').text().includes('Orizzontale')) {
+                        if ($('#inputQuestion').val().includes('login')) {
+                            drawChart(data.slice(0, data.length - 1));
+                        } else drawChart(data)
+                    } else {
+                        if ($('#inputQuestion').val().includes('login')) {
+                            drawVerChart(data.slice(0, data.length - 1));
+                        } else drawVerChart(data)
+                    }
+
+                },
+                error: function () {
+                    console.log("errore");
+                }
+            })
+        });
+
+        $('#orientamento').on("click", function () {
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: (!($('#inputQuestion').val().includes('migliori'))) ?
+                    {
+                        question: $('#inputQuestion').val(),
+                        criterio: $('#curCriterio').text(),
+                        orderMode: $('#dropdownMenu1').text().toLowerCase(),
+                        group: $('#curGroup').text(),
+                    } : {
+                        question: $('#inputQuestion').val(),
+                        criterio: $('#dropdownMenu4').text(),
+                        group: $('#curGroup').text(),
+                        orderMode: $('#dropdownMenu1').text().toLowerCase()
+                    },
+                success: function (data) {
+                    data = JSON.parse(data);
+                    d3.select('#barchart').select("#svgBar").remove();
+                    d3.select("#barchartV").select("#svgBarVer").remove();
+                    d3.select("#asseX").select("#xAxis").remove();
+
+                    if ($('#inputQuestion').val().includes('ordina') && $('#dropdownMenu4').text() === 'voto') {
+                        data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
+                    }
+
+                    setNumRes($('#inputQuestion').val(), data)
+
+                    if ($('#dropdownMenu3').text().includes('Orizzontale')) {
+                        if ($('#inputQuestion').val().includes('login')) {
+                            drawChart(data.slice(0, data.length - 1));
+                        } else drawChart(data)
+                    } else {
+                        if ($('#inputQuestion').val().includes('login')) {
+                            drawVerChart(data.slice(0, data.length - 1));
+                        } else drawVerChart(data)
+                    }
+                },
+                error: function () {
+                    console.log("errore hor");
+                }
+            })
+        });
+
+        $('#criterio').on("click", function () {
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: $('#curLogin').text() !== '' ? {
+                        question: $('#inputQuestion').val(),
+                        criterio: $('#dropdownMenu4').text(),
+                        group: $('#curGroup').text(),
+                        orderMode: $('#dropdownMenu1').text().toLowerCase(),
+                        intervallo: $('#curLogin').text()
+                    } :
+                    {
+                        question: $('#inputQuestion').val(),
+                        criterio: $('#dropdownMenu4').text(),
+                        group: $('#curGroup').text(),
+                        orderMode: $('#dropdownMenu1').text().toLowerCase()
+                    },
+                success: function (data) {
+                    data = JSON.parse(data);
+                    d3.select("#barchart").select("#svgBar").remove();
+                    d3.select("#barchartV").select("#svgBarVer").remove();
+                    d3.select("#asseX").select("#xAxis").remove();
+                    d3.select("#asseX").select("#xAxis").remove();
+
+                    if ($('#dropdownMenu4').text() !== 'voto' || $('#inputQuestion').val().includes('migliori')) {
+                        $('#sliderVoto').addClass('hidden');
+                    } else {
+                        $('#sliderVoto').removeClass('hidden');
+                    }
+
+                    setNumRes($('#inputQuestion').val(), data)
+
+                    if ($('#dropdownMenu3').text().includes('Orizzontale')) {
+                        if ($('#inputQuestion').val().includes('login')) {
+                            drawChart(data.slice(0, data.length - 1));
+                        } else drawChart(data)
+                    } else {
+                        if ($('#inputQuestion').val().includes('login')) {
+                            drawVerChart(data.slice(0, data.length - 1));
+                        } else drawVerChart(data)
+                    }
+                },
+                error: function () {
+                    console.log('errore 3')
+                }
+            })
+        });
+
+        $('#queryCriterio').on("click", function () {
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: {
+                    question: $('#inputQuestion').val(),
+                    criterio: $('#curCriterio').text(),
+                    group: $('#curGroup').text(),
+                    orderMode: $('#dropdownMenu1').text().toLowerCase()
+                },
+                success: function (data) {
+                    data = JSON.parse(data);
+                    d3.select("#barchart").select("#svgBar").remove();
+                    d3.select("#barchartV").select("#svgBarVer").remove();
+                    d3.select("#asseX").select("#xAxis").remove();
+                    d3.select("#asseY").select("#yAxis").remove();
+
+                    if ($('#curCriterio').text() !== 'voto' || $('#inputQuestion').val().includes('migliori')) {
+                        $('#sliderVoto').addClass('hidden');
+                    } else {
+                        $('#sliderVoto').removeClass('hidden');
+                    }
+
+                    setNumRes($('#inputQuestion').val(), data)
+
+                    if ($('#dropdownMenu3').text().includes('Orizzontale')) {
+                        if ($('#inputQuestion').val().includes('login')) {
+                            drawChart(data.slice(0, data.length - 1));
+                        } else drawChart(data)
+                    } else {
+                        if ($('#inputQuestion').val().includes('login')) {
+                            drawVerChart(data.slice(0, data.length - 1));
+                        } else drawVerChart(data)
+                    }
+                },
+                error: function () {
+                    console.log('errore 3')
+                }
+            })
+        });
+    });
+
+});

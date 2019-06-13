@@ -80,6 +80,7 @@ function drawScatterPlot(data) {
         .text("Calorie");
 
 
+    d3.select('#legendScat').append('svg')
 }
 
 function setAxisTextScatt() {

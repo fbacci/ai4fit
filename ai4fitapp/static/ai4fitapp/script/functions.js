@@ -1,12 +1,10 @@
 $(document).ready(function () {
     var barLineColCnt = $('#barLineCol').html();
-    var queries = ["ordina gli atleti per voto", "ordina gli atleti per velocità media", "ordina gli atleti per calorie",
-        "mostra i migliori atleti", "raggruppati per calorie", "raggruppati per calorie giornaliere",
-        "raggruppati per età", "mostra andamento login di questa settimana", "mostra andamento login di questo mese",
-        "mostra andamento login di quest'anno", "mostra la distribuzione degli atleti per calorie e durata allenamento",
-        "mostra la distribuzione degli atleti per calorie ed età"];
 
-    manageDrop();
+    var queries = getQueryList();
+
+    document.dispatchEvent(new Event("setListenerDropdown"));
+    document.dispatchEvent(new Event("setListenerSlider"));
 
     /*** GESTIONE INPUT ***/
     $('#clearBtn').on('click', function () {
@@ -14,20 +12,33 @@ $(document).ready(function () {
             ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con'))) {
             $('#barLineCol').empty();
             $('#barLineCol').html(barLineColCnt);
+            document.dispatchEvent(new Event("setListenerDropdown"));
+            document.dispatchEvent(new Event("setListenerSlider"));
+            manageDrop();
+            setDatePicker();
         }
 
         $('#inputQuestion').tagsinput('removeAll');
+        var queries = getQueryList();
+        $('#inputQuestion').tagsinput('destroy');
+        $('#inputQuestion').tagsinput({
+            typeahead: {
+                source: queries,
+                afterSelect: function () {
+                    this.$element[0].value = '';
+                }
+            }
+        });
 
         $('a#dropdownMenu1').text('Decrescente');
         $('a#dropdownMenu3').text('Orizzontale');
         reset();
         setValue($('#inputQuestion').val());
-
-        manageDrop();
     });
 
     $('#inputQuestion').on('itemRemoved', function (event) {
         var itemRem = event.item, value = $('#inputQuestion').val();
+        var l = $('#curLogin').text(), c = $('#curCriterio').text(), g = $('#curGroup').text();
 
         if (value !== '') {
             if ((value.includes('login') && itemRem.includes('migliori') || itemRem.includes('ordina') || itemRem.includes('atleti con'))) {
@@ -36,61 +47,78 @@ $(document).ready(function () {
 
                 $('#barLineCol').empty();
                 $('#barLineCol').html(barLineColCnt);
+                document.dispatchEvent(new Event("setListenerDropdown"));
+                document.dispatchEvent(new Event("setListenerSlider"));
+                manageDrop();
+                setDatePicker();
+
                 $('a#dropdownMenu1').text(orient.charAt(0).toUpperCase().concat(orient.substr(1, orient.length)));
                 $('a#dropdownMenu3').text(ord.charAt(0).toUpperCase().concat(ord.substr(1, orient.length)));
 
                 $('#d1').val('');
                 $('#d2').val('');
-
             }
 
-            if ((value.includes('migliori') || value.includes('ordina') || value.includes('atleti con'))
+            if ((value.includes('migliori') || value.includes('atleti con'))
                 && itemRem.includes('login')) {
                 var orient = $('#dropdownMenu1').text();
                 var ord = $('#dropdownMenu3').text();
 
                 $('#barLineCol').empty();
                 $('#barLineCol').html(barLineColCnt);
+                document.dispatchEvent(new Event("setListenerDropdown"));
+                document.dispatchEvent(new Event("setListenerSlider"));
+                manageDrop();
+                setDatePicker();
+
                 $('a#dropdownMenu1').text(orient.charAt(0).toUpperCase().concat(orient.substr(1, orient.length)));
                 $('a#dropdownMenu3').text(ord.charAt(0).toUpperCase().concat(ord.substr(1, orient.length)));
 
                 $('#d1').val('');
                 $('#d2').val('');
 
-                $('a#dropdownMenu5').text('');
+                $('a#dropdownLogin').text('');
             }
         } else {
             if (event.item.includes('migliori') || event.item.includes('ordina') || event.item.includes('atleti con')) {
                 $('a#dropdownMenu1').text('Decrescente');
                 $('a#dropdownMenu3').text('Orizzontale');
                 $('a#dropdownMenu4').text('');
-                $('a#dropdownMenu5').text('');
+                $('a#dropdownLogin').text('');
             }
         }
 
+        var queries = getQueryList();
+        $('#inputQuestion').tagsinput('destroy');
+        $('#inputQuestion').tagsinput({
+            typeahead: {
+                source: queries,
+                afterSelect: function () {
+                    this.$element[0].value = '';
+                }
+            }
+        });
+
         reset();
         setValue($('#inputQuestion').val());
-        manageDrop();
+
+        createDropQuery(c, g, l);
 
         if ($('#inputQuestion').val() !== '') {
             $.ajax({
                 url: '',
                 type: 'POST',
-                data: {
-                    question: $('#inputQuestion').val(),
-                    criterio: $('#dropdownMenu4').text(),
-                    orderMode: $('#dropdownMenu1').text()
-                },
+                data: setData(c, g, l),
                 success: function (data) {
                     data = JSON.parse(data);
-                    console.log(data);
                     d3.select("#barchart").select("#svgBar").remove();
                     d3.select("#barchartV").select("#svgBarVer").remove();
                     d3.select("#linechart").select("#svgbar").remove();
                     d3.select("#piechart").select("#svgPie").remove();
                     d3.select("#asseX").select("#xAxis").remove();
                     d3.select("#scatter").select("#svgScat").remove();
-                    drawCharts($('#inputQuestion').val(), data);
+
+                    drawCharts($('#inputQuestion').val(), data, barLineColCnt);
                 },
                 error: function () {
                     console.log('errore cancellazione')
@@ -108,86 +136,37 @@ $(document).ready(function () {
         }
     });
 
+    manageDrop();
     setDatasetInfo();
     setDatePicker();
 
     $('#qForm').keyup(function (e) {
-        manageForm(e);
+        manageForm(e, barLineColCnt);
     });
 
 });
 
 /*** FUNZIONE SET VALORI DROPDOWN ETC ***/
 function setValue(value) {
-    console.log(value === '');
     if (value === '') {
         $('#d1').val('');
         $('#d2').val('');
         $('a#dropdownMenu4').text('');
-        $('a#dropdownMenu5').text('');
     }
 
-    if (value.includes('ordina')) {
-        if (value.includes('calorie')) {
-            $('a#dropdownMenu4').text('calorie');
-        } else if (value.includes('velocità')) {
-            $('a#dropdownMenu4').text('velocità media');
-        } else {
-            $('a#dropdownMenu4').text('voto');
-        }
-    } else if (value.includes('migliori')) {
+    if (value.includes('migliori')) {
         var currentMode = $('#dropdownMenu4').text();
 
         if (currentMode === 'calorie') {
             $('a#dropdownMenu4').text('calorie');
-        } else if (currentMode === 'velocità media') {
-            $('a#dropdownMenu4').text('velocità media');
+            $('#curCriterio').text('calorie')
+        } else if (currentMode === 'velocità') {
+            $('a#dropdownMenu4').text('velocità');
+            $('#curCriterio').text('velocità')
         } else {
             $('a#dropdownMenu4').text('voto');
+            $('#curCriterio').text('voto')
         }
-    }
-
-    if ($('#inputQuestion').val().includes('login tra')) {
-        $('#rangeLineChart').text("Intervallo date");
-        $('#colDropData > #dropData > a').addClass('hidden')
-        $('#colDropData > #dropData').addClass('hidden');
-        $('#colDropData').addClass('hidden');
-    } else if (($('#d1').val() == '' && $('#d2').val() == '') || (typeof $('#d1').val() === 'undefined' && typeof $('#d2').val() === 'undefined')) {
-        $('#colDropData > #dropData > a').removeClass('hidden')
-        $('#colDropData > #dropData').removeClass('hidden');
-        $('#colDropData').removeClass('hidden');
-        $('#rangeLineChart').removeClass('col-md-7');
-        $('#rangeLineChart').addClass('col-md-6');
-
-
-        if ($('#dropdownMenu5').text() === 'settimana' || value.includes('settimana')) {
-            if ($('#dropdownMenu5').text() === 'settimana' || $('#dropdownMenu5').text() === '') {
-                $('#rangeLineChart').text("Intervallo: ");
-                $('a#dropdownMenu5').text('settimana');
-            }
-        }
-
-        if ($('#dropdownMenu5').text() === 'mese' || value.includes('mese')) {
-            if ($('#dropdownMenu5').text() === 'mese' || $('#dropdownMenu5').text() === '') {
-                $('#rangeLineChart').text("Intervallo: ");
-                $('a#dropdownMenu5').text('mese');
-            }
-        }
-
-        if ($('#dropdownMenu5').text() === 'anno' || value.includes('anno')) {
-            if ($('#dropdownMenu5').text() === 'anno' || $('#dropdownMenu5').text() === '') {
-                $('#rangeLineChart').text("Intervallo: ");
-                $('a#dropdownMenu5').text('anno');
-            }
-        }
-
-    } else if (typeof $('#d1').val() !== 'undefined' && typeof $('#d2').val() !== 'undefined') {
-        $('#rangeLineChart').removeClass('col-md-6');
-        $('#rangeLineChart').addClass('col-md-7');
-        $('#rangeLineChart').text("Intervallo date: ".concat($('#d1').val().concat(' - ').concat($('#d2').val())));
-        $('#colDropData > #dropData > a').addClass('hidden')
-        $('#colDropData > #dropData').addClass('hidden');
-        $('#colDropData').addClass('hidden');
     }
 }
 
@@ -312,13 +291,15 @@ function getPercList(data, v) {
     var dim = data.length, cnt = [], res = {};
     var i, j;
 
-    if (v.includes('età') || v.includes('calorie')) {
+    if ($('#curGroup').text().includes('età') || $('#curGroup').text().includes('calorie') || v.includes('età') || v.includes('calorie')) {
         var max = getMax(data), min = getMin(data);
     }
 
-    if (v.includes('calorie')) {
+    if ($('#curGroup').text().includes('calorie') || (v.includes('calorie')
+        && ($('#curGroup').text().includes('calorie') || $('#curGroup').text() == ''))) {
         list = createRangeList(min, max, 300);
-    } else if (v.includes('età')) {
+    } else if ($('#curGroup').text().includes('età') || (v.includes('età')
+        && ($('#curGroup').text().includes('età') || $('#curGroup').text() == ''))) {
         list = createRangeList(min, max + 10, 15);
     }
 
@@ -341,16 +322,6 @@ function getPercList(data, v) {
     }
 
     return res;
-}
-
-function getNumRes(data) {
-    var i, cnt = 0;
-
-    for (i = 0; i < data.length; i++) {
-        cnt += data[i][1];
-    }
-
-    return cnt;
 }
 
 function getMax(data) {
@@ -419,26 +390,23 @@ function reset() {
     $('#rowScatter').addClass('hidden');
 
     $('#numres').addClass('hidden');
-    $('#info').addClass('hidden');
 
     $('#numres').text('');
+
+    $('#barchartText').addClass('col-md-7');
+    $('#barchartText').removeClass('col-md-9');
+    $('#barchartText').removeClass('col-md-6');
+
+    $('#inputQuestion').prop('readonly', false);
 }
 
-function manageForm(e) {
+function manageForm(e, barLineColCnt) {
+    var l = $('#curLogin').text(), c = $('#curCriterio').text(), g = $('#curGroup').text();
     if (e.keyCode == 13) {
         $.ajax({
             url: '',
             type: 'POST',
-            data: ($('#dropdownMenu5').text() !== '') ? {
-                question: $('#inputQuestion').val(),
-                criterio: $('#dropdownMenu4').text(),
-                orderMode: $('#dropdownMenu1').text().toLowerCase(),
-                intervallo: $('#dropdownMenu5').text()
-            } : {
-                question: $('#inputQuestion').val(),
-                criterio: $('#dropdownMenu4').text(),
-                orderMode: $('#dropdownMenu1').text().toLowerCase()
-            },
+            data: setData(c, g, l),
             success: function (data) {
                 data = JSON.parse(data);
                 d3.select("#barchart").select("#svgBar").remove();
@@ -446,10 +414,22 @@ function manageForm(e) {
                 d3.select("#linechart").select("#svgbar").remove();
                 d3.select("#piechart").select("#svgPie").remove();
                 d3.select("#asseX").select("#xAxis").remove();
-                d3.select("#asseY").select("#yAxis").remove();
                 d3.select("#scatter").select("#svgScat").remove();
-                //createDropQuery($('#inputQuestion'));
-                drawCharts($('#inputQuestion').val(), data);
+
+                var queries = getQueryList();
+                $('#inputQuestion').tagsinput('destroy');
+                $('#inputQuestion').tagsinput({
+                    typeahead: {
+                        source: queries,
+                        afterSelect: function () {
+                            this.$element[0].value = '';
+                        }
+                    }
+                });
+
+                createDropQuery(c, g, l);
+
+                drawCharts($('#inputQuestion').val(), data, barLineColCnt);
             },
             error: function () {
                 console.log("errore 2")
@@ -485,25 +465,238 @@ function manageDrop() {
     });
 }
 
-function createDropQuery(v) {
-    var remove = "<span data-role='remove'></span>";
-    if (v.val().includes('voto')) {
-        var c = 'voto';
-        var txt = v.val().replace('voto', '');
-        $('.bootstrap-tagsinput .tag').text(txt);
-        $('.bootstrap-tagsinput .tag').append(getDropDown(c));
-        $('.bootstrap-tagsinput .tag').append(remove);
+function setNumRes(v, data) {
+    var cnt = 0, i;
+
+    if (data.length > 0) {
+        $('#numres').removeClass('hidden');
+
+        if ($('#inputQuestion').tagsinput('items').length === 1) {
+            if (v.includes('login')) {
+                for (i = 0; i < data.length; i++) {
+                    cnt += data[i][1]
+                }
+            } else if (!v.includes('raggruppati') || (v.includes('raggruppati') && (v.includes('migliori') || v.includes('atleti con')))) {
+                cnt = data.length;
+            } else {
+                $('#numres').addClass('hidden');
+            }
+        } else if (!v.includes('login')) {
+            cnt = data.length
+        } else {
+            if (!v.includes('migliori') && !v.includes('atleti con')) {
+                var newData = data[data.length - 1];
+                for (i = 0; i < newData.length; i++) {
+                    cnt += newData[i][1]
+                }
+            } else {
+                cnt = data.length - 1;
+            }
+        }
+    }
+
+    $('#numres').text('Risultati trovati: ' + cnt);
+}
+
+function createDropQuery(cr, g, l) {
+    var c, cur, txt, remove = "<span data-role='remove'></span>";
+
+    $(".bootstrap-tagsinput .tag").each(function () {
+        if ($(this).text().length <= 40) {
+            if (!$(this).text().includes('migliori') && !$(this).text().includes('atleti con')) {
+                if (hasDropChild($(this))) {
+                    $(this).remove('span.dropdown');
+                }
+
+                $(this).remove('span.rem');
+
+                if (!hasDropChild($(this))) {
+                    cur = getCurrent($(this).text());
+                    c = getTagText($(this).text(), cr, g, l);
+                    txt = $(this).text().replace(cur, '');
+                    $(this).text(txt);
+                    $(this).append(getDropDown(c, $(this)));
+                    $(this).append(remove);
+                }
+            }
+        }
+    });
+
+    manageDrop();
+    document.dispatchEvent(new Event("setListenerDropdown"));
+}
+
+function getDropDown(c, tag) {
+    var crit = `<span class="dropdown" id="dropdownCriterio">
+                    <button class="btn btn-sm dropdown-toggle noPaddingTB dropdownMenuQuery" id="curCriterio" type="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${c}</button>
+                    <div class="dropdown-menu" id="queryCriterio" aria-labelledby="dropdownMenuQuery">
+                        <a class="dropdown-item" href="#" id="c1">calorie</a>
+                        <a class="dropdown-item" href="#" id="c2">velocità</a>
+                        <a class="dropdown-item" href="#" id="c3">voto</a>
+                    </div>
+                </span>`;
+
+    var r = `<span class="dropdown" id="dropdownGroup">
+                <button class="btn btn-sm dropdown-toggle noPaddingTB dropdownMenuQuery" id="curGroup" type="button"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${c}</button>
+                <div class="dropdown-menu" id="queryGroup" aria-labelledby="curGroup">
+                    <a class="dropdown-item" href="#" id="c1">calorie</a>
+                    <a class="dropdown-item" href="#" id="c2">età</a>
+                </div>
+            </span>`;
+
+    var l = `<span class="dropdown" id="dropdownLogin">
+                <button class="btn btn-sm dropdown-toggle noPaddingTB dropdownMenuQuery" id="curLogin" type="button"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${c}</button>
+                <div class="dropdown-menu" id="queryLogin" aria-labelledby="curLogin">
+                    <a class="dropdown-item" href="#" id="c1">settimana</a>
+                    <a class="dropdown-item" href="#" id="c2">mese</a>
+                    <a class="dropdown-item" href="#" id="c2">anno</a>
+                </div>
+            </span>`;
+
+    if (tag.text().includes('ordina')) {
+        return crit;
+    } else if (tag.text().includes('raggruppati')) {
+        return r;
+    }
+
+    return l;
+}
+
+function getTagText(currentQ, cr, g, l) {
+    if (currentQ.includes('raggruppati')) {
+        if (g === 'età' || (currentQ.includes('età') && g === '')) {
+            return 'età';
+        } else if (g === 'calorie' || (currentQ.includes('calorie') && g === '')) {
+            return 'calorie';
+        }
+    } else if (cr === 'voto' || (currentQ.includes('voto') && cr === '')) {
+        return 'voto';
+    } else if (cr === 'calorie' || (currentQ.includes('calorie') && cr === '')) {
+        return 'calorie';
+    } else if (cr === 'velocità' || (currentQ.includes('velocità') && cr === '')) {
+        return 'velocità';
+    }
+
+    if (l === 'settimana' || (currentQ.includes('settimana') && l === '')) {
+        return 'settimana';
+    } else if (l === 'mese' || (currentQ.includes('mese') && l === '')) {
+        return 'mese';
+    } else if (l === 'anno' || (currentQ.includes('anno') && l === '')) {
+        return 'anno';
     }
 }
 
-function getDropDown(c) {
-    var b = `<button class="dropdown-toggle" type="button" id="dropdownMenuQuery"
-                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${c}</button>
-                <div class="dropdown-menu" id="query" aria-labelledby="dropdownMenuQuery">
-                    <a class="dropdown-item" href="#" id="c1">calorie</a>
-                    <a class="dropdown-item" href="#" id="c2">velocità media</a>
-                    <a class="dropdown-item" href="#" id="c3">voto</a>
-                </div>`
+function getCurrent(currentQ) {
+    if (currentQ.includes('raggruppati')) {
+        if (currentQ.includes('età')) {
+            return 'età';
+        } else if (currentQ.includes('calorie')) {
+            return 'calorie';
+        }
+    } else if (currentQ.includes('voto')) {
+        return 'voto';
+    } else if (currentQ.includes('calorie')) {
+        return 'calorie';
+    } else if (currentQ.includes('velocità')) {
+        return 'velocità';
+    }
 
-    return b;
+    if (currentQ.includes('settimana')) {
+        return 'settimana';
+    } else if (currentQ.includes('mese')) {
+        return 'mese';
+    } else if (currentQ.includes('anno')) {
+        return 'anno';
+    }
+}
+
+function hasDropChild(tag) {
+    if (tag.find('span.dropdown').length === 1) {
+        return true;
+    }
+
+    return false;
+}
+
+function getQueryList() {
+    var v = $('#inputQuestion'), queries;
+
+    if (v.val() === '') {
+        queries = ["ordina gli atleti per voto", "ordina gli atleti per velocità media", "ordina gli atleti per calorie",
+            "mostra i migliori atleti", "mostra andamento login settimana", "mostra andamento login mese",
+            "mostra andamento login anno", "mostra la distribuzione degli atleti per calorie e durata allenamento",
+            "mostra la distribuzione degli atleti per calorie ed età"];
+    } else {
+        if (v.tagsinput('items').length == 1) {
+            if (v.val().includes('ordina')) {
+                queries = [];
+                $('#inputQuestion').prop('readonly', true);
+            }
+
+            if (v.val().includes('login')) {
+                queries = ["mostra i migliori atleti", "raggruppati per calorie", "raggruppati per età"];
+            }
+
+            if (v.val().includes('migliori') || v.val().includes('atleti con')) {
+                queries = ["raggruppati per calorie", "raggruppati per età", "con andamento login settimana",
+                    "con andamento login mese", "con andamento login anno"];
+            }
+        } else if (v.tagsinput('items').length == 2) {
+            if ((v.val().includes('migliori') || v.val().includes('atleti con')) && v.val().includes('login')) {
+                queries = ["raggruppati per calorie", "raggruppati per età"];
+            }
+
+            if ((v.val().includes('migliori') || v.val().includes('atleti con')) && v.val().includes('raggruppati')) {
+                queries = ["con andamento login settimana", "con andamento login mese", "con andamento login anno"];
+            }
+        } else if ((v.tagsinput('items').length == 3)) {
+            $('#inputQuestion').prop('readonly', true);
+        } else {
+            queries = [];
+        }
+    }
+
+    return queries;
+}
+
+function setData(c, g, l) {
+    if (!($('#inputQuestion').val().includes('migliori'))) {
+        if ($('#inputQuestion').val().includes('login')) {
+            return {
+                question: $('#inputQuestion').val(),
+                criterio: c,
+                orderMode: $('#dropdownMenu1').text().toLowerCase(),
+                group: g,
+                intervallo: l
+            }
+        } else {
+            return {
+                question: $('#inputQuestion').val(),
+                criterio: c,
+                group: g,
+                orderMode: $('#dropdownMenu1').text().toLowerCase()
+            }
+        }
+    } else {
+        if ($('#inputQuestion').val().includes('login')) {
+            console.log($('#curLogin').text());
+            return {
+                question: $('#inputQuestion').val(),
+                criterio: $('#dropdownMenu4').text(),
+                orderMode: $('#dropdownMenu1').text().toLowerCase(),
+                group: g,
+                intervallo: l
+            }
+        } else {
+            return {
+                question: $('#inputQuestion').val(),
+                criterio: $('#dropdownMenu4').text(),
+                group: c,
+                orderMode: $('#dropdownMenu1').text().toLowerCase()
+            }
+        }
+    }
 }

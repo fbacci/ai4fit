@@ -295,58 +295,92 @@ function drawLineChart(data) {
 }
 
 $(document).ready(function () {
-    $('#intervallo').on("click", function () {
-        $.ajax({
-            url: '',
-            type: 'POST',
-            data: {
-                question: $('#inputQuestion').val(),
-                intervallo: $('#dropdownMenu5').text()
-            },
-            success: function (data) {
-                data = JSON.parse(data);
+    document.addEventListener('setListenerDropdown', () => {
+        $('#queryLogin').on("click", function () {
+            $('#d1').val('');
+            $('#d2').val('');
 
-                d3.select("#linechart").select('#svgbar').remove();
-                d3.select("#piechartDiv").select('#svgPie').remove();
-                d3.select("#barchartV").select('#svgBarVer').remove();
-                d3.select("#barchart").select('#svgBar').remove();
-                d3.select("#asseX").select('#xAxis').remove();
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: (!($('#inputQuestion').val().includes('migliori'))) ?
+                    {
+                        question: $('#inputQuestion').val(),
+                        criterio: $('#curCriterio').text(),
+                        orderMode: $('#dropdownMenu1').text().toLowerCase(),
+                        group: $('#curGroup').text(),
+                        intervallo: $('#curLogin').text()
+                    } : {
+                        question: $('#inputQuestion').val(),
+                        criterio: $('#dropdownMenu4').text(),
+                        group: $('#curGroup').text(),
+                        intervallo: $('#curLogin').text(),
+                        orderMode: $('#dropdownMenu1').text().toLowerCase()
+                    },
+                success: function (data) {
+                    data = JSON.parse(data);
 
-                if ($('#inputQuestion').val().length === 1) {
-                    drawLineChart(data);
-                } else {
-                    reset();
-                    drawCharts($('#inputQuestion').val(), data)
+                    d3.select("#linechart").select('#svgbar').remove();
+                    d3.select("#piechartDiv").select('#svgPie').remove();
+                    d3.select("#barchartV").select('#svgBarVer').remove();
+                    d3.select("#barchart").select('#svgBar').remove();
+                    d3.select("#asseX").select('#xAxis').remove();
+
+                    if ($('#inputQuestion').tagsinput('items').length === 1) {
+                        setNumRes($('#inputQuestion').val(), data);
+                        drawLineChart(data);
+                    } else {
+                        reset();
+                        drawCharts($('#inputQuestion').val(), data)
+                    }
+                },
+                error: function () {
+                    console.log('errore 3')
                 }
-            },
-            error: function () {
-                console.log('errore 3')
-            }
-        })
-    });
+            })
+        });
 
-    $('#btnDate').on("click", function () {
-        $.ajax({
-            url: '',
-            type: 'POST',
-            data: {question: $('#inputQuestion').val(), data1: $('#d1').val(), data2: $('#d2').val()},
-            success: function (data) {
-                data = JSON.parse(data);
-                setValue($('#inputQuestion').val());
-                d3.select("#linechart").select('#svgbar').remove();
-                drawLineChart(data);
-            },
-            error: function () {
-                console.log("errore 6");
-            }
-        })
+        $('#btnDate').on("click", function () {
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: {
+                    question: $('#inputQuestion').val(),
+                    criterio: $('#curCriterio').text(),
+                    group: $('#curGroup').text(),
+                    orderMode: $('#dropdownMenu1').text().toLowerCase(),
+                    data1: $('#d1').val(), data2: $('#d2').val()
+                },
+                success: function (data) {
+                    data = JSON.parse(data);
+                    setValue($('#inputQuestion').val());
+
+                    d3.select("#linechart").select('#svgbar').remove();
+                    d3.select("#piechartDiv").select('#svgPie').remove();
+                    d3.select("#barchartV").select('#svgBarVer').remove();
+                    d3.select("#barchart").select('#svgBar').remove();
+                    d3.select("#asseX").select('#xAxis').remove();
+
+                    if ($('#inputQuestion').tagsinput('items').length == 1) {
+                        setNumRes($('#inputQuestion').val(), data);
+                        drawLineChart(data);
+                    } else {
+                        reset();
+                        drawCharts($('#inputQuestion').val(), data)
+                    }
+                },
+                error: function () {
+                    console.log("errore 6");
+                }
+            })
+        });
     });
 });
 
 function manageDateFormat(d) {
     var i;
 
-    if ($('#dropdownMenu5').text() === 'anno') {
+    if ($('#curLogin').text() === 'anno' || d.length > 9) {
         for (i = 0; i < d.length; i++) {
             d[i][0] = d[i][0].substr(d[i][0].length - 7)
         }

@@ -94,29 +94,51 @@ function drawPieChart(percent) {
 
     legend.append('text')
         .attr('x', legendRectSize + legendSpacing)
-        .attr('y', legendRectSize - legendSpacing)
+        .attr('y', legendRectSize - legendSpacing - 1)
         .text(function (d) {
             return d;
-        });
+        })
+        .style("font-size", "10pt");
 
-    if ($('#inputQuestion').val().includes('migliori') || $('#inputQuestion').val().includes('atleti con')) {
-        d3.selectAll(".bar")
-            .data(data_ready)
-            .enter()
-            .on("mouseover", function (d) {
-                d3.selectAll('.tooltip').transition()
-                    .duration(200)
-                    .style("opacity", .9);
-                d3.selectAll('.tooltip').html(d.item_user_id + " - " + d.orderField + "<br/>" + d.groupField)
-                    .style("left", (d3.event.pageX) + "px")
-                    .style("top", (d3.event.pageY - 28) + "px");
-            })
-            .on("mouseout", function (d) {
-                d3.selectAll('.tooltip').transition()
-                    .duration(500)
-                    .style("opacity", 0);
-
-                d3.select(this).style('fill', 'dodgerblue');
-            });
-    }
 }
+
+$(document).ready(function () {
+    document.addEventListener('setListenerDropdown', () => {
+        $('#queryGroup').on('click', function () {
+            var dropCrt = $('#queryCriterio').clone(), dropGroup = $('#queryGroup').clone();
+
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: $('#curLogin').text() !== '' ? {
+                        question: $('#inputQuestion').val(),
+                        criterio: $('#dropdownMenu4').text(),
+                        group: $('#curGroup').text(),
+                        orderMode: $('#dropdownMenu1').text().toLowerCase(),
+                        intervallo: $('#curLogin').text()
+                    } :
+                    {
+                        question: $('#inputQuestion').val(),
+                        criterio: $('#dropdownMenu4').text(),
+                        group: $('#curGroup').text(),
+                        orderMode: $('#dropdownMenu1').text().toLowerCase()
+                    },
+                success: function (data) {
+                    data = JSON.parse(data);
+
+                    d3.select("#piechartDiv").select('#svgPie').remove();
+                    d3.select("#linechart").select('#svgbar').remove();
+                    d3.select("#barchartV").select('#svgBarVer').remove();
+                    d3.select("#barchart").select('#svgBar').remove();
+                    d3.select("#asseX").select('#xAxis').remove();
+
+                    reset();
+                    drawCharts($('#inputQuestion').val(), data);
+                },
+                error: function () {
+                    console.log('errore 3')
+                }
+            })
+        });
+    });
+});

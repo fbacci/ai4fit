@@ -50,13 +50,13 @@
 .bootstrap-tagsinput .tag {
     border-radius: 6px;
     margin-right: 2px;
-    padding: 4px;
+    padding: 3px 4px 4px 4px;
     background-color: skyblue;
     color: black;
 }
 
 .bootstrap-tagsinput .tag [data-role="remove"] {
-    margin-left: 8px;
+    margin-left: 4px;
     cursor: pointer;
 }
 

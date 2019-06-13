@@ -1,22 +1,34 @@
-function drawCharts(value, data) {
+function drawCharts(value, data, clone) {
     setValue(value);
+    setNumRes(value, data)
 
     var currentOrient = $('#dropdownMenu3').text();
 
-    if (value.includes('login') && (value.includes('atleti con') || value.includes('migliori')) && value.includes('raggruppati per')) {
-        $('#dropOrientamento').addClass('hidden');
+    if (value.includes('login') && (value.includes('atleti con') || value.includes('migliori')) && value.includes('raggruppati')) {
+        if ($('#barLineCol').find('div#rowBar').length === 0) {
+            $('#barLineCol').empty();
+            $('#barLineCol').html(clone);
+            document.dispatchEvent(new Event("setListenerDropdown"));
+            document.dispatchEvent(new Event("setListenerSlider"));
+            manageDrop();
+            setDatePicker();
+        }
+
+        $('#colOrientamento').addClass('hidden');
+        $('#dropdownMenu3').val('Orizzontale');
 
         $('#rowBar').removeClass('hidden');
         $('#rowBar').removeClass('h-100');
         $('#rowBar').removeClass('w-100');
         $('#rowBar').addClass('h-55');
+        $('#rowBar').addClass('mb-2');
 
         $('#rowLine').removeClass('hidden');
         $('#rowLine').removeClass('h-100');
         $('#rowLine').addClass('h-40');
         $('.spaceLine').addClass('hidden');
 
-        if (value.includes('atleti con')) {
+        if (value.includes('atleti con') || value.includes('ordina')) {
             $('#barchartText').text('Lista atleti');
             $('#colOrdinamento').removeClass('hidden');
         } else {
@@ -42,10 +54,9 @@ function drawCharts(value, data) {
         $("#rowLine").replaceWith(line);
 
         var $newRow = $("<div class='row h-100' id='barLineRow'></div>"),
-            newRow2 = document.createElement("div"),
             barLineCol = document.getElementById("barLineCol");
 
-        $("#graphRow > #barLineCol").append($newRow, [newRow2, barLineCol]);
+        $("#graphRow > #barLineCol").append($newRow, [barLineCol]);
 
         $('#barLineRow').append($('#barchartDiv'));
         $('#barLineRow').append($('#linechartDiv'));
@@ -59,17 +70,28 @@ function drawCharts(value, data) {
         $('#chooseDate').css('margin-left', '');
         $('#barchartDiv').addClass('mr-2');
         $('#barchart').addClass('mt-4');
+        $('#barchartText').addClass('col-md-10');
+        $('#barchartText').removeClass('col-md-8');
+        $('#barchartText').removeClass('col-md-7');
+        $('#colOrientamento').addClass('col-md-5');
+        $('#colOrientamento').addClass('mr-3');
+        $('#colOrientamento').removeClass('col-md-3');
+        $('#colOrdinamento').addClass('col-md-5');
+        $('#colOrdinamento').removeClass('col-md-3');
         $('.spaceLine').addClass('hidden');
 
         if (value.includes('atleti con')) {
             $('#barchartText').text('Lista atleti');
-            $('#dropOrientamento').removeClass('hidden');
+            $('#colOrientamento').removeClass('hidden');
             $('#colOrdinamento').removeClass('hidden');
         } else {
-            $('#dropOrientamento').removeClass('hidden');
+            $('#colOrientamento').removeClass('hidden');
             $('#colOrdinamento').addClass('hidden');
             $('#colCriterio').removeClass('hidden');
             $('#barchartText').text('Migliori atleti per: ');
+            $('#barchartText').addClass('col-md-7');
+            $('#barchartText').removeClass('col-md-10');
+            $('#barchartText').removeClass('col-md-8');
         }
 
         drawChart(data.slice(0, data.length - 1));
@@ -101,15 +123,13 @@ function drawCharts(value, data) {
         }
 
         if (value.includes('ordina')) {
-            $('#barchartText').text('Criterio: ');
+            $('#barchartText').text('Ordinamento atleti ');
             $('#rowBar').removeClass('hidden');
             $('#colOrdinamento').removeClass('hidden');
             $('#colOrientamento').removeClass('col-md-5');
             $('#colOrientamento').addClass('col-md-3');
             $('#colOrdinamento').removeClass('col-md-5');
             $('#colOrientamento').addClass('col-md-3');
-
-            $('#colCriterio').removeClass('hidden');
 
             if (!value.includes('voto')) {
                 $('#sliderVoto').addClass('hidden');
@@ -130,8 +150,9 @@ function drawCharts(value, data) {
             $('#colOrientamento').removeClass('hidden');
             $('#colOrientamento').removeClass('col-md-5');
             $('#colOrientamento').addClass('col-md-3');
+            $('#colOrientamento').addClass('mr-3');
             $('#colOrdinamento').removeClass('col-md-5');
-            $('#colOrientamento').addClass('col-md-3');
+            $('#colOrdinamento').addClass('col-md-3');
             $('#sliderVoto').addClass('hidden');
 
             if (value.includes('migliori')) {
@@ -141,12 +162,27 @@ function drawCharts(value, data) {
             } else {
                 $('#colCriterio').addClass('hidden');
                 $('#colOrdinamento').removeClass('hidden');
-                $('#barchartText').text('Lista atleti ');
+                $('#barchartText').text('Lista atleti');
             }
 
             if (value.includes('raggruppati per')) {
                 $('#piechartDiv').removeClass('hidden');
                 $('#rowBar').removeClass('w-100');
+
+                $('#colOrientamento').addClass('col-md-5');
+                $('#colOrientamento').removeClass('mr-3');
+                $('#colOrientamento').removeClass('col-md-3');
+                $('#colOrdinamento').addClass('col-md-5');
+                $('#colOrdinamento').removeClass('col-md-3');
+
+                if ($('#inputQuestion').val().includes('migliori')) {
+                    $('#barchartText').addClass('col-md-6');
+                    $('#barchartText').removeClass('col-md-7');
+                } else {
+                    $('#barchartText').addClass('col-md-9');
+                    $('#barchartText').removeClass('col-md-7');
+                }
+
 
                 var perc = getPercList(data, value);
 
@@ -170,6 +206,5 @@ function drawCharts(value, data) {
         }
     }
 
-    $('#info').removeClass('hidden');
     $('#numres').removeClass('hidden');
 }

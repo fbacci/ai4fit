@@ -70,6 +70,7 @@ def askInfo(request):
         question = request.POST.get('question')
         orderMode = request.POST.get('orderMode')
         criterioOrd = request.POST.get('criterio')
+        groupMode = request.POST.get('group')
         rangeDate = request.POST.get('intervallo')
         dateList = []
         data1 = request.POST.get('data1')
@@ -105,15 +106,18 @@ def askInfo(request):
                     .annotate(sumDist = Sum('distance'), sumD=Sum('duration'), sumC=Sum('calories'), sumB=Sum('avgbpm'), sumS=Sum('avgspeed'),
                               count=Count('item_user_id'))
 
-            if 'group_by_age' in entities:
+            if groupMode == 'età' or ('group_by_age' in entities and
+                                         (groupMode == 'età' or groupMode == '' or groupMode is None)):
                 newData = newData.annotate(groupField=F('age')).distinct()
 
-            if 'group_by_calories' in entities:
+            if groupMode == 'calorie' or ('group_by_calories' in entities and
+                                         (groupMode == 'calorie' or groupMode == '' or groupMode is None)):
                 newData = newData.annotate(groupField=ExpressionWrapper(
                     Round(Cast(F('sumC'), FloatField()) / Cast(F('count'), FloatField()), 2),
                     output_field=FloatField())).distinct()
 
-            if 'group_by_daily_calories' in entities:
+            if groupMode == 'calorie giornaliere' or ('group_by_daily_calories' in entities and
+                                         (groupMode == 'calorie giornaliere' or groupMode == '' or groupMode is None)):
                 today = datetime(2016, 5, 25)
 
                 newData = newData.filter(user_lastlogin__day=today.day, user_lastlogin__month=today.month,
@@ -221,15 +225,18 @@ def askInfo(request):
             data = data.values('item_user_id', 'user_lastlogin', 'user_birthdate') \
                 .annotate(sum=Sum('mark'), sumC=Sum('calories'), sumS=Sum('avgspeed'), count=Count('item_user_id'))
 
-            if 'group_by_age' in entities:
+            if groupMode == 'età' or ('group_by_age' in entities and
+                                         (groupMode == 'età' or groupMode == '' or groupMode is None)):
                 data = data.annotate(groupField=F('age'))
 
-            if 'group_by_calories' in entities:
+            if groupMode == 'calorie' or ('group_by_calories' in entities and
+                                         (groupMode == 'calorie' or groupMode == '' or groupMode is None)):
                 data = data.annotate(groupField=ExpressionWrapper(Round(Cast(F('sumC'), FloatField()) / Cast(F('count'),
                                                                                                              FloatField()),
                                                                         2), output_field=FloatField()))
 
-            if 'group_by_daily_calories' in entities:
+            if groupMode == 'calorie giornaliere' or ('group_by_daily_calories' in entities and
+                                         (groupMode == 'calorie giornaliere' or groupMode == '' or groupMode is None)):
                 today = datetime(2016, 5, 25)
 
                 data = data.filter(user_lastlogin__day=today.day, user_lastlogin__month=today.month,
@@ -245,8 +252,8 @@ def askInfo(request):
                 data = data.annotate(orderField=ExpressionWrapper(
                     Round(Cast(F('sumC'), FloatField()) / Cast(F('count'), FloatField()), 2),
                     output_field=FloatField()))
-            elif criterioOrd == 'velocità media' or (
-                    'get_avg_speed' in entities and (criterioOrd == 'velcoità media' or criterioOrd == '')):
+            elif criterioOrd == 'velocità' or (
+                    'get_avg_speed' in entities and (criterioOrd == 'velocità' or criterioOrd == '')):
                 data = data.annotate(orderField=ExpressionWrapper(
                     Round(Cast(F('sumS'), FloatField()) / Cast(F('count'), FloatField()), 2),
                     output_field=FloatField()))
@@ -288,9 +295,9 @@ def askInfo(request):
                         Round(Cast(F('sum'), FloatField()) / Cast(F('count'), FloatField()), 2),
                         output_field=FloatField()))
 
-            elif criterioOrd == 'velocità media' or ('get_avg_speed' in entities
+            elif criterioOrd == 'velocità' or ('get_avg_speed' in entities
                                                      and (
-                                                             criterioOrd == 'velcoità media' or criterioOrd == '' or criterioOrd is None)):
+                                                             criterioOrd == 'velocità' or criterioOrd == '' or criterioOrd is None)):
                 data = data.values('item_user_id').annotate(sum=Sum('avgspeed'), count=Count('item_user_id'))
                 results = data.values('item_user_id').annotate(
                     orderField=ExpressionWrapper(
@@ -318,7 +325,7 @@ def getDateList(data, ent, rangeDate):
     x = 0
     cnt = -1
 
-    if rangeDate == 'mese' or ('get_this_month' in ent and rangeDate is None):
+    if rangeDate == 'mese' or ('get_this_month' in ent and (rangeDate is None or rangeDate == 'mese' or rangeDate == '')):
         start = todayDate.replace(day=1)
 
         if start.month == 11 or start.month == 4 or start.month == 6 or start.month == 9:
@@ -331,14 +338,14 @@ def getDateList(data, ent, rangeDate):
         date_generated = [start + timedelta(days=x) for x in range(0, end.day)]
 
         arr = [start, end]
-    elif rangeDate == 'anno' or ('get_this_year' in ent and rangeDate is None):
+    elif rangeDate == 'anno' or ('get_this_year' in ent and (rangeDate is None or rangeDate == 'anno' or rangeDate == '')):
         start = todayDate.replace(day=1, month=1, year=(todayDate.year - 1))
         end = todayDate.replace(day=31, month=12, year=todayDate.year)
 
         date_generated = [start + timedelta(days=x) for x in range(0, 365)]
 
         arr = [start, end]
-    elif rangeDate == 'settimana' or ('get_this_week' in ent and rangeDate is None):
+    elif rangeDate == 'settimana' or ('get_this_week' in ent and (rangeDate is None or rangeDate == 'settimana' or rangeDate == '')):
         week = getWeek((datetime.now() - timedelta(days=365)))
         arr = week
         date_generated = [(arr[0] - timedelta(days=1)) + timedelta(days=x) for x in range(0, (arr[1] - arr[0]).days)]
@@ -354,7 +361,7 @@ def getDateList(data, ent, rangeDate):
             if d['user_lastlogin'].date() == date[0].date():
                 date[1] = date[1] + d['countlog']
 
-    if rangeDate == 'mese' or ('get_this_month' in ent and rangeDate is None):
+    if rangeDate == 'mese' or ('get_this_month' in ent and (rangeDate is None or rangeDate == '')):
         for d in dateList:
             if d[0].weekday() == 0 or x == 0:
                 dates.append(d)
@@ -365,7 +372,7 @@ def getDateList(data, ent, rangeDate):
             x += 1
 
         dateList = dates
-    elif rangeDate == 'anno' or ('get_this_year' in ent and rangeDate is None):
+    elif rangeDate == 'anno' or ('get_this_year' in ent and (rangeDate is None or rangeDate == '')):
         for d in dateList:
             if d[0].date().day == 1:
                 dates.append(d)
