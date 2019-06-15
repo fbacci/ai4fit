@@ -15,7 +15,7 @@ function drawChart(data) {
             .domain(data.map(function (d) {
                 return d.item_user_id;
             }))
-            .range([getHeight(data) * 2, 0]).padding(0.35);
+            .range([getHeight(data), 0]).padding(0.55);
     } else {
         var y = d3.scalePoint()
             .domain(data.map(function (d) {
@@ -201,14 +201,14 @@ function populateBar(list, svgVar, newx, newy) {
         })
         .attr("height", function () {
             if (list.length < 20 && ($('#piechartDiv').hasClass('hidden'))) {
-                return 35;
+                return 20;
             } else {
                 return 15;
             }
         })
         .attr("y", function (d) {
             if (list.length < 20 && ($('#piechartDiv').hasClass('hidden'))) {
-                return newy(d.item_user_id) - 17.5;
+                return newy(d.item_user_id) - 11.5;
             } else {
                 return newy(d.item_user_id) - 7.5;
             }

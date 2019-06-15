@@ -2,6 +2,14 @@ $(document).ready(function () {
     var barLineColCnt = $('#barLineCol').html();
 
     var queries = getQueryList();
+    $('#inputQuestion').tagsinput({
+        typeahead: {
+            source: queries,
+            afterSelect: function () {
+                this.$element[0].value = '';
+            }
+        }
+    });
 
     document.dispatchEvent(new Event("setListenerDropdown"));
     document.dispatchEvent(new Event("setListenerSlider"));
@@ -29,6 +37,9 @@ $(document).ready(function () {
                 }
             }
         });
+
+        $('#inputQuestion').tagsinput('focus');
+        disableTagsInput();
 
         $('a#dropdownMenu1').text('Decrescente');
         $('a#dropdownMenu3').text('Orizzontale');
@@ -99,6 +110,9 @@ $(document).ready(function () {
             }
         });
 
+        $('#inputQuestion').tagsinput('focus');
+        disableTagsInput();
+
         reset();
         setValue($('#inputQuestion').val());
 
@@ -124,15 +138,6 @@ $(document).ready(function () {
                     console.log('errore cancellazione')
                 }
             })
-        }
-    });
-
-    $('#inputQuestion').tagsinput({
-        typeahead: {
-            source: queries,
-            afterSelect: function () {
-                this.$element[0].value = '';
-            }
         }
     });
 
@@ -397,7 +402,7 @@ function reset() {
     $('#barchartText').removeClass('col-md-9');
     $('#barchartText').removeClass('col-md-6');
 
-    $('#inputQuestion').prop('readonly', false);
+    $('#tagsInput').prop('readonly', false);
 }
 
 function manageForm(e, barLineColCnt) {
@@ -428,6 +433,8 @@ function manageForm(e, barLineColCnt) {
                 });
 
                 createDropQuery(c, g, l);
+                disableTagsInput();
+                $('#inputQuestion').tagsinput('focus');
 
                 drawCharts($('#inputQuestion').val(), data, barLineColCnt);
             },
@@ -630,10 +637,9 @@ function getQueryList() {
             "mostra andamento login anno", "mostra la distribuzione degli atleti per calorie e durata allenamento",
             "mostra la distribuzione degli atleti per calorie ed età"];
     } else {
-        if (v.tagsinput('items').length == 1) {
+        if (v.tagsinput('items').length === 1) {
             if (v.val().includes('ordina')) {
                 queries = [];
-                $('#inputQuestion').prop('readonly', true);
             }
 
             if (v.val().includes('login')) {
@@ -644,7 +650,7 @@ function getQueryList() {
                 queries = ["raggruppati per calorie", "raggruppati per età", "con andamento login settimana",
                     "con andamento login mese", "con andamento login anno"];
             }
-        } else if (v.tagsinput('items').length == 2) {
+        } else if (v.tagsinput('items').length === 2) {
             if ((v.val().includes('migliori') || v.val().includes('atleti con')) && v.val().includes('login')) {
                 queries = ["raggruppati per calorie", "raggruppati per età"];
             }
@@ -652,11 +658,10 @@ function getQueryList() {
             if ((v.val().includes('migliori') || v.val().includes('atleti con')) && v.val().includes('raggruppati')) {
                 queries = ["con andamento login settimana", "con andamento login mese", "con andamento login anno"];
             }
-        } else if ((v.tagsinput('items').length == 3)) {
-            $('#inputQuestion').prop('readonly', true);
         } else {
             queries = [];
         }
+
     }
 
     return queries;
@@ -698,5 +703,13 @@ function setData(c, g, l) {
                 orderMode: $('#dropdownMenu1').text().toLowerCase()
             }
         }
+    }
+}
+
+function disableTagsInput() {
+    var value = $('#inputQuestion');
+
+    if (value.val().includes('ordina') || value.tagsinput('items').length >= 3) {
+        $('#tagsInput').prop('readonly', true);
     }
 }
