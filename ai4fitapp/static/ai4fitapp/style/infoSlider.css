@@ -35,10 +35,19 @@
     position: absolute;
     top: 200px;
     left: 220px;
+    cursor: pointer;
+}
+
+#sidebar:hover {
+    color: #d9f8ff;
 }
 
 #sidebar1 {
     position: absolute;
     top: 200px;
     left: 220px;
+}
+
+#sidebar1:hover {
+    color: #0024d8;
 }

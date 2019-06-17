@@ -37,12 +37,6 @@ function drawChart(data) {
         })]);
 
     if (!($('#inputQuestion').val().includes('login'))) {
-        if ($('#inputQuestion').val().includes('raggruppati')) {
-            $('#rowBar').removeClass('w-100');
-        } else {
-            $('#rowBar').addClass('w-100');
-        }
-
         if (!$('#inputQuestion').val().includes('ordina')) {
             $('#barchart').css('height', '480px');
         } else {
@@ -56,7 +50,7 @@ function drawChart(data) {
         if ($('#inputQuestion').val().includes('raggruppati')) {
             $('#barchart').css('height', '200px');
         } else {
-            $('#barchart').css('height', '430px');
+            $('#barchart').css('height', '480px');
         }
     }
 
@@ -91,7 +85,7 @@ function drawChart(data) {
                     if ($('#inputQuestion').val().includes('login')) {
                         return "translate(" + margin.left + ', ' + margin.top + ")"
                     } else {
-                        return "translate(" + margin.left * 2 + ', ' + margin.top + ")"
+                        return "translate(" + (margin.left * 2 + 2) + ', ' + margin.top + ")"
                     }
                 }
             });

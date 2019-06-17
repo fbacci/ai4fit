@@ -41,7 +41,7 @@
 
 <div class="container-fluid bg-white p-3 mt-2" id="mycontainer">
     <div class="row justify-content-center mt-2">
-        <div class="col-md-10">
+        <div class="col-md-10 noPaddingR">
             <div class="form-group noMarginB">
                 <div id="qForm">
                     <input class="form-control typeahead" id="inputQuestion" name="question"
@@ -53,7 +53,7 @@
 
         <div class="col-md">
             <div class="dropdown ml-1 float-right" id="dropDataset">
-                <button class="btn btn-bg dropdown-toggle" type="button" id="dropdownMenu6"
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenu6"
                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Allenamento atleti
                 </button>
@@ -67,7 +67,7 @@
         </div>
     </div>
 
-    <div class="row mx-3 position-relative" id="graphRow">
+    <div class="row mx-1 position-relative" id="graphRow">
         <div class="col-md mh-100" id="barLineCol">
             <div class="row h-100 hidden" id="rowBar">
                 <div class="col-md mh-100 p-3 bordered" id="barchartDiv">
@@ -76,10 +76,10 @@
                             <div class="row">
                                 <div class="col-md-5 mr-3" id="colOrientamento">
                                     <div class="dropdown" id="dropOrientamento">
-                                        <a class="btn btn-bg btn-sm dropdown-toggle" type="button"
+                                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
                                            id="dropdownMenu3"
                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Orizzontale
-                                        </a>
+                                        </button>
                                         <div class="dropdown-menu" id="orientamento"
                                              aria-labelledby="dropdownMenuButton">
                                             <a class="dropdown-item" href="#">Verticale</a>
@@ -90,10 +90,10 @@
 
                                 <div class="col-md-5 hidden" id="colOrdinamento">
                                     <div class="dropdown" id="dropOrdinamento">
-                                        <a class="btn btn-bg btn-sm dropdown-toggle" type="button"
+                                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
                                            id="dropdownMenu1"
                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Decrescente
-                                        </a>
+                                        </button>
                                         <div class="dropdown-menu" id="ordinamento"
                                              aria-labelledby="dropdownMenuButton">
                                             <a class="dropdown-item" href="#">Crescente</a>
@@ -104,13 +104,13 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-5">
                             <div class="row">
-                                <div class="col-md-7 span12 text-right my-auto noPadding" id="barchartText"></div>
+                                <div class="col-md-7 span12 text-right my-auto" id="barchartText"></div>
                                 <div class="col-md hidden noPadding" id="colCriterio">
                                     <div class="dropdown" id="dropCriterio">
-                                        <a class="btn btn-sm dropdown-toggle" type="button" id="dropdownMenu4"
-                                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenu4"
+                                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
                                         <div class="dropdown-menu" id="criterio" aria-labelledby="dropdownMenu4">
                                             <a class="dropdown-item" href="#" id="c1">calorie</a>
                                             <a class="dropdown-item" href="#" id="c2">velocità</a>
@@ -123,7 +123,7 @@
 
                         <div class="col-md">
                             <h4>
-                                <span class="badge btn-bg float-right align-middle text-black-50">
+                                <span class="badge my-badge float-right align-middle text-black-50">
                                     <div class="row">
                                         <div class="col-md noPaddingR pr-1">
                                             <img src="../../static/ai4fitapp/img/barGraph.png" class="imgGraph">
@@ -156,7 +156,7 @@
                         <div class="col-md-6 noPaddingR span12 text-right ml-5 my-auto">Andamento login</div>
                         <div class="col-md">
                             <h4>
-                                <span class="badge btn-bg float-right align-middle text-black-50">
+                                <span class="badge my-badge float-right align-middle text-black-50">
                                     <div class="row">
                                         <div class="col-md noPaddingR pr-1">
                                             <img src="../../static/ai4fitapp/img/lineGraph.png" class="imgGraph">
@@ -214,7 +214,7 @@
                         <div class="col-md-8 span12 text-left">Distribuzione atleti (distinzione per sesso)</div>
                         <div class="col-md-4">
                             <h4>
-                        <span class="badge btn-bg float-right text-black-50">
+                        <span class="badge my-badge float-right text-black-50">
                             <div class="row">
                                 <div class="col-md noPaddingR pr-1">
                                     <img src="../../static/ai4fitapp/img/scatGraph.png" class="imgGraph">
@@ -233,10 +233,10 @@
 
         <div class="col-md-5 mh-100 hidden bordered p-3 ml-2" id="piechartDiv">
             <div class="row mb-3" id="piechartMenu">
-                <div class="col-md-8 span12 text-left">Raggruppamento</div>
-                <div class="col-md-4">
+                <div class="col-md-7 span12 text-right">Raggruppamento</div>
+                <div class="col-md">
                     <h4>
-                        <span class="badge btn-bg float-right text-black-50">
+                        <span class="badge my-badge float-right text-black-50">
                             <div class="row">
                                 <div class="col-md noPaddingR pr-1">
                                     <img src="../../static/ai4fitapp/img/pieGraph.png" class="imgGraph">

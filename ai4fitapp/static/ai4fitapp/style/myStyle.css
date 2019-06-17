@@ -19,7 +19,7 @@ h2 {
     height: 98%;
     width: 90%;
     margin-top: 5px;
-    border-radius: 25px;
+    border-radius: 15px;
 }
 
 #graphRow{
@@ -87,12 +87,8 @@ w-90{
     height: 15px;
 }
 
-.btn-bg{
-    background-color: #d6d6d6;
-}
-
-#numres {
-    color: forestgreen;
+.my-badge{
+    border: 1px solid gray;
 }
 
 #text-container {
@@ -106,7 +102,7 @@ w-90{
     text-decoration: none;
     position: absolute;
     top: 6px;
-    right: 30px;
+    right: 15px;
     transition: right 0.2s;
 }
 

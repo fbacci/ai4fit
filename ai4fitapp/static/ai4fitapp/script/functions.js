@@ -41,8 +41,8 @@ $(document).ready(function () {
         $('#inputQuestion').tagsinput('focus');
         disableTagsInput();
 
-        $('a#dropdownMenu1').text('Decrescente');
-        $('a#dropdownMenu3').text('Orizzontale');
+        $('#dropdownMenu1').text('Decrescente');
+        $('#dropdownMenu3').text('Orizzontale');
         reset();
         setValue($('#inputQuestion').val());
     });
@@ -63,8 +63,8 @@ $(document).ready(function () {
                 manageDrop();
                 setDatePicker();
 
-                $('a#dropdownMenu1').text(orient.charAt(0).toUpperCase().concat(orient.substr(1, orient.length)));
-                $('a#dropdownMenu3').text(ord.charAt(0).toUpperCase().concat(ord.substr(1, orient.length)));
+                $('#dropdownMenu1').text(orient.charAt(0).toUpperCase().concat(orient.substr(1, orient.length)));
+                $('#dropdownMenu3').text(ord.charAt(0).toUpperCase().concat(ord.substr(1, orient.length)));
 
                 $('#d1').val('');
                 $('#d2').val('');
@@ -82,20 +82,20 @@ $(document).ready(function () {
                 manageDrop();
                 setDatePicker();
 
-                $('a#dropdownMenu1').text(orient.charAt(0).toUpperCase().concat(orient.substr(1, orient.length)));
-                $('a#dropdownMenu3').text(ord.charAt(0).toUpperCase().concat(ord.substr(1, orient.length)));
+                $('#dropdownMenu1').text(orient.charAt(0).toUpperCase().concat(orient.substr(1, orient.length)));
+                $('#dropdownMenu3').text(ord.charAt(0).toUpperCase().concat(ord.substr(1, orient.length)));
 
                 $('#d1').val('');
                 $('#d2').val('');
 
-                $('a#dropdownLogin').text('');
+                $('#dropdownLogin').text('');
             }
         } else {
             if (event.item.includes('migliori') || event.item.includes('ordina') || event.item.includes('atleti con')) {
-                $('a#dropdownMenu1').text('Decrescente');
-                $('a#dropdownMenu3').text('Orizzontale');
-                $('a#dropdownMenu4').text('');
-                $('a#dropdownLogin').text('');
+                $('#dropdownMenu1').text('Decrescente');
+                $('#dropdownMenu3').text('Orizzontale');
+                $('#dropdownMenu4').text('');
+                $('#dropdownLogin').text('');
             }
         }
 
@@ -156,20 +156,20 @@ function setValue(value) {
     if (value === '') {
         $('#d1').val('');
         $('#d2').val('');
-        $('a#dropdownMenu4').text('');
+        $('#dropdownMenu4').text('');
     }
 
     if (value.includes('migliori')) {
         var currentMode = $('#dropdownMenu4').text();
 
         if (currentMode === 'calorie') {
-            $('a#dropdownMenu4').text('calorie');
+            $('#dropdownMenu4').text('calorie');
             $('#curCriterio').text('calorie')
         } else if (currentMode === 'velocità') {
-            $('a#dropdownMenu4').text('velocità');
+            $('#dropdownMenu4').text('velocità');
             $('#curCriterio').text('velocità')
         } else {
-            $('a#dropdownMenu4').text('voto');
+            $('#dropdownMenu4').text('voto');
             $('#curCriterio').text('voto')
         }
     }
@@ -380,7 +380,6 @@ function createRangeList(min, max, step) {
 function reset() {
     $('#rowBar').addClass('hidden');
     $('#rowBar').addClass('h-100');
-    $('#rowBar').addClass('w-100');
     $('#rowBar').removeClass('h-55');
 
     $('#piechartDiv').addClass('hidden');
