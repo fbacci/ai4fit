@@ -572,7 +572,7 @@ $(document).ready(function () {
                     d3.select("#barchartV").select("#svgBarVer").remove();
                     d3.select("#asseX").select("#xAxis").remove();
 
-                    if ($('#inputQuestion').val().includes('ordina') && $('#dropdownMenu4').text() === 'voto') {
+                    if ($('#inputQuestion').val().includes('ordina') && $('#curCriterio').text() === 'voto') {
                         data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1])
                     }
 

@@ -73,7 +73,7 @@ w-90{
     padding-left: 0px;
 }
 
-.noMargin{
+.noMarginB{
     margin-bottom: 0px;
 }
 
@@ -87,6 +87,10 @@ w-90{
     height: 15px;
 }
 
+.btn-bg{
+    background-color: #d6d6d6;
+}
+
 #numres {
     color: forestgreen;
 }
@@ -98,8 +102,8 @@ w-90{
 }
 
 #clearBtn, #clearBtn:hover {
+    color: darkslategray;
     text-decoration: none;
-    color: dodgerblue;
     position: absolute;
     top: 6px;
     right: 30px;
