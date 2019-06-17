@@ -461,8 +461,6 @@
                             $input.focus();
                         }
                         break;
-                    case 40:
-                        event.preventDefault();
                     default:
                     // ignore
                 }
