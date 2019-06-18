@@ -43,6 +43,7 @@ $(document).ready(function () {
 
         $('#dropdownMenu1').text('Decrescente');
         $('#dropdownMenu3').text('Orizzontale');
+        $('#dropdownMenu7').text('Nessun distinzione');
         reset();
         setValue($('#inputQuestion').val());
     });
@@ -96,6 +97,10 @@ $(document).ready(function () {
                 $('#dropdownMenu3').text('Orizzontale');
                 $('#dropdownMenu4').text('');
                 $('#dropdownLogin').text('');
+            }
+
+            if(event.item.includes('distribuzione')){
+                $('#dropdownMenu7').text('Nessuna distinzione');
             }
         }
 
@@ -262,8 +267,8 @@ function getDatasetInfo(data) {
 
     $('#eta').text(txtE.concat(minE.toString().concat(" - ").concat(maxE.toString())));
     $('#bpm').text(txtB.concat(minB.toString().concat(" - ").concat(maxB.toString())));
-    $('#velocita').text(txtS.concat(minS.toString().concat(" - ").concat(maxS.toString())));
-    $('#calorie').text(txtC.concat(minC.toString().concat(" - ").concat(maxC.toString())));
+    $('#velocita').text(txtS.concat(minS.toString().concat(" - ").concat(maxS.toString())).concat(' (m/s)'));
+    $('#calorie').text(txtC.concat(minC.toString().concat(" - ").concat(maxC.toString())).concat(' (kCal)'));
     $('#voto').text(txtM.concat(minM.toString().concat(" - ").concat(maxM.toString())));
 }
 

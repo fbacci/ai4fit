@@ -62,5 +62,10 @@
 
 .bootstrap-tagsinput .tag [data-role="remove"]:after {
     content: "x";
+    font-size: 9pt;
+    font-weight: bold;
     padding-right: 4px;
+    position: relative;
+    top: -8px;
+    right: -2px;
 }

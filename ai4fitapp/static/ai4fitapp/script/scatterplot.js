@@ -4,9 +4,7 @@ function drawScatterPlot(data) {
 
     var w = $('#scatterDiv').width(), height = $('#scatterDiv').height();
 
-//scale function
     var xScale = d3.scaleLinear()
-    //.domain(["Alabama","Alaska","Arizona","Arkansas","California"])
         .domain([0, d3.max(data, function (d) {
             return d.orderField;
         })])
@@ -22,7 +20,6 @@ function drawScatterPlot(data) {
 
     var yAxis = d3.axisLeft().scale(yScale).ticks(5);
 
-//create svg element
     var svg = d3.select("#scatter")
         .append("svg")
         .attr('id', 'svgScat')
@@ -41,20 +38,22 @@ function drawScatterPlot(data) {
         .attr("r", 5)
         .attr("opacity", 0.7)
         .attr("fill", function (d) {
-            if (d.user_gender === 'M') {
-                return 'dodgerblue';
+            if ($('#dropdownMenu7').text() === 'Distinzione per sesso') {
+                if (d.user_gender === 'M') {
+                    return 'dodgerblue';
+                } else {
+                    return 'red';
+                }
             } else {
-                return 'red';
+                return 'blue';
             }
         });
 
-//x axis
     svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + (h - padding) + ")")
         .call(xAxis);
 
-//y axis
     svg.append("g")
         .attr("class", "y axis")
         .attr("transform", "translate(" + padding + ", 0)")
@@ -64,7 +63,7 @@ function drawScatterPlot(data) {
         .attr("transform", "rotate(-90)")
         .attr("y", 0)
         .attr("x", function () {
-            if($('#inputQuestion').val().includes('età')){
+            if ($('#inputQuestion').val().includes('età')) {
                 return -150
             } else {
                 return -250;
@@ -75,7 +74,7 @@ function drawScatterPlot(data) {
 
     svg.append("text")
         .attr("y", $('#scatterDiv').height() - 100)
-        .attr("x", $('#scatterDiv').height()*2.15)
+        .attr("x", $('#scatterDiv').height() * 2.15)
         .style("font-size", "17px")
         .text("Calorie");
 
@@ -84,9 +83,37 @@ function drawScatterPlot(data) {
 }
 
 function setAxisTextScatt() {
-    if($('#inputQuestion').val().includes('età')){
+    if ($('#inputQuestion').val().includes('età')) {
         return 'Età';
-    } else if($('#inputQuestion').val().includes('durata')){
+    } else if ($('#inputQuestion').val().includes('durata')) {
         return 'Durata allenamento in ore'
     }
 }
+
+$(document).ready(function () {
+    document.addEventListener('setListenerDropdown', () => {
+        $('#distinzione').on('click', function () {
+            $.ajax({
+                url: '',
+                type: 'POST',
+                data: {question: $('#inputQuestion').val()},
+                success: function (data) {
+                    data = JSON.parse(data);
+                    d3.select("#scatter").select("#svgScat").remove();
+
+                    setNumRes($('#inputQuestion').val(), data);
+                    if ($('#inputQuestion').val().includes('età')) {
+                        var sndParam = 'età'
+                    } else {
+                        var sndParam = 'durata allenamento'
+                    }
+                    $('#scatterText').text('Correlazione calorie - ' + sndParam + ' (distinzione per sesso)');
+                    drawScatterPlot(data);
+                },
+                error: function () {
+                    console.log('errore scatter distinzione')
+                }
+            })
+        });
+    })
+});

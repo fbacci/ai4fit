@@ -1,4 +1,4 @@
-function drawPieChart(percent) {
+function drawPieChart(percent, dataAtleti) {
     var width = 500, height = 447, margin = 40;
     var legendRectSize = 18, legendSpacing = 4;
 
@@ -43,6 +43,16 @@ function drawPieChart(percent) {
     var arcGenerator = d3.arc()
         .innerRadius(0)
         .outerRadius(radius);
+
+    var vectorColor = [];
+
+    for (var i = 0; i < data_ready.length; i++) {
+        var min = data_ready[i].data.key.substr(0, (data_ready[i].data.key.indexOf('-')) - 1);
+        var max = data_ready[i].data.key.substr(((data_ready[i].data.key.indexOf('-')) + 2),
+            (data_ready[i].data.key.length - 1));
+        vectorColor[i] = [min, max, color(data_ready[i].data.key)];
+    }
+
 
 // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
     svg
@@ -100,6 +110,19 @@ function drawPieChart(percent) {
         })
         .style("font-size", "10pt");
 
+    /*d3.selectAll(".bar")
+        .on("mouseover", function () {
+            d3.select(this).style('fill', function () {
+                for (var i = 0; i < vectorColor.length; i++) {
+                    if (this.__data__.groupField > vectorColor[i][0] && this.__data__.groupField < vectorColor[i][1]) {
+                        return vectorColor[i][2];
+                    }
+                }
+            });
+        })
+        .on("mouseout", function () {
+            d3.select(this).style('fill', 'dodgerblue')
+        });*/
 }
 
 $(document).ready(function () {
@@ -142,3 +165,7 @@ $(document).ready(function () {
         });
     });
 });
+
+function getDataReady(dataReady) {
+    return dataReady;
+}

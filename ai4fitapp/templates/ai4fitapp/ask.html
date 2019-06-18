@@ -19,8 +19,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="https://unpkg.com/d3-simple-slider@1.5.1/dist/d3-simple-slider.min.js"></script>
-    <script src="https://rawgit.com/icebob/fakerator/master/dist/fakerator.js"></script>
-    <script src="https://rawgit.com/twitter/typeahead.js/master/dist/bloodhound.min.js"></script>
 
     <script type="text/javascript" src="../../static/ai4fitapp/script/d3.v5.js"></script>
     <script type="text/javascript" src="../../static/ai4fitapp/script/moment.js"></script>
@@ -77,8 +75,9 @@
                                 <div class="col-md-5 mr-3" id="colOrientamento">
                                     <div class="dropdown" id="dropOrientamento">
                                         <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
-                                           id="dropdownMenu3"
-                                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Orizzontale
+                                                id="dropdownMenu3"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Orizzontale
                                         </button>
                                         <div class="dropdown-menu" id="orientamento"
                                              aria-labelledby="dropdownMenuButton">
@@ -88,11 +87,12 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-5 hidden" id="colOrdinamento">
+                                <div class="col-md-5 hidden ml-3" id="colOrdinamento">
                                     <div class="dropdown" id="dropOrdinamento">
                                         <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
-                                           id="dropdownMenu1"
-                                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Decrescente
+                                                id="dropdownMenu1"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Decrescente
                                         </button>
                                         <div class="dropdown-menu" id="ordinamento"
                                              aria-labelledby="dropdownMenuButton">
@@ -109,8 +109,10 @@
                                 <div class="col-md-7 span12 text-right my-auto" id="barchartText"></div>
                                 <div class="col-md hidden noPadding" id="colCriterio">
                                     <div class="dropdown" id="dropCriterio">
-                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenu4"
-                                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                                id="dropdownMenu4"
+                                                data-toggle="dropdown" aria-haspopup="true"
+                                                aria-expanded="false"></button>
                                         <div class="dropdown-menu" id="criterio" aria-labelledby="dropdownMenu4">
                                             <a class="dropdown-item" href="#" id="c1">calorie</a>
                                             <a class="dropdown-item" href="#" id="c2">velocità</a>
@@ -211,8 +213,22 @@
             <div class="row h-100 hidden" id="rowScatter">
                 <div class="col-md p-3 bordered mh-100" id="scatterDiv">
                     <div class="row mb-3" id="scatterMenu">
-                        <div class="col-md-8 span12 text-left">Distribuzione atleti (distinzione per sesso)</div>
-                        <div class="col-md-4">
+                        <div class="col-md-3" id="colDistinzione">
+                            <div class="dropdown" id="dropDistinzione">
+                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                        id="dropdownMenu7"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Nessuna distinzione
+                                </button>
+                                <div class="dropdown-menu" id="distinzione"
+                                     aria-labelledby="dropdownMenu7">
+                                    <a class="dropdown-item" href="#">Distinzione per sesso</a>
+                                    <a class="dropdown-item" href="#">Nessuna distinzione</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 span12 text-center" id="scatterText"></div>
+                        <div class="col-md">
                             <h4>
                         <span class="badge my-badge float-right text-black-50">
                             <div class="row">
@@ -226,14 +242,13 @@
                         </div>
                     </div>
                     <div id="scatter" class="mt-5"></div>
-                    <div id="legendScat"></div>
                 </div>
             </div>
         </div>
 
         <div class="col-md-5 mh-100 hidden bordered p-3 ml-2" id="piechartDiv">
             <div class="row mb-3" id="piechartMenu">
-                <div class="col-md-7 span12 text-right">Raggruppamento</div>
+                <div class="col-md-7 span12 text-right" id="pieText"></div>
                 <div class="col-md">
                     <h4>
                         <span class="badge my-badge float-right text-black-50">
@@ -263,12 +278,12 @@
 
             <div class="mt-5">
                 <ul class="list-group">
-                    <li class="list-group-item" id="persone">Atleti: </li>
-                    <li class="list-group-item" id="eta">Età: </li>
-                    <li class="list-group-item" id="calorie">Calorie: </li>
-                    <li class="list-group-item" id="velocita">Velocità: </li>
-                    <li class="list-group-item" id="bpm">Bpm: </li>
-                    <li class="list-group-item" id="voto">Voto: </li>
+                    <li class="list-group-item" id="persone">Atleti:</li>
+                    <li class="list-group-item" id="eta">Età:</li>
+                    <li class="list-group-item" id="calorie">Calorie:</li>
+                    <li class="list-group-item" id="velocita">Velocità:</li>
+                    <li class="list-group-item" id="bpm">Bpm:</li>
+                    <li class="list-group-item" id="voto">Voto:</li>
                 </ul>
             </div>
         </div>

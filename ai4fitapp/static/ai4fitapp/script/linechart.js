@@ -7,7 +7,7 @@ function drawLineChart(data) {
     if ($('#inputQuestion').val().includes('login') && ($('#inputQuestion').val().includes('atleti con')
         || $('#inputQuestion').val().includes('migliori')) && $('#inputQuestion').val().includes('raggruppati')) {
         height = 250;
-        $('#linechart').addClass('pt-3');
+        $('#linechart').addClass('pt-2');
     } else {
         if ($('#inputQuestion').val().includes('atleti con') || $('#inputQuestion').val().includes('migliori')) {
             height = 510;
@@ -22,7 +22,7 @@ function drawLineChart(data) {
             }
         }
 
-        $('#linechart').removeClass('pt-3');
+        $('#linechart').removeClass('pt-2');
     }
 
     var margin = {

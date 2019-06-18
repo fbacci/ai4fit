@@ -119,7 +119,7 @@ function drawChart(data) {
                 }
             }
         })
-        .text("Nome atleta");
+        .text("Codice atleta");
 
     d3.select("#asseX").append('svg')
         .attr('id', 'xAxis')
@@ -154,7 +154,7 @@ function drawChart(data) {
 
     d3.select('#asseX').select('svg')
         .append("text")
-        .attr("y", 35)
+        .attr("y", 38)
         .attr("x", function () {
             if ($('#piechartDiv').hasClass('hidden')) {
                 if ($('#inputQuestion').val().includes('login')) {
@@ -208,19 +208,18 @@ function populateBar(list, svgVar, newx, newy) {
             }
         })
         .on("mouseover", function (d) {
-            d3.selectAll('.tooltip').transition()
-                .duration(200)
-                .style("opacity", .9);
-            d3.selectAll('.tooltip').html(function () {
-                if ($('#inputQuestion').val().includes('raggruppati')) {
-                    return d.item_user_id + ' - ' + d.orderField + "<br/>" + d.groupField
-                } else {
-                    return d.item_user_id + "<br/>" + d.orderField
-                }
-            })
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
-
+                d3.selectAll('.tooltip').transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                d3.selectAll('.tooltip').html(function () {
+                    if ($('#inputQuestion').val().includes('migliori')) {
+                        return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#dropdownMenu4').text() + ": </b>" + d.orderField
+                    } else {
+                        return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#curCriterio').text() + ": </b>" + d.orderField
+                    }
+                })
+                    .style("left", (d3.event.pageX) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px");
         })
         .on("mouseout", function (d) {
             d3.selectAll('.tooltip').transition()
@@ -252,7 +251,7 @@ function drawVerChart(data) {
     if (data.length > 20) {
         $('#barchartV').css('overflow-x', 'scroll');
     } else {
-        if($('#inputQuestion').val().includes('login') && data.length > 5){
+        if ($('#inputQuestion').val().includes('login') && data.length > 5) {
             $('#barchartV').css('overflow-x', 'scroll');
         } else $('#barchartV').css('overflow-x', 'hidden');
     }
@@ -395,7 +394,13 @@ function populateVerBar(list, svgVar, newx, newy, height) {
             d3.selectAll('.tooltip').transition()
                 .duration(200)
                 .style("opacity", .9);
-            d3.selectAll('.tooltip').html(d.item_user_id + "<br/>" + d.orderField)
+            d3.selectAll('.tooltip').html(function () {
+                if ($('#inputQuestion').val().includes('migliori')) {
+                    return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#dropdownMenu4').text() + ": </b>" + d.orderField
+                } else {
+                    return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#curCriterio').text() + ": </b>" + d.orderField
+                }
+            })
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
 
@@ -465,7 +470,7 @@ $(document).ready(function () {
                     d3.select("#asseX").select("#xAxis").remove();
                     data = getNewList(data, sliderRange.value()[0], sliderRange.value()[1]);
 
-                    setNumRes($('#inputQuestion').val(), data)
+                    setNumRes($('#inputQuestion').val(), data);
 
                     if ($('#dropdownMenu3').text().includes('Orizzontale')) {
                         drawChart(data);

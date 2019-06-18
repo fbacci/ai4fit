@@ -43,7 +43,8 @@ function drawCharts(value, data, clone) {
             drawChart(data.slice(0, data.length - 1));
 
             var perc = getPercList(data.slice(0, data.length - 1), value);
-            drawPieChart(perc);
+            $('#pieText').text('Distribuzione ' + $('#curGroup').text() + ' atleti');
+            drawPieChart(perc, data);
 
             drawLineChart(data[data.length - 1]);
 
@@ -110,7 +111,8 @@ function drawCharts(value, data, clone) {
 
             $('#piechartDiv').removeClass('hidden');
             var perc = getPercList(data.slice(0, data.length - 1), value);
-            drawPieChart(perc)
+            $('#pieText').text('Distribuzione ' + $('#curGroup').text() + ' atleti');
+            drawPieChart(perc, data)
         } else {
             if (value.includes('login')) {
                 $('#linechartDiv').removeClass('mymargintop');
@@ -192,7 +194,8 @@ function drawCharts(value, data, clone) {
                         drawVerChart(data)
                     }
 
-                    drawPieChart(perc);
+                    $('#pieText').text('Distribuzione ' + $('#curGroup').text() + ' atleti');
+                    drawPieChart(perc, data);
                 } else {
                     if (currentOrient.includes('Orizzontale'))
                         drawChart(data);
@@ -202,6 +205,12 @@ function drawCharts(value, data, clone) {
 
             if (value.includes('distribuzione')) {
                 $('#rowScatter').removeClass('hidden');
+                if($('#inputQuestion').val().includes('età')){
+                    var sndParam = 'età'
+                } else {
+                    var sndParam = 'durata allenamento'
+                }
+                $('#scatterText').text('Correlazione calorie - ' + sndParam);
                 drawScatterPlot(data);
             }
         }
