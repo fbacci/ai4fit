@@ -47,9 +47,9 @@ function drawPieChart(percent, dataAtleti) {
     var vectorColor = [];
 
     for (var i = 0; i < data_ready.length; i++) {
-        var min = data_ready[i].data.key.substr(0, (data_ready[i].data.key.indexOf('-')) - 1);
-        var max = data_ready[i].data.key.substr(((data_ready[i].data.key.indexOf('-')) + 2),
-            (data_ready[i].data.key.length - 1));
+        var min = parseInt(data_ready[i].data.key.substr(0, (data_ready[i].data.key.indexOf('-')) - 1));
+        var max = parseInt(data_ready[i].data.key.substr(((data_ready[i].data.key.indexOf('-')) + 2),
+            (data_ready[i].data.key.length - 1)));
         vectorColor[i] = [min, max, color(data_ready[i].data.key)];
     }
 
@@ -110,19 +110,40 @@ function drawPieChart(percent, dataAtleti) {
         })
         .style("font-size", "10pt");
 
-    /*d3.selectAll(".bar")
-        .on("mouseover", function () {
+    d3.select("#svgBar").data(dataAtleti).enter().selectAll('.bar')
+        .on("mouseover", function (d) {
             d3.select(this).style('fill', function () {
                 for (var i = 0; i < vectorColor.length; i++) {
-                    if (this.__data__.groupField > vectorColor[i][0] && this.__data__.groupField < vectorColor[i][1]) {
+                    if (this.__data__.groupField > (vectorColor[i][0]-1) && this.__data__.groupField < (vectorColor[i][1]+1)) {
                         return vectorColor[i][2];
                     }
                 }
             });
+
+            d3.selectAll('.tooltip').transition()
+                .duration(200)
+                .style("opacity", .9);
+            d3.selectAll('.tooltip').html(function () {
+                if ($('#inputQuestion').val().includes('migliori')) {
+                    return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#dropdownMenu4').text() + ": </b>" + d.orderField
+                } else {
+                    if ($('#inputQuestion').val().includes('atleti con')) {
+                        return "<b>id: </b>" + d.item_user_id + "<br/><b>" + setOrderField($('#inputQuestion').val()) + ": </b>" + d.orderField
+                    } else {
+                        return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#curCriterio').text() + ": </b>" + d.orderField
+                    }
+                }
+            })
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
         })
         .on("mouseout", function () {
             d3.select(this).style('fill', 'dodgerblue')
-        });*/
+            d3.selectAll('.tooltip').transition()
+                .duration(500)
+                .style("opacity", 0);
+            d3.select(this).attr("class", "bar");
+        });
 }
 
 $(document).ready(function () {

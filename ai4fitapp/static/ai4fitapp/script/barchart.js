@@ -208,18 +208,22 @@ function populateBar(list, svgVar, newx, newy) {
             }
         })
         .on("mouseover", function (d) {
-                d3.selectAll('.tooltip').transition()
-                    .duration(200)
-                    .style("opacity", .9);
-                d3.selectAll('.tooltip').html(function () {
-                    if ($('#inputQuestion').val().includes('migliori')) {
-                        return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#dropdownMenu4').text() + ": </b>" + d.orderField
+            d3.selectAll('.tooltip').transition()
+                .duration(200)
+                .style("opacity", .9);
+            d3.selectAll('.tooltip').html(function () {
+                if ($('#inputQuestion').val().includes('migliori')) {
+                    return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#dropdownMenu4').text() + ": </b>" + d.orderField
+                } else {
+                    if ($('#inputQuestion').val().includes('atleti con')) {
+                        return "<b>id: </b>" + d.item_user_id + "<br/><b>" + setOrderField($('#inputQuestion').val()) + ": </b>" + d.orderField
                     } else {
                         return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#curCriterio').text() + ": </b>" + d.orderField
                     }
-                })
-                    .style("left", (d3.event.pageX) + "px")
-                    .style("top", (d3.event.pageY - 28) + "px");
+                }
+            })
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
         })
         .on("mouseout", function (d) {
             d3.selectAll('.tooltip').transition()
@@ -398,7 +402,11 @@ function populateVerBar(list, svgVar, newx, newy, height) {
                 if ($('#inputQuestion').val().includes('migliori')) {
                     return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#dropdownMenu4').text() + ": </b>" + d.orderField
                 } else {
-                    return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#curCriterio').text() + ": </b>" + d.orderField
+                    if ($('#inputQuestion').val().includes('atleti con')) {
+                        return "<b>id: </b>" + d.item_user_id + "<br/><b>" + setOrderField($('#inputQuestion').val()) + ": </b>" + d.orderField
+                    } else {
+                        return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#curCriterio').text() + ": </b>" + d.orderField
+                    }
                 }
             })
                 .style("left", (d3.event.pageX) + "px")
@@ -531,15 +539,38 @@ $(document).ready(function () {
                         $('#dropdownMenu3').text('Orizzontale');
                     }
 
-                    //// PROBLEMA QUERY GRANDE
                     if ($('#dropdownMenu3').text().includes('Orizzontale')) {
                         if ($('#inputQuestion').val().includes('login')) {
                             drawChart(data.slice(0, data.length - 1));
-                        } else drawChart(data)
+                            if ($('#inputQuestion').val().includes('raggruppati')) {
+                                d3.select("#piechartDiv").select("#svgPie").remove();
+                                $('#pieText').text('Distribuzione ' + $('#curGroup').text() + ' atleti');
+                                drawPieChart(getPercList(data.slice(0, data.length - 1), $('#inputQuestion').val()), data);
+                            }
+                        } else {
+                            drawChart(data);
+                            if ($('#inputQuestion').val().includes('raggruppati')) {
+                                d3.select("#piechartDiv").select("#svgPie").remove();
+                                $('#pieText').text('Distribuzione ' + $('#curGroup').text() + ' atleti');
+                                drawPieChart(getPercList(data, $('#inputQuestion').val()), data);
+                            }
+                        }
                     } else {
                         if ($('#inputQuestion').val().includes('login')) {
                             drawVerChart(data.slice(0, data.length - 1));
-                        } else drawVerChart(data)
+                            if ($('#inputQuestion').val().includes('raggruppati')) {
+                                d3.select("#piechartDiv").select("#svgPie").remove();
+                                $('#pieText').text('Distribuzione ' + $('#curGroup').text() + ' atleti');
+                                drawPieChart(getPercList(data.slice(0, data.length - 1), $('#inputQuestion').val()), data);
+                            }
+                        } else {
+                            drawVerChart(data);
+                            if ($('#inputQuestion').val().includes('raggruppati')) {
+                                d3.select("#piechartDiv").select("#svgPie").remove();
+                                $('#pieText').text('Distribuzione ' + $('#curGroup').text() + ' atleti');
+                                drawPieChart(getPercList(data, $('#inputQuestion').val()), data);
+                            }
+                        }
                     }
 
                 },
@@ -580,11 +611,25 @@ $(document).ready(function () {
                     if ($('#dropdownMenu3').text().includes('Orizzontale')) {
                         if ($('#inputQuestion').val().includes('login')) {
                             drawChart(data.slice(0, data.length - 1));
-                        } else drawChart(data)
+                        } else {
+                            drawChart(data);
+                            if ($('#inputQuestion').val().includes('raggruppati')) {
+                                d3.select("#piechartDiv").select("#svgPie").remove();
+                                $('#pieText').text('Distribuzione ' + $('#curGroup').text() + ' atleti');
+                                drawPieChart(getPercList(data, $('#inputQuestion').val()), data);
+                            }
+                        }
                     } else {
                         if ($('#inputQuestion').val().includes('login')) {
                             drawVerChart(data.slice(0, data.length - 1));
-                        } else drawVerChart(data)
+                        } else {
+                            drawVerChart(data);
+                            if ($('#inputQuestion').val().includes('raggruppati')) {
+                                d3.select("#piechartDiv").select("#svgPie").remove();
+                                $('#pieText').text('Distribuzione ' + $('#curGroup').text() + ' atleti');
+                                drawPieChart(getPercList(data, $('#inputQuestion').val()), data);
+                            }
+                        }
                     }
                 },
                 error: function () {
@@ -628,11 +673,35 @@ $(document).ready(function () {
                     if ($('#dropdownMenu3').text().includes('Orizzontale')) {
                         if ($('#inputQuestion').val().includes('login')) {
                             drawChart(data.slice(0, data.length - 1));
-                        } else drawChart(data)
+                            if ($('#inputQuestion').val().includes('raggruppati')) {
+                                d3.select("#piechartDiv").select("#svgPie").remove();
+                                $('#pieText').text('Distribuzione ' + $('#curGroup').text() + ' atleti');
+                                drawPieChart(getPercList(data.slice(0, data.length - 1), $('#inputQuestion').val()), data);
+                            }
+                        } else {
+                            drawChart(data);
+                            if ($('#inputQuestion').val().includes('raggruppati')) {
+                                d3.select("#piechartDiv").select("#svgPie").remove();
+                                $('#pieText').text('Distribuzione ' + $('#curGroup').text() + ' atleti');
+                                drawPieChart(getPercList(data, $('#inputQuestion').val()), data);
+                            }
+                        }
                     } else {
                         if ($('#inputQuestion').val().includes('login')) {
                             drawVerChart(data.slice(0, data.length - 1));
-                        } else drawVerChart(data)
+                            if ($('#inputQuestion').val().includes('raggruppati')) {
+                                d3.select("#piechartDiv").select("#svgPie").remove();
+                                $('#pieText').text('Distribuzione ' + $('#curGroup').text() + ' atleti');
+                                drawPieChart(getPercList(data.slice(0, data.length - 1), $('#inputQuestion').val()), data);
+                            }
+                        } else {
+                            drawVerChart(data);
+                            if ($('#inputQuestion').val().includes('raggruppati')) {
+                                d3.select("#piechartDiv").select("#svgPie").remove();
+                                $('#pieText').text('Distribuzione ' + $('#curGroup').text() + ' atleti');
+                                drawPieChart(getPercList(data, $('#inputQuestion').val()), data);
+                            }
+                        }
                     }
                 },
                 error: function () {

@@ -82,9 +82,10 @@ $(document).ready(function () {
                 document.dispatchEvent(new Event("setListenerSlider"));
                 manageDrop();
                 setDatePicker();
-
+                console.log(ord)
                 $('#dropdownMenu1').text(orient.charAt(0).toUpperCase().concat(orient.substr(1, orient.length)));
-                $('#dropdownMenu3').text(ord.charAt(0).toUpperCase().concat(ord.substr(1, orient.length)));
+                $('#dropdownMenu3').text(ord.charAt(0).toUpperCase().concat(ord.substr(1, ord.length)));
+                console.log($('#dropdownMenu3').text());
 
                 $('#d1').val('');
                 $('#d2').val('');
@@ -99,7 +100,7 @@ $(document).ready(function () {
                 $('#dropdownLogin').text('');
             }
 
-            if(event.item.includes('distribuzione')){
+            if (event.item.includes('distribuzione')) {
                 $('#dropdownMenu7').text('Nessuna distinzione');
             }
         }
@@ -716,4 +717,14 @@ function disableTagsInput() {
     if (value.val().includes('ordina') || value.tagsinput('items').length >= 3) {
         $('#tagsInput').prop('readonly', true);
     }
+}
+
+function setOrderField(v){
+    if(v.includes('età')){
+        return 'età';
+    } else if(v.includes('bpm')){
+        return 'bpm';
+    }
+
+    return '';
 }
