@@ -12,4 +12,3 @@ urlpatterns = [
     path('ask/infodataset', views.infodataset, name='infodataset'),
     path('index/training/', views.training, name='training')
 ]
-

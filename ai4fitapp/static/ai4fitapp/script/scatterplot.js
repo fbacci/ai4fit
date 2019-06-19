@@ -107,7 +107,7 @@ $(document).ready(function () {
                     } else {
                         var sndParam = 'durata allenamento'
                     }
-                    $('#scatterText').text('Correlazione calorie - ' + sndParam + ' (distinzione per sesso)');
+                    $('#scatterText').text('Correlazione calorie - ' + sndParam);
                     drawScatterPlot(data);
                 },
                 error: function () {
