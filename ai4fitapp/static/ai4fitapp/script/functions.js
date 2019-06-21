@@ -1,3 +1,4 @@
+fakerator = new Fakerator(['it-IT']);
 $(document).ready(function () {
     var barLineColCnt = $('#barLineCol').html();
 
@@ -82,10 +83,8 @@ $(document).ready(function () {
                 document.dispatchEvent(new Event("setListenerSlider"));
                 manageDrop();
                 setDatePicker();
-                console.log(ord)
                 $('#dropdownMenu1').text(orient.charAt(0).toUpperCase().concat(orient.substr(1, orient.length)));
                 $('#dropdownMenu3').text(ord.charAt(0).toUpperCase().concat(ord.substr(1, ord.length)));
-                console.log($('#dropdownMenu3').text());
 
                 $('#d1').val('');
                 $('#d2').val('');
@@ -692,7 +691,6 @@ function setData(c, g, l) {
         }
     } else {
         if ($('#inputQuestion').val().includes('login')) {
-            console.log($('#curLogin').text());
             return {
                 question: $('#inputQuestion').val(),
                 criterio: $('#dropdownMenu4').text(),

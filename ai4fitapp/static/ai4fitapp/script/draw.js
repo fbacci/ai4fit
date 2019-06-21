@@ -1,6 +1,6 @@
 function drawCharts(value, data, clone) {
     setValue(value);
-    setNumRes(value, data)
+    setNumRes(value, data);
 
     var currentOrient = $('#dropdownMenu3').text();
 

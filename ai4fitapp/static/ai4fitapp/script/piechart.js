@@ -125,12 +125,12 @@ function drawPieChart(percent, dataAtleti) {
                 .style("opacity", .9);
             d3.selectAll('.tooltip').html(function () {
                 if ($('#inputQuestion').val().includes('migliori')) {
-                    return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#dropdownMenu4').text() + ": </b>" + d.orderField
+                    return "<b>Nome: </b>" + fakerator.names.name() + "<br/><b>" + $('#dropdownMenu4').text() + ": </b>" + d.orderField
                 } else {
                     if ($('#inputQuestion').val().includes('atleti con')) {
-                        return "<b>id: </b>" + d.item_user_id + "<br/><b>" + setOrderField($('#inputQuestion').val()) + ": </b>" + d.orderField
+                        return "<b>Nome: </b>" + fakerator.names.name(); + "<br/><b>" + setOrderField($('#inputQuestion').val()) + ": </b>" + d.orderField
                     } else {
-                        return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#curCriterio').text() + ": </b>" + d.orderField
+                        return "<b>Nome: </b>" + fakerator.names.name(); + "<br/><b>" + $('#curCriterio').text() + ": </b>" + d.orderField
                     }
                 }
             })

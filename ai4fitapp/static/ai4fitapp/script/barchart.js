@@ -126,7 +126,7 @@ function drawChart(data) {
         .attr("viewBox", function () {
             if (!($('#inputQuestion').val().includes('login'))) {
                 if (!($('#inputQuestion').val().includes('raggruppati'))) {
-                    return (-margin.left * 2.55) + ' 0 ' + (wX - 10) + ' ' + hX;
+                    return (-margin.left * 2.58) + ' 0 ' + (wX + 7) + ' ' + hX;
                 } else {
                     return (-margin.left - 52) + ' 0 ' + wX * 1.6 + ' ' + hX;
                 }
@@ -180,6 +180,7 @@ function drawChart(data) {
         })
         .text(setAxisText());
 
+    d3.selectAll('.tooltip').remove();
     var toolt = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0);
@@ -213,12 +214,12 @@ function populateBar(list, svgVar, newx, newy) {
                 .style("opacity", .9);
             d3.selectAll('.tooltip').html(function () {
                 if ($('#inputQuestion').val().includes('migliori')) {
-                    return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#dropdownMenu4').text() + ": </b>" + d.orderField
+                    return "<b>Nome: </b>" + fakerator.names.name() + "<br/><b>" + $('#dropdownMenu4').text() + ": </b>" + d.orderField
                 } else {
                     if ($('#inputQuestion').val().includes('atleti con')) {
-                        return "<b>id: </b>" + d.item_user_id + "<br/><b>" + setOrderField($('#inputQuestion').val()) + ": </b>" + d.orderField
+                        return "<b>Nome: </b>" + fakerator.names.name(); + "<br/><b>" + setOrderField($('#inputQuestion').val()) + ": </b>" + d.orderField
                     } else {
-                        return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#curCriterio').text() + ": </b>" + d.orderField
+                        return "<b>Nome: </b>" + fakerator.names.name(); + "<br/><b>" + $('#curCriterio').text() + ": </b>" + d.orderField
                     }
                 }
             })
@@ -374,6 +375,7 @@ function drawVerChart(data) {
         .style("font-size", "14px")
         .text('Codice Atleta');
 
+    d3.selectAll('.tooltip').remove();
     var toolt = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0);
@@ -400,12 +402,12 @@ function populateVerBar(list, svgVar, newx, newy, height) {
                 .style("opacity", .9);
             d3.selectAll('.tooltip').html(function () {
                 if ($('#inputQuestion').val().includes('migliori')) {
-                    return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#dropdownMenu4').text() + ": </b>" + d.orderField
+                    return "<b>Nome: </b>" + fakerator.names.name() + "<br/><b>" + $('#dropdownMenu4').text() + ": </b>" + d.orderField
                 } else {
                     if ($('#inputQuestion').val().includes('atleti con')) {
-                        return "<b>id: </b>" + d.item_user_id + "<br/><b>" + setOrderField($('#inputQuestion').val()) + ": </b>" + d.orderField
+                        return "<b>Nome: </b>" + fakerator.names.name(); + "<br/><b>" + setOrderField($('#inputQuestion').val()) + ": </b>" + d.orderField
                     } else {
-                        return "<b>id: </b>" + d.item_user_id + "<br/><b>" + $('#curCriterio').text() + ": </b>" + d.orderField
+                        return "<b>Nome: </b>" + fakerator.names.name(); + "<br/><b>" + $('#curCriterio').text() + ": </b>" + d.orderField
                     }
                 }
             })
