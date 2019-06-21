@@ -104,7 +104,7 @@ function drawLineChart(data) {
         .attr('viewBox', function () {
             if ($('#inputQuestion').val().includes('raggruppati')) {
                 if ($('#inputQuestion').val().includes('atleti con') || $('#inputQuestion').val().includes('migliori')) {
-                    return '-40 0 ' + (w + 120) + ' ' + height;
+                    return '-40 0 ' + (w + 130) + ' ' + height;
                 } else {
                     return '-40 0 ' + (w + 200) + ' ' + (height + 200);
                 }

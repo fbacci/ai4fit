@@ -84,6 +84,8 @@ def askInfo(request):
         data = Workout.objects.all()
         results = []
 
+        print(response)
+
         if intent == 'show':
             if 'datetime' in entities and data1 is None and data2 is None:
                 dateList = manageDate(data, question)
