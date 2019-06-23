@@ -383,7 +383,7 @@ $(document).ready(function () {
 function manageDateFormat(d) {
     var i;
 
-    if ($('#curLogin').text() === 'anno' || d.length > 9) {
+    if (d.length > 9) {
         for (i = 0; i < d.length; i++) {
             d[i][0] = d[i][0].substr(d[i][0].length - 7)
         }
