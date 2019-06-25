@@ -199,7 +199,7 @@ function setDatasetInfo() {
 }
 
 function getDatasetInfo(data) {
-    var i, minE = 100, maxE = 0, minS = 1000.0, maxS = 0.0, minB = 300, maxB = 0, minC = 3500, maxC = 0, maxM = 0,
+    var i, minE = 100, maxE = 19, minS = 1000.0, maxS = 0.0, minB = 300, maxB = 0, minC = 3500, maxC = 0, maxM = 0,
         minM = 5;
     var txtP = $('#persone').text(), txtE = $('#eta').text(), txtS = $('#velocita').text(), txtB = $('#bpm').text(),
         txtC = $('#calorie').text(), txtM = $('#voto').text();
@@ -265,7 +265,7 @@ function getDatasetInfo(data) {
         }
     }
 
-    $('#eta').text(txtE.concat(minE.toString().concat(" - ").concat(maxE.toString())));
+    $('#eta').text(txtE.concat("20 - ".concat(maxE.toString())));
     $('#bpm').text(txtB.concat(minB.toString().concat(" - ").concat(maxB.toString())));
     $('#velocita').text(txtS.concat(minS.toString().concat(" - ").concat(maxS.toString())).concat(' (m/s)'));
     $('#calorie').text(txtC.concat(minC.toString().concat(" - ").concat(maxC.toString())).concat(' (kCal)'));

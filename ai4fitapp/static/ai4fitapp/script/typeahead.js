@@ -514,6 +514,24 @@
                     e.preventDefault();
                     break;
 
+                /*case 38: // up arrow
+                    // with the shiftKey (this is actually the left parenthesis)
+                    if (e.shiftKey) {
+                        return;
+                    }
+                    e.preventDefault();
+                    this.prev();
+                    break;
+
+                case 40: // down arrow
+                    // with the shiftKey (this is actually the right parenthesis)
+                    if (e.shiftKey) {
+                        return;
+                    }
+                    e.preventDefault();
+                    this.next();
+                    break;*/
+
                 case 38: // up arrow
                     // with the shiftKey (this is actually the left parenthesis)
                     e.preventDefault();

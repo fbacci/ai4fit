@@ -128,9 +128,9 @@ function drawPieChart(percent, dataAtleti) {
                     return "<b>Nome: </b>" + fakerator.names.name() + "<br/><b>" + $('#dropdownMenu4').text() + ": </b>" + d.orderField
                 } else {
                     if ($('#inputQuestion').val().includes('atleti con')) {
-                        return "<b>Nome: </b>" + fakerator.names.name(); + "<br/><b>" + setOrderField($('#inputQuestion').val()) + ": </b>" + d.orderField
+                        return "<b>Nome: </b>" + fakerator.names.name() + "<br/><b>" + setOrderField($('#inputQuestion').val()) + ": </b>" + d.orderField
                     } else {
-                        return "<b>Nome: </b>" + fakerator.names.name(); + "<br/><b>" + $('#curCriterio').text() + ": </b>" + d.orderField
+                        return "<b>Nome: </b>" + fakerator.names.name() + "<br/><b>" + $('#curCriterio').text() + ": </b>" + d.orderField
                     }
                 }
             })
